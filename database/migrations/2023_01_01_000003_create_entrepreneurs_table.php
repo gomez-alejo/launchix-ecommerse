@@ -13,10 +13,18 @@ return new class extends Migration
     {
         Schema::create('entrepreneurs', function (Blueprint $table) {
             $table->id();
-            $table->string('store_name', 100);
-            $table->text('store_description')->nullable();
-            $table->string('logo_url', 255)->nullable();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->string('first_name');
+            $table->string('last_name');
+            $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->string('phone', 20)->nullable();
+            $table->string('city')->nullable();
+            $table->string('address')->nullable();
+            $table->text('profile_description')->nullable();
+            $table->string('profile_photo')->nullable(); // Ruta de la imagen subida
+            $table->timestamp('registered_at')->useCurrent();
+            $table->rememberToken();
             $table->timestamps();
         });
     }

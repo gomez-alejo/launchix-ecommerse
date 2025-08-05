@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,11 +13,17 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('username')->unique(); // Nuevo campo
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('phone', 20)->nullable();
-             $table->timestamp('registered_at')->useCurrent();
+            $table->date('birthdate')->nullable(); // Nuevo campo
+            $table->string('main_address')->nullable(); // Nuevo campo
+            $table->string('city')->nullable(); // Nuevo campo
+            $table->string('postal_code', 10)->nullable(); // Nuevo campo
+            $table->string('department')->nullable(); // Nuevo campo
+            $table->timestamp('registered_at')->useCurrent();
             $table->rememberToken();
             $table->timestamps();
         });
