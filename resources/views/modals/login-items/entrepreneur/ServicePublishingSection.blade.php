@@ -14,12 +14,17 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">Categoría *</label>
                     <select name="categoria" class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none" required>
                         <option value="">Seleccionar categoría</option>
-                        <option value="consultoria">Consultoría</option>
-                        <option value="reparacion">Reparación</option>
-                        <option value="educacion">Educación</option>
-                        <option value="salud">Salud</option>
-                        <option value="belleza">Belleza</option>
-                        <option value="limpieza">Limpieza</option>
+                        <option value="Tecnología">Tecnología</option>
+                        <option value="Hogar y Jardinería">Hogar y Jardinería</option>
+                        <option value="Automotriz">Automotriz</option>
+                        <option value="Belleza y Cuidado Personal">Belleza y Cuidado Personal</option>
+                        <option value="Educación y Tutorías">Educación y Tutorías</option>
+                        <option value="Salud y Bienestar">Salud y Bienestar</option>
+                        <option value="Eventos y Entretenimiento">Eventos y Entretenimiento</option>
+                        <option value="Construcción y Reformas">Construcción y Reformas</option>
+                        <option value="Transporte y Logística">Transporte y Logística</option>
+                        <option value="Servicios Profesionales">Servicios Profesionales</option>
+                        <option value="Otros">Otros</option>
                     </select>
                 </div>
             </div>

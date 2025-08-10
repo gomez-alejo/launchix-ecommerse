@@ -59,4 +59,13 @@ Route::post('/register/entrepreneur', [EntrepreneurAuthController::class, 'regis
 Route::post('/logout/entrepreneur', [EntrepreneurAuthController::class, 'logout'])->name('logout.entrepreneur');
 
 
+
+// Rutas para servicios
+Route::get('/servicios', [ServicioController::class, 'index'])->name('servicios.index');
+Route::get('/servicios/{id}', [ServicioController::class, 'show'])->name('servicios.show');
 Route::post('/servicios', [ServicioController::class, 'store'])->name('servicios.store');
+Route::put('/servicios/{id}', [ServicioController::class, 'update'])->name('servicios.update');
+Route::patch('/servicios/{id}', [ServicioController::class, 'update'])->name('servicios.patch');
+Route::delete('/servicios/{id}', [ServicioController::class, 'destroy'])->name('servicios.destroy');
+
+

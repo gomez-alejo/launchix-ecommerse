@@ -95,3 +95,4 @@
 @endsection
 
 @vite('resources/js/entrepreneur.js')
+@vite('resources/js/ServicePublishing.js')
