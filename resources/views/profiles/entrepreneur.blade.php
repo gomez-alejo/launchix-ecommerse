@@ -6,6 +6,7 @@
 
 @section('content')
 
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <div class="container mx-auto px-4 py-8 mt-16">
         <div class="flex gap-6">
             <!-- Sidebar -->
@@ -76,7 +77,7 @@
             <main class="flex-1">
                 @include('modals.login-items.entrepreneur.DashboardSection')
 
-                @include('modals.login-items.entrepreneur.ProductsSection')
+                @include('modals.login-items.entrepreneur.ProductsSection', ['products' => $products])
 
                 @include('modals.login-items.entrepreneur.ProductPublishingSection')
 
@@ -94,4 +95,4 @@
 
 @endsection
 
-@vite('resources/js/entrepreneur.js')
+@vite(['resources/js/entrepreneur.js', 'resources/js/ProductPublishing.js'])

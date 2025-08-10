@@ -18,7 +18,7 @@ return new class extends Migration
                 $table->decimal('price', 10, 2);
                 $table->integer('stock')->default(0);
                 $table->foreignId('entrepreneur_id')->constrained('entrepreneurs')->onDelete('cascade');
-                $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+                $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
                 $table->timestamps();
         });
     }

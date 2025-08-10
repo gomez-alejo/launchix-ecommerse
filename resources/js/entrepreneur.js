@@ -1,138 +1,124 @@
-// Función para mostrar secciones - ahora accesible globalmente
+// entrepreneur.js - Manejo de navegación y dashboard del emprendedor
+
+// Función para mostrar secciones - accesible globalmente
 window.showSection = function(sectionId) {
-    // Hide all sections
+    // Ocultar todas las secciones
     const sections = document.querySelectorAll('.section-content');
     sections.forEach(section => {
-        section.classList.remove('active');
+        section.style.display = 'none';
     });
-    
-    // Show selected section
+
+    // Mostrar la sección seleccionada
     const targetSection = document.getElementById(sectionId);
     if (targetSection) {
-        targetSection.classList.add('active');
+        targetSection.style.display = 'block';
     }
-    
-    // Update menu active state
+
+    // Actualizar el estado activo del menú
     const menuItems = document.querySelectorAll('.menu-item');
     menuItems.forEach(item => {
         item.classList.remove('active');
     });
-    
-    // Find and activate the clicked menu item
+
+    // Encontrar y activar el elemento del menú clickeado
     const clickedItem = event?.target?.closest('.menu-item');
     if (clickedItem) {
         clickedItem.classList.add('active');
     }
 };
 
-// Image upload functionality for products
-function setupImageUpload(dropzoneId, inputId, previewId) {
-    const dropzone = document.getElementById(dropzoneId);
-    const input = document.getElementById(inputId);
-    const preview = document.getElementById(previewId);
-    
-    // Verificar que los elementos existan
-    if (!dropzone || !input || !preview) {
-        console.warn(`Elementos no encontrados: ${dropzoneId}, ${inputId}, ${previewId}`);
-        return;
+// Función para cancelar formularios y volver al dashboard
+window.cancelForm = function() {
+    showSection('dashboard');
+};
+
+// Función para manejar otros formularios (servicios, perfil, etc.)
+function handleFormSubmission(formId, successMessage, redirectSection = null) {
+    const form = document.getElementById(formId);
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Aquí puedes agregar lógica de envío real
+            alert(successMessage);
+            
+            // Redirigir a una sección específica si se proporciona
+            if (redirectSection && window.showSection) {
+                window.showSection(redirectSection);
+            }
+        });
     }
-    
-    dropzone.addEventListener('click', () => input.click());
-    
-    dropzone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropzone.classList.add('drag-over');
-    });
-    
-    dropzone.addEventListener('dragleave', () => {
-        dropzone.classList.remove('drag-over');
-    });
-    
-    dropzone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropzone.classList.remove('drag-over');
-        const files = e.dataTransfer.files;
-        handleFiles(files, preview);
-    });
-    
-    input.addEventListener('change', (e) => {
-        handleFiles(e.target.files, preview);
-    });
 }
 
-function handleFiles(files, preview) {
-    preview.innerHTML = '';
+// Inicialización del dashboard cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('Entrepreneur dashboard script cargado correctamente');
     
-    Array.from(files).forEach(file => {
-        if (file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.className = 'image-preview';
-                
-                const container = document.createElement('div');
-                container.className = 'relative';
-                
-                const deleteBtn = document.createElement('button');
-                deleteBtn.innerHTML = '×';
-                deleteBtn.className = 'absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600';
-                deleteBtn.onclick = () => container.remove();
-                
-                container.appendChild(img);
-                container.appendChild(deleteBtn);
-                preview.appendChild(container);
-            };
-            reader.readAsDataURL(file);
+    // Configurar navegación inicial - mostrar dashboard por defecto
+    const defaultSection = 'dashboard';
+    if (document.getElementById(defaultSection)) {
+        showSection(defaultSection);
+    }
+    
+    // Agregar event listeners a todos los botones de menú
+    const menuButtons = document.querySelectorAll('.menu-item');
+    menuButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            // Obtener el onclick attribute para extraer el sectionId
+            const onclickAttr = this.getAttribute('onclick');
+            if (onclickAttr) {
+                const match = onclickAttr.match(/showSection\('([^']+)'\)/);
+                if (match) {
+                    const sectionId = match[1];
+                    showSection(sectionId);
+                }
+            }
+        });
+    });
+
+    // Manejar formularios de servicios, perfil y configuración
+    handleFormSubmission('servicio-form', 'Servicio publicado exitosamente!', 'servicios');
+    handleFormSubmission('perfil-form', 'Perfil actualizado exitosamente!');
+    handleFormSubmission('password-form', 'Contraseña cambiada exitosamente!');
+    
+    // Manejar formularios de configuración adicionales
+    const configForms = document.querySelectorAll('.config-form');
+    configForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Configuración guardada exitosamente!');
+        });
+    });
+
+    // Agregar funcionalidad para estadísticas del dashboard
+    updateDashboardStats();
+});
+
+// Función para actualizar estadísticas del dashboard
+function updateDashboardStats() {
+    // Esta función puede ser expandida para obtener datos reales del servidor
+    const statsCards = document.querySelectorAll('.stat-card');
+    statsCards.forEach(card => {
+        const countElement = card.querySelector('.stat-count');
+        if (countElement) {
+            // Animación simple para los números
+            const finalValue = parseInt(countElement.textContent);
+            animateNumber(countElement, 0, finalValue, 1000);
         }
     });
 }
 
-// Inicialización cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('Script cargado correctamente');
-    
-    // Setup image upload functionality
-    setupImageUpload('product-dropzone', 'product-images', 'product-preview');
-    setupImageUpload('service-main-dropzone', 'service-main-image', 'service-main-preview');
-    setupImageUpload('service-gallery-dropzone', 'service-gallery-images', 'service-gallery-preview');
-    
-    // Form submission handlers
-    const productoForm = document.getElementById('producto-form');
-    if (productoForm) {
-        productoForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            alert('Producto publicado exitosamente!');
-            if (window.showSection) {
-                window.showSection('productos');
-            }
-        });
-    }
-    
-    const servicioForm = document.getElementById('servicio-form');
-    if (servicioForm) {
-        servicioForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            alert('Servicio publicado exitosamente!');
-            if (window.showSection) {
-                window.showSection('servicios');
-            }
-        });
-    }
-    
-    const perfilForm = document.getElementById('perfil-form');
-    if (perfilForm) {
-        perfilForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            alert('Perfil actualizado exitosamente!');
-        });
-    }
-    
-    const passwordForm = document.getElementById('password-form');
-    if (passwordForm) {
-        passwordForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            alert('Contraseña cambiada exitosamente!');
-        });
-    }
-});
+// Función para animar números en el dashboard
+function animateNumber(element, start, end, duration) {
+    const startTime = Date.now();
+    const timer = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const current = Math.round(start + (end - start) * progress);
+        element.textContent = current;
+        
+        if (progress === 1) {
+            clearInterval(timer);
+        }
+    }, 16);
+}
