@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\UserAuthController;
 use App\Http\Controllers\Auth\EntrepreneurAuthController;
 
+use App\Http\Controllers\ServicioController;
 // Web Routes
 
 // Home Route
@@ -56,3 +57,6 @@ Route::get('/register/entrepreneur', [EntrepreneurAuthController::class, 'showRe
 Route::post('/register/entrepreneur', [EntrepreneurAuthController::class, 'register']);
 
 Route::post('/logout/entrepreneur', [EntrepreneurAuthController::class, 'logout'])->name('logout.entrepreneur');
+
+
+Route::post('/servicios', [ServicioController::class, 'store'])->name('servicios.store');
