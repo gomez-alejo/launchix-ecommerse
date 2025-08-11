@@ -95,4 +95,5 @@
 
 @endsection
 
-@vite(['resources/js/entrepreneur.js', 'resources/js/ProductPublishing.js'])
+@vite('resources/js/entrepreneur.js')
+@vite('resources/js/ServicePublishing.js')

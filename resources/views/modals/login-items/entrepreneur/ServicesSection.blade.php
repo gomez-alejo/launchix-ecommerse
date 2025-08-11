@@ -1,34 +1,29 @@
-                <!-- Mis Servicios -->
-                <div id="servicios" class="section-content">
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <div class="flex justify-between items-center mb-6">
-                            <h1 class="text-2xl font-bold text-gray-800">Mis Servicios</h1>
-                            <button class="btn-primary text-white px-4 py-2 rounded-lg" onclick="showSection('publicar-servicio')">
-                                Agregar Servicio
-                            </button>
-                        </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Service Card -->
-                            <div class="product-card bg-white border rounded-lg overflow-hidden">
-                                <div class="h-48 bg-gray-200 flex items-center justify-center">
-                                    <svg class="w-16 h-16 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
-                                    </svg>
-                                </div>
-                                <div class="p-4">
-                                    <h3 class="font-semibold text-gray-800 mb-2">Consultoría de Marketing</h3>
-                                    <p class="text-gray-600 text-sm mb-2">Calle 15 #23-45, Centro</p>
-                                    <p class="text-gray-600 text-sm mb-3">Servicios de marketing digital y estrategias comerciales</p>
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-primary font-bold">Desde $50.000</span>
-                                        <div class="flex space-x-2">
-                                            <button class="text-blue-600 hover:text-blue-800 text-sm">Editar</button>
-                                            <button class="text-red-600 hover:text-red-800 text-sm">Eliminar</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<!-- Mis Servicios -->
+<div id="servicios" class="section-content">
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">Mis Servicios</h1>
+            <button class="btn-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors" onclick="showSection('publicar-servicio')">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                Agregar Servicio
+            </button>
+        </div>
+        
+        <!-- Loading state -->
+        <div id="servicios-loading" class="text-center py-12 hidden">
+            <svg class="animate-spin w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="text-gray-600">Cargando servicios...</p>
+        </div>
+        
+        <!-- Contenedor de servicios -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Los servicios se cargarán aquí dinámicamente -->
+        </div>
+    </div>
+</div>
+
