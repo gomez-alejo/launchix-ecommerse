@@ -1,6 +1,4 @@
 <?php
-
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 
@@ -9,16 +7,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Vista de productos destacados
-Route::get('/productos', function () {
-    return view('productos'); 
-});
 
-// Otras rutas
-Route::get('/launchix-ecommerce', function () {
-    return view('welcome');
-});
+// Listar productos
+Route::get('/productos', [ProductController::class, 'index'])->name('productos.index');
 
-Route::get('/launchix-ecommerse', function () {
-    return view('welcome');
-});
+// Mostrar detalle de un producto
+Route::get('/productos/{id}', [ProductController::class, 'show'])->name('productos.show');
+
+// Mostrar formulario de edición de un producto
+Route::get('/productos/{id}/edit', [ProductController::class, 'edit'])->name('productos.edit');
+
