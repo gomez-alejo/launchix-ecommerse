@@ -28,6 +28,10 @@ Route::get('/services', function () {
     return view('services');
 })->name('servicios');
 
+// Services Route
+Route::get('/shoppingCart', function () {
+    return view('shopingcart');
+})->name('shoppingCart');
 
 // users Route
 Route::get('/user', function () {
