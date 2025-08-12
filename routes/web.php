@@ -22,24 +22,25 @@ Route::get('/masvendidos', [ProductController::class, 'bestSellers'])->name('mas
 // Ruta pública para la vista de servicios (SOLO ESTA)
 Route::get('/servicios', [\App\Http\Controllers\ServicioController::class, 'index'])->name('servicios');
 
-// Si tienes rutas protegidas para crear, editar, eliminar servicios, déjalas así:
-Route::middleware(['auth'])->group(function () {
-    Route::post('/servicios', [\App\Http\Controllers\ServicioController::class, 'store'])->name('servicios.store');
-    Route::put('/servicios/{id}', [\App\Http\Controllers\ServicioController::class, 'update'])->name('servicios.update');
-    Route::patch('/servicios/{id}', [\App\Http\Controllers\ServicioController::class, 'update'])->name('servicios.patch');
-    Route::delete('/servicios/{id}', [\App\Http\Controllers\ServicioController::class, 'destroy'])->name('servicios.destroy');
-});
+// Services Route
+Route::get('/services', function () {
+    return view('services');
+})->name('servicios');
 
-// Rutas públicas de categorías
-Route::get('/categorias', [CategoryController::class, 'index'])->name('categorias.index');
+// Services Route
+Route::get('/shoppingCart', function () {
+    return view('shopingcart');
+})->name('shoppingCart');
 
-// Acciones protegidas (solo autenticados)
-Route::middleware(['auth'])->group(function () {
-    Route::resource('products', ProductController::class)->except(['index', 'show']);
-    Route::post('/comprar/{product}', [OrderController::class, 'store'])->name('order.store');
-    // ...otras rutas protegidas...
-    // Puedes agregar aquí las rutas protegidas de servicios si lo necesitas
-});
+// users Route
+Route::get('/user', function () {
+    return view('profiles.user');
+})->name('user');
+
+Route::get('/entrepreneur', function () {
+    return view('profiles.entrepreneur');
+})->name('entrepreneur');
+
 
 // USER AUTH
 Route::get('/login/user', [UserAuthController::class, 'showLogin'])->name('login.user');
