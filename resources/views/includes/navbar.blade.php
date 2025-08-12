@@ -121,8 +121,8 @@
                     </div>
                 </div>
                 @endauth
-                
-                <a href="#" class="nav-link hover:text-lighter transition-colors duration-300">
+
+                <a href="{{ route('shoppingCart') }}" class="nav-link hover:text-lighter transition-colors duration-300">
                     <i class="fas fa-shopping-cart"></i> Carrito
                 </a>
                 
