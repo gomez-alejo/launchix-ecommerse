@@ -10,7 +10,8 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'description', 'price', 'stock', 'entrepreneur_id'
+        'name', 'category', 'price', 'image_url', 'description', 'stock', 'entrepreneur_id', 'user_id', 'sales'
+        // Agrega aquí los campos que realmente usas en tu migración
     ];
 
     public function entrepreneur()

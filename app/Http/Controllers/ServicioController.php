@@ -16,41 +16,8 @@ class ServicioController extends Controller
      */
     public function index()
     {
-        try {
-            $servicios = Servicio::orderBy('created_at', 'desc')->get();
-            
-            // Formatear los datos para el frontend
-            $serviciosFormateados = $servicios->map(function ($servicio) {
-                return [
-                    'id' => $servicio->id,
-                    'nombre_servicio' => $servicio->nombre_servicio,
-                    'categoria' => $servicio->categoria,
-                    'descripcion' => $servicio->descripcion,
-                    'direccion' => $servicio->direccion,
-                    'telefono' => $servicio->telefono,
-                    'precio_base' => $servicio->precio_base,
-                    'horario_atencion' => $servicio->horario_atencion,
-                    'imagen_principal' => $servicio->imagen_principal ? asset('storage/' . $servicio->imagen_principal) : null,
-                    'galeria_imagenes' => $servicio->galeria_imagenes ? array_map(function($imagen) {
-                        return asset('storage/' . $imagen);
-                    }, $servicio->galeria_imagenes) : [],
-                    'created_at' => $servicio->created_at->format('d/m/Y H:i'),
-                    'updated_at' => $servicio->updated_at->format('d/m/Y H:i')
-                ];
-            });
-
-            return response()->json([
-                'success' => true,
-                'data' => $serviciosFormateados
-            ]);
-        } catch (Exception $e) {
-            Log::error('Error al obtener servicios', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al cargar los servicios',
-                'errors' => ['general' => ['Error: ' . $e->getMessage()]]
-            ], 500);
-        }
+        // Solo retorna la vista Blade, el JS se encarga de mostrar los servicios de ejemplo
+        return view('services');
     }
 
     /**

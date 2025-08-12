@@ -1,613 +1,548 @@
-        // Datos de productos simulados
-        const products = [
-            {
-                id: 1,
-                name: "Smartphone Premium X1",
-                category: "electronics",
-                price: 899.99,
-                originalPrice: 1099.99,
-                rating: 4.8,
-                reviews: 256,
-                image: "https://via.placeholder.com/300x300/F77786/FFFFFF?text=Smartphone",
-                description: "Smartphone de última generación con cámara de 108MP",
-                inStock: true,
-                isNew: true,
-                discount: 18
-            },
-            {
-                id: 2,
-                name: "Laptop Gamer Pro",
-                category: "electronics",
-                price: 1299.99,
-                originalPrice: 1499.99,
-                rating: 4.9,
-                reviews: 128,
-                image: "https://via.placeholder.com/300x300/998486/FFFFFF?text=Laptop",
-                description: "Laptop gaming con RTX 4060 y 16GB RAM",
-                inStock: true,
-                isNew: false,
-                discount: 13
-            },
-            {
-                id: 3,
-                name: "Camiseta Deportiva",
-                category: "clothing",
-                price: 29.99,
-                originalPrice: 39.99,
-                rating: 4.5,
-                reviews: 89,
-                image: "https://via.placeholder.com/300x300/EB0924/FFFFFF?text=Camiseta",
-                description: "Camiseta deportiva transpirable de alta calidad",
-                inStock: true,
-                isNew: false,
-                discount: 25
-            },
-            {
-                id: 4,
-                name: "Sofá Moderno 3 Plazas",
-                category: "home",
-                price: 599.99,
-                originalPrice: 799.99,
-                rating: 4.7,
-                reviews: 45,
-                image: "https://via.placeholder.com/300x300/D1A1A7/FFFFFF?text=Sofa",
-                description: "Sofá moderno y cómodo para tu sala de estar",
-                inStock: true,
-                isNew: true,
-                discount: 25
-            },
-            {
-                id: 5,
-                name: "Balón de Fútbol Profesional",
-                category: "sports",
-                price: 49.99,
-                originalPrice: 69.99,
-                rating: 4.6,
-                reviews: 156,
-                image: "https://via.placeholder.com/300x300/C7AFB2/FFFFFF?text=Balon",
-                description: "Balón oficial FIFA para partidos profesionales",
-                inStock: true,
-                isNew: false,
-                discount: 29
-            },
-            {
-                id: 6,
-                name: "Auriculares Inalámbricos",
-                category: "electronics",
-                price: 159.99,
-                originalPrice: 199.99,
-                rating: 4.4,
-                reviews: 312,
-                image: "https://via.placeholder.com/300x300/F77786/FFFFFF?text=Auriculares",
-                description: "Auriculares con cancelación de ruido activa",
-                inStock: false,
-                isNew: false,
-                discount: 20
-            },
-            {
-                id: 7,
-                name: "Vestido Elegante",
-                category: "clothing",
-                price: 89.99,
-                originalPrice: 129.99,
-                rating: 4.3,
-                reviews: 67,
-                image: "https://via.placeholder.com/300x300/998486/FFFFFF?text=Vestido",
-                description: "Vestido elegante para ocasiones especiales",
-                inStock: true,
-                isNew: true,
-                discount: 31
-            },
-            {
-                id: 8,
-                name: "Mesa de Comedor",
-                category: "home",
-                price: 399.99,
-                originalPrice: 499.99,
-                rating: 4.8,
-                reviews: 78,
-                image: "https://via.placeholder.com/300x300/EB0924/FFFFFF?text=Mesa",
-                description: "Mesa de comedor de madera maciza para 6 personas",
-                inStock: true,
-                isNew: false,
-                discount: 20
-            },
-            {
-                id: 9,
-                name: "Bicicleta Montaña",
-                category: "sports",
-                price: 699.99,
-                originalPrice: 899.99,
-                rating: 4.7,
-                reviews: 94,
-                image: "https://via.placeholder.com/300x300/D1A1A7/FFFFFF?text=Bicicleta",
-                description: "Bicicleta de montaña con suspensión completa",
-                inStock: true,
-                isNew: true,
-                discount: 22
-            },
-            {
-                id: 10,
-                name: "Tablet Pro 12",
-                category: "electronics",
-                price: 549.99,
-                originalPrice: 699.99,
-                rating: 4.6,
-                reviews: 189,
-                image: "https://via.placeholder.com/300x300/C7AFB2/FFFFFF?text=Tablet",
-                description: "Tablet profesional con pantalla de 12 pulgadas",
-                inStock: true,
-                isNew: true,
-                discount: 21
-            },
-            {
-                id: 11,
-                name: "Zapatillas Running",
-                category: "sports",
-                price: 129.99,
-                originalPrice: 159.99,
-                rating: 4.4,
-                reviews: 203,
-                image: "https://via.placeholder.com/300x300/F77786/FFFFFF?text=Zapatillas",
-                description: "Zapatillas de running con tecnología de amortiguación",
-                inStock: true,
-                isNew: false,
-                discount: 19
-            },
-            {
-                id: 12,
-                name: "Chaqueta Invierno",
-                category: "clothing",
-                price: 179.99,
-                originalPrice: 229.99,
-                rating: 4.7,
-                reviews: 76,
-                image: "https://via.placeholder.com/300x300/998486/FFFFFF?text=Chaqueta",
-                description: "Chaqueta de invierno impermeable y cálida",
-                inStock: true,
-                isNew: true,
-                discount: 22
-            }
-        ];
+// --- DATOS DE PRODUCTOS DE EJEMPLO ---
+const products = [
+    {
+        id: 1,
+        name: "Smartphone Premium X1",
+        category: "electronics",
+        price: 899.99,
+        originalPrice: 1099.99,
+        rating: 4.8,
+        reviews: 256,
+        image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=300&fit=crop",
+        description: "Smartphone de última generación con cámara de 108MP",
+        inStock: true,
+        isNew: true,
+        discount: 18,
+        gallery_images: [
+            "https://tiempodeinventos.net/wp-content/uploads/smartphone-moderno-pantalla-colores.webp",
+            "https://tse3.mm.bing.net/th/id/OIP.KSY9ysnznbMhezUNjw5rhAHaEn?pid=Api&P=0&h=180",
+            "https://tse1.mm.bing.net/th/id/OIP.MAsmPuvdbO92c3tzrxikkwHaEO?pid=Api&P=0&h=180"
+        ],
+        long_description: "El Smartphone Premium X1 cuenta con una pantalla AMOLED de 6.7 pulgadas, procesador de última generación, batería de larga duración y cámara de 108MP para fotos increíbles en cualquier situación. Incluye carga rápida y resistencia al agua."
+    },
+    {
+        id: 2,
+        name: "Laptop Gamer Pro",
+        category: "electronics",
+        price: 1299.99,
+        originalPrice: 1499.99,
+        rating: 4.9,
+        reviews: 128,
+        image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&h=300&fit=crop",
+        description: "Laptop gaming con RTX 4060 y 16GB RAM",
+        inStock: true,
+        isNew: false,
+        discount: 13,
+        gallery_images: [
+            "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&h=300&fit=crop",
+            "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=300&h=300&fit=crop",
+            "https://images.unsplash.com/photo-1519864600265-abb23847ef2c?w=300&h=300&fit=crop"
+        ],
+        long_description: "La Laptop Gamer Pro está equipada con una tarjeta gráfica RTX 4060, 16GB de RAM DDR5, almacenamiento SSD de 1TB y pantalla de 144Hz. Ideal para juegos exigentes y tareas de alto rendimiento."
+    },
+    {
+        id: 3,
+        name: "Camiseta Deportiva",
+        category: "clothing",
+        price: 29.99,
+        originalPrice: 39.99,
+        rating: 4.5,
+        reviews: 89,
+        image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&h=300&fit=crop",
+        description: "Camiseta deportiva transpirable de alta calidad",
+        inStock: true,
+        isNew: false,
+        discount: 25,
+        gallery_images: [
+            "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&h=300&fit=crop",
+            "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=300&h=300&fit=crop",
+            "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=300&fit=crop"
+        ],
+        long_description: "Camiseta deportiva fabricada con materiales de alta tecnología que absorben la humedad y permiten una ventilación óptima. Perfecta para entrenamientos intensos y actividades al aire libre."
+    },
+    {
+        id: 4,
+        name: "Sofá Moderno 3 Plazas",
+        category: "home",
+        price: 599.99,
+        originalPrice: 799.99,
+        rating: 4.7,
+        reviews: 45,
+        image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=300&h=300&fit=crop",
+        description: "Sofá moderno y cómodo para tu sala de estar",
+        inStock: true,
+        isNew: true,
+        discount: 25
+    },
+    {
+        id: 5,
+        name: "Balón de Fútbol Profesional",
+        category: "sports",
+        price: 49.99,
+        originalPrice: 69.99,
+        rating: 4.6,
+        reviews: 156,
+        image: "https://images.unsplash.com/photo-1486286701208-1d58e9338013?w=300&h=300&fit=crop",
+        description: "Balón oficial FIFA para partidos profesionales",
+        inStock: true,
+        isNew: false,
+        discount: 29
+    },
+    {
+        id: 6,
+        name: "Auriculares Inalámbricos",
+        category: "electronics",
+        price: 159.99,
+        originalPrice: 199.99,
+        rating: 4.4,
+        reviews: 312,
+        image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=300&fit=crop",
+        description: "Auriculares con cancelación de ruido activa",
+        inStock: false,
+        isNew: false,
+        discount: 20
+    },
+    {
+        id: 7,
+        name: "Vestido Elegante",
+        category: "clothing",
+        price: 89.99,
+        originalPrice: 129.99,
+        rating: 4.3,
+        reviews: 67,
+        image: "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=300&h=300&fit=crop",
+        description: "Vestido elegante para ocasiones especiales",
+        inStock: true,
+        isNew: true,
+        discount: 31
+    },
+    {
+        id: 8,
+        name: "Mesa de Comedor",
+        category: "home",
+        price: 399.99,
+        originalPrice: 499.99,
+        rating: 4.8,
+        reviews: 78,
+        image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=300&fit=crop",
+        description: "Mesa de comedor de madera maciza para 6 personas",
+        inStock: true,
+        isNew: false,
+        discount: 20
+    },
+    {
+        id: 9,
+        name: "Bicicleta Montaña",
+        category: "sports",
+        price: 699.99,
+        originalPrice: 899.99,
+        rating: 4.7,
+        reviews: 94,
+        image: "https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=300&h=300&fit=crop",
+        description: "Bicicleta de montaña con suspensión completa",
+        inStock: true,
+        isNew: true,
+        discount: 22
+    },
+    {
+        id: 10,
+        name: "Tablet Pro 12",
+        category: "electronics",
+        price: 549.99,
+        originalPrice: 699.99,
+        rating: 4.6,
+        reviews: 189,
+        image: "https://images.unsplash.com/photo-1561154464-82e9adf32764?w=300&h=300&fit=crop",
+        description: "Tablet profesional con pantalla de 12 pulgadas",
+        inStock: true,
+        isNew: true,
+        discount: 21
+    },
+    {
+        id: 11,
+        name: "Zapatillas Running",
+        category: "sports",
+        price: 129.99,
+        originalPrice: 159.99,
+        rating: 4.4,
+        reviews: 203,
+        image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&h=300&fit=crop",
+        description: "Zapatillas de running con tecnología de amortiguación",
+        inStock: true,
+        isNew: false,
+        discount: 19
+    },
+    {
+        id: 12,
+        name: "Chaqueta Invierno",
+        category: "clothing",
+        price: 179.99,
+        originalPrice: 229.99,
+        rating: 4.7,
+        reviews: 76,
+        image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=300&h=300&fit=crop",
+        description: "Chaqueta de invierno impermeable y cálida",
+        inStock: true,
+        isNew: true,
+        discount: 22
+    },
+    // NUEVOS PRODUCTOS
+    {
+        id: 13,
+        name: "Smartwatch Fitness Pro",
+        category: "electronics",
+        price: 249.99,
+        originalPrice: 299.99,
+        rating: 4.6,
+        reviews: 142,
+        image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=300&fit=crop",
+        description: "Reloj inteligente con monitor cardíaco y GPS integrado",
+        inStock: true,
+        isNew: true,
+        discount: 17
+    },
+    {
+        id: 14,
+        name: "Jeans Premium Hombre",
+        category: "clothing",
+        price: 79.99,
+        originalPrice: 99.99,
+        rating: 4.4,
+        reviews: 98,
+        image: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=300&h=300&fit=crop",
+        description: "Jeans de mezclilla premium con corte slim fit",
+        inStock: true,
+        isNew: false,
+        discount: 20
+    },
+    {
+        id: 15,
+        name: "Lámpara LED Moderna",
+        category: "home",
+        price: 149.99,
+        originalPrice: 189.99,
+        rating: 4.5,
+        reviews: 67,
+        image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=300&h=300&fit=crop",
+        description: "Lámpara de pie moderna con control remoto y regulador",
+        inStock: true,
+        isNew: true,
+        discount: 21
+    },
+    {
+        id: 16,
+        name: "Raqueta Tenis Profesional",
+        category: "sports",
+        price: 199.99,
+        originalPrice: 249.99,
+        rating: 4.8,
+        reviews: 85,
+        image: "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=300&h=300&fit=crop",
+        description: "Raqueta de tenis profesional con marco de grafito",
+        inStock: true,
+        isNew: false,
+        discount: 20
+    },
+    {
+        id: 17,
+        name: "Cámara DSLR 4K",
+        category: "electronics",
+        price: 899.99,
+        originalPrice: 1199.99,
+        rating: 4.9,
+        reviews: 234,
+        image: "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=300&h=300&fit=crop",
+        description: "Cámara réflex digital con grabación 4K y lente 18-55mm",
+        inStock: true,
+        isNew: true,
+        discount: 25
+    },
+    {
+        id: 18,
+        name: "Monitor UltraWide 34''",
+        category: "electronics",
+        price: 499.99,
+        originalPrice: 599.99,
+        rating: 4.7,
+        reviews: 120,
+        image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=300&h=300&fit=crop",
+        description: "Monitor UltraWide de 34 pulgadas con resolución QHD y tecnología IPS.",
+        inStock: true,
+        isNew: false,
+        discount: 17
+    },
+    {
+        id: 19,
+        name: "Set de Ollas Antiadherentes",
+        category: "home",
+        price: 89.99,
+        originalPrice: 129.99,
+        rating: 4.5,
+        reviews: 85,
+        image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=300&h=300&fit=crop&auto=format",
+        description: "Set de 5 ollas antiadherentes para cocina saludable y fácil limpieza.",
+        inStock: true,
+        isNew: true,
+        discount: 31,
+        gallery_images: [
+            "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=300&h=300&fit=crop&auto=format",
+            "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=300&h=300&fit=crop&auto=format",
+            "https://images.unsplash.com/photo-1519864600265-abb23847ef2c?w=300&h=300&fit=crop&auto=format"
+        ],
+        long_description: "Set completo de ollas antiadherentes, ideales para cocinar sin que los alimentos se peguen y facilitar la limpieza."
+    },
+    {
+        id: 20,
+        name: "Patines en Línea Pro",
+        category: "sports",
+        price: 159.99,
+        originalPrice: 199.99,
+        rating: 4.8,
+        reviews: 60,
+        image: "https://images.unsplash.com/photo-1510557880182-3d4d3c1b9021?w=300&h=300&fit=crop&auto=format",
+        description: "Patines en línea profesionales con rodamientos ABEC-9 y bota reforzada.",
+        inStock: true,
+        isNew: true,
+        discount: 20,
+        gallery_images: [
+            "https://images.unsplash.com/photo-1510557880182-3d4d3c1b9021?w=300&h=300&fit=crop&auto=format",
+            "https://images.unsplash.com/photo-1512499617640-c2f999098c01?w=300&h=300&fit=crop&auto=format",
+            "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=300&fit=crop&auto=format"
+        ],
+        long_description: "Patines en línea de alto rendimiento, perfectos para entrenamiento y competencias, con excelente soporte y durabilidad."
+    }
+];
 
-        // Variables globales
-        let filteredProducts = [...products];
-        let cart = [];
-
-        // Inicialización
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeApp();
-        });
-
-        function initializeApp() {
-            displayProducts();
-            setupEventListeners();
-            updateCartBadge();
-            hideLoading();
-        }
-
-        function setupEventListeners() {
-            // Filtros de categoría
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    filterProducts();
-                });
-            });
-
-            // Ordenamiento
-            document.getElementById('sortBy').addEventListener('change', function() {
-                sortProducts(this.value);
-            });
-
-            // Filtros de precio
-            document.getElementById('minPrice').addEventListener('input', filterProducts);
-            document.getElementById('maxPrice').addEventListener('input', filterProducts);
-
-            // Filtros de calificación
-            document.querySelectorAll('.rating-filter').forEach(filter => {
-                filter.addEventListener('change', filterProducts);
-            });
-
-            // Limpiar filtros
-            document.getElementById('clearFilters').addEventListener('click', clearAllFilters);
-
-            // Toggle filtros móvil
-            document.getElementById('toggleFilters').addEventListener('click', function() {
-                document.getElementById('filterSidebar').classList.add('active');
-                document.getElementById('sidebarOverlay').classList.add('active');
-            });
-
-            document.getElementById('closeSidebar').addEventListener('click', closeSidebar);
-            document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
-
-            // Carrito
-            document.getElementById('cartToggle').addEventListener('click', function(e) {
-                e.preventDefault();
-                toggleMiniCart();
-            });
-
-            document.getElementById('closeMiniCart').addEventListener('click', function() {
-                document.getElementById('miniCart').classList.add('hidden');
-            });
-        }
-
-        function closeSidebar() {
-            document.getElementById('filterSidebar').classList.remove('active');
-            document.getElementById('sidebarOverlay').classList.remove('active');
-        }
-
-        function displayProducts() {
-            const grid = document.getElementById('productsGrid');
-            
-            if (filteredProducts.length === 0) {
-                showNoProducts();
-                return;
-            }
-
-            hideNoProducts();
-            
-            grid.innerHTML = filteredProducts.map(product => createProductCard(product)).join('');
-            updateProductCount(filteredProducts.length);
-            
-            // Agregar event listeners a los botones de agregar al carrito
-            document.querySelectorAll('.add-to-cart').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const productId = parseInt(this.dataset.productId);
-                    addToCart(productId);
-                });
-            });
-
-            // Mostrar grid
-            grid.classList.remove('hidden');
-            grid.classList.add('fade-in');
-        }
-
-        function createProductCard(product) {
-            const discountBadge = product.discount > 0 ? 
-                `<div class="absolute top-2 left-2 bg-red-600 text-white px-2 py-1 rounded-full text-xs font-bold">
-                    -${product.discount}%
-                </div>` : '';
-
-            const newBadge = product.isNew ? 
-                `<div class="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-                    NUEVO
-                </div>` : '';
-
-            const stockStatus = product.inStock ? 
-                `<button class="add-to-cart btn-primary w-full py-2 rounded-lg font-semibold transition-all duration-300" data-product-id="${product.id}">
-                    <i class="fas fa-cart-plus"></i> Agregar al Carrito
-                </button>` :
-                `<button class="bg-gray-400 text-white w-full py-2 rounded-lg font-semibold cursor-not-allowed" disabled>
-                    <i class="fas fa-times"></i> Sin Stock
-                </button>`;
-
-            const stars = generateStarRating(product.rating);
-
-            return `
-                <div class="product-card bg-white rounded-lg shadow-lg overflow-hidden fade-in">
-                    <div class="relative">
-                        <img src="${product.image}" alt="${product.name}" class="w-full h-64 object-cover">
-                        ${discountBadge}
-                        ${newBadge}
-                        <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-300 flex items-center justify-center opacity-0 hover:opacity-100">
-                            <button class="bg-white text-gray-800 px-4 py-2 rounded-lg font-semibold shadow-lg transform hover:scale-105 transition-all duration-300">
-                                <i class="fas fa-eye"></i> Ver Detalles
-                            </button>
-                        </div>
-                    </div>
-                    <div class="p-6">
-                        <div class="category-tag inline-block mb-2">${getCategoryName(product.category)}</div>
-                        <h3 class="text-lg font-bold text-gray-800 mb-2 line-clamp-2">${product.name}</h3>
-                        <p class="text-gray-600 text-sm mb-3 line-clamp-2">${product.description}</p>
-                        
-                        <div class="flex items-center mb-3">
-                            <div class="star-rating mr-2">${stars}</div>
-                            <span class="text-sm text-gray-600">(${product.reviews} reseñas)</span>
-                        </div>
-
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center space-x-2">
-                                <span class="text-2xl font-bold text-red-600">$${product.price}</span>
-                                ${product.originalPrice > product.price ? 
-                                    `<span class="text-lg text-gray-400 line-through">$${product.originalPrice}</span>` : ''}
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <button class="text-gray-400 hover:text-red-600 transition-colors p-2">
-                                    <i class="fas fa-heart"></i>
-                                </button>
-                                <button class="text-gray-400 hover:text-blue-600 transition-colors p-2">
-                                    <i class="fas fa-share-alt"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        ${stockStatus}
-                    </div>
-                </div>
-            `;
-        }
-
-        function generateStarRating(rating) {
-            const fullStars = Math.floor(rating);
-            const hasHalfStar = rating % 1 !== 0;
-            let stars = '';
-
-            for (let i = 0; i < fullStars; i++) {
-                stars += '<i class="fas fa-star"></i>';
-            }
-
-            if (hasHalfStar) {
-                stars += '<i class="fas fa-star-half-alt"></i>';
-            }
-
-            const emptyStars = 5 - Math.ceil(rating);
-            for (let i = 0; i < emptyStars; i++) {
-                stars += '<i class="far fa-star"></i>';
-            }
-
-            return stars;
-        }
-
-        function getCategoryName(category) {
-            const categoryNames = {
-                'electronics': 'Electrónicos',
-                'clothing': 'Ropa',
-                'home': 'Hogar',
-                'sports': 'Deportes'
-            };
-            return categoryNames[category] || category;
-        }
-
-        function filterProducts() {
-            const activeCategory = document.querySelector('.filter-btn.active').dataset.category;
-            const minPrice = parseFloat(document.getElementById('minPrice').value) || 0;
-            const maxPrice = parseFloat(document.getElementById('maxPrice').value) || Infinity;
-            const selectedRatings = Array.from(document.querySelectorAll('.rating-filter:checked'))
-                .map(cb => parseFloat(cb.dataset.rating));
-
-            filteredProducts = products.filter(product => {
-                const matchesCategory = activeCategory === 'all' || product.category === activeCategory;
-                const matchesPrice = product.price >= minPrice && product.price <= maxPrice;
-                const matchesRating = selectedRatings.length === 0 || 
-                    selectedRatings.some(rating => product.rating >= rating);
-
-                return matchesCategory && matchesPrice && matchesRating;
-            });
-
-            displayProducts();
-        }
-
-        function sortProducts(sortBy) {
-            switch (sortBy) {
-                case 'price-low':
-                    filteredProducts.sort((a, b) => a.price - b.price);
-                    break;
-                case 'price-high':
-                    filteredProducts.sort((a, b) => b.price - a.price);
-                    break;
-                case 'rating':
-                    filteredProducts.sort((a, b) => b.rating - a.rating);
-                    break;
-                case 'newest':
-                    filteredProducts.sort((a, b) => b.isNew - a.isNew);
-                    break;
-                default:
-                    // Featured - orden original
-                    filteredProducts = [...products].filter(product => {
-                        const activeCategory = document.querySelector('.filter-btn.active').dataset.category;
-                        return activeCategory === 'all' || product.category === activeCategory;
-                    });
-            }
-            displayProducts();
-        }
-
-        function clearAllFilters() {
-            // Resetear categoría
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelector('.filter-btn[data-category="all"]').classList.add('active');
-            
-            // Resetear precios
-            document.getElementById('minPrice').value = '';
-            document.getElementById('maxPrice').value = '';
-            
-            // Resetear calificaciones
-            document.querySelectorAll('.rating-filter').forEach(cb => cb.checked = false);
-            
-            // Resetear ordenamiento
-            document.getElementById('sortBy').value = 'featured';
-            
-            // Resetear búsqueda
-            document.getElementById('searchInput').value = '';
-
-            // Aplicar filtros
-            filteredProducts = [...products];
-            currentPage = 1;
-            displayProducts();
-        }
-
-        function addToCart(productId) {
-            const product = products.find(p => p.id === productId);
-            if (!product || !product.inStock) return;
-
-            const existingItem = cart.find(item => item.id === productId);
-            
-            if (existingItem) {
-                existingItem.quantity += 1;
-            } else {
-                cart.push({ ...product, quantity: 1 });
-            }
-
-            updateCartBadge();
-            updateMiniCart();
-            showAddToCartNotification(product.name);
-        }
-
-        function updateCartBadge() {
-            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-            document.getElementById('cartBadge').textContent = totalItems;
-        }
-
-        function updateMiniCart() {
-            const cartItems = document.getElementById('cartItems');
-            const cartTotal = document.getElementById('cartTotal');
-
-            if (cart.length === 0) {
-                cartItems.innerHTML = '<p class="text-gray-500 text-center py-4">Tu carrito está vacío</p>';
-                cartTotal.textContent = '$0';
-                return;
-            }
-
-            cartItems.innerHTML = cart.map(item => `
-                <div class="flex items-center space-x-3 p-2 border-b">
-                    <img src="${item.image}" alt="${item.name}" class="w-12 h-12 object-cover rounded">
-                    <div class="flex-1">
-                        <h4 class="text-sm font-semibold line-clamp-1">${item.name}</h4>
-                        <p class="text-xs text-gray-600">Cantidad: ${item.quantity}</p>
-                        <p class="text-sm font-bold text-red-600">${(item.price * item.quantity).toFixed(2)}</p>
-                    </div>
-                    <button class="text-red-500 hover:text-red-700 remove-item" data-product-id="${item.id}">
-                        <i class="fas fa-trash text-sm"></i>
+// --- RENDERIZA PRODUCTOS DE EJEMPLO SI EL GRID ESTÁ VACÍO ---
+function renderExampleProducts() {
+    const grid = document.getElementById('productsGrid');
+    if (grid && grid.children.length === 0) {
+        grid.innerHTML = products.map(product => `
+            <div class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col group relative">
+                <div class="relative">
+                    <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105">
+                    <button 
+                        class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white font-semibold text-lg view-details-btn"
+                        data-id="${product.id}">
+                        Ver detalle
                     </button>
                 </div>
-            `).join('');
-
-            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            cartTotal.textContent = `${total.toFixed(2)}`;
-
-            // Agregar event listeners para remover items
-            document.querySelectorAll('.remove-item').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const productId = parseInt(this.dataset.productId);
-                    removeFromCart(productId);
-                });
-            });
-        }
-
-        function removeFromCart(productId) {
-            cart = cart.filter(item => item.id !== productId);
-            updateCartBadge();
-            updateMiniCart();
-        }
-
-        function toggleMiniCart() {
-            const miniCart = document.getElementById('miniCart');
-            miniCart.classList.toggle('hidden');
-            updateMiniCart();
-        }
-
-        function showAddToCartNotification(productName) {
-            // Simple notification
-            const notification = document.createElement('div');
-            notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300';
-            notification.innerHTML = `
-                <div class="flex items-center space-x-2">
-                    <i class="fas fa-check-circle"></i>
-                    <span>¡${productName} agregado al carrito!</span>
+                <div class="p-4 flex-1 flex flex-col">
+                    <h2 class="text-lg font-semibold mb-1">${product.name}</h2>
+                    <p class="text-gray-600 mb-2">$${product.price.toFixed(2)}</p>
+                    <button class="mt-auto bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded add-to-cart-btn">
+                        Agregar al carrito
+                    </button>
                 </div>
-            `;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
+            </div>
+        `).join('');
+    }
+}
 
-        function setupPagination(totalProducts) {
-            const totalPages = Math.ceil(totalProducts / productsPerPage);
-            const pagination = document.getElementById('pagination');
-            
-            if (totalPages <= 1) {
-                pagination.classList.add('hidden');
-                return;
-            }
+// --- MODAL DETALLE ---
+function showProductModal(product) {
+    // Obtén referencias a los elementos del modal
+    const galleryDiv = document.getElementById('modalProductGallery');
+    const modalMainImg = document.getElementById('modalProductImage');
+    const modalName = document.getElementById('modalProductName');
+    const modalPrice = document.getElementById('modalProductPrice');
+    const modalDesc = document.getElementById('modalProductDescription');
+    const ul = document.getElementById('modalProductFeatures');
+    const specsDiv = document.getElementById('modalProductSpecs');
 
-            pagination.classList.remove('hidden');
-            
-            const prevBtn = document.getElementById('prevPage');
-            const nextBtn = document.getElementById('nextPage');
-            const pageNumbers = document.getElementById('pageNumbers');
-
-            prevBtn.disabled = currentPage === 1;
-            nextBtn.disabled = currentPage === totalPages;
-
-            // Generar números de página
-            pageNumbers.innerHTML = '';
-            const maxVisiblePages = 5;
-            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-            if (endPage - startPage + 1 < maxVisiblePages) {
-                startPage = Math.max(1, endPage - maxVisiblePages + 1);
-            }
-
-            for (let i = startPage; i <= endPage; i++) {
-                const pageBtn = document.createElement('button');
-                pageBtn.className = `px-3 py-2 border rounded-lg ${i === currentPage ? 'bg-red-600 text-white border-red-600' : 'bg-white hover:bg-gray-50'}`;
-                pageBtn.textContent = i;
-                pageBtn.addEventListener('click', () => goToPage(i));
-                pageNumbers.appendChild(pageBtn);
-            }
-
-            // Event listeners para prev/next
-            prevBtn.replaceWith(prevBtn.cloneNode(true));
-            nextBtn.replaceWith(nextBtn.cloneNode(true));
-            
-            document.getElementById('prevPage').addEventListener('click', () => goToPage(currentPage - 1));
-            document.getElementById('nextPage').addEventListener('click', () => goToPage(currentPage + 1));
-        }
-
-        function goToPage(page) {
-            currentPage = page;
-            displayProducts();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function updateProductCount(total) {
-            document.getElementById('productCount').textContent = `Mostrando ${total} productos`;
-        }
-
-        function showNoProducts() {
-            document.getElementById('productsGrid').classList.add('hidden');
-            document.getElementById('noProducts').classList.remove('hidden');
-            document.getElementById('pagination').classList.add('hidden');
-        }
-
-        function hideNoProducts() {
-            document.getElementById('noProducts').classList.add('hidden');
-        }
-
-        function hideLoading() {
-            document.getElementById('loadingSpinner').classList.add('hidden');
-        }
-
-        function switchToListView() {
-            // Implementar vista de lista si se desea
-            // Por ahora mantiene la vista de grid
-        }
-
-        // Cerrar modales al hacer clic fuera
-        document.addEventListener('click', function(e) {
-            const categoriesModal = document.getElementById('categoriesModal');
-            const categoriesButton = document.getElementById('categoriesButton');
-            
-            if (!categoriesButton.contains(e.target) && !categoriesModal.contains(e.target)) {
-                categoriesModal.classList.add('hidden');
-            }
-
-            const miniCart = document.getElementById('miniCart');
-            const cartToggle = document.getElementById('cartToggle');
-            
-            if (!cartToggle.contains(e.target) && !miniCart.contains(e.target)) {
-                miniCart.classList.add('hidden');
-            }
-
-            const filterSidebar = document.getElementById('filterSidebar');
-            const toggleFilters = document.getElementById('toggleFilters');
-            
-            if (window.innerWidth < 1024 && !toggleFilters.contains(e.target) && !filterSidebar.contains(e.target)) {
-                filterSidebar.classList.remove('active');
-            }
+    // Si alguno de los elementos no existe, muestra en consola cuáles faltan
+    if (!galleryDiv || !modalMainImg || !modalName || !modalPrice || !modalDesc || !ul || !specsDiv) {
+        console.error('Faltan elementos del modal:', {
+            galleryDiv, modalMainImg, modalName, modalPrice, modalDesc, ul, specsDiv
         });
+        alert('Error: Faltan elementos del modal en el HTML. Verifica los IDs en tu archivo Blade.');
+        return;
+    }
+
+    // Galería de imágenes
+    galleryDiv.innerHTML = '';
+    let images = [];
+    // Siempre usa gallery_images si existe y tiene imágenes, si no, usa la principal
+    if (Array.isArray(product.gallery_images) && product.gallery_images.length > 0) {
+        images = product.gallery_images;
+    } else if (product.gallery && typeof product.gallery === 'string') {
+        images = product.gallery.split(',');
+    } else if (product.image) {
+        images = [product.image];
+    }
+
+    // Mostrar la primera imagen como principal y el resto como miniaturas
+    if (images.length > 0) {
+        modalMainImg.src = images[0];
+        images.forEach((img, idx) => {
+            const imgEl = document.createElement('img');
+            imgEl.src = img;
+            imgEl.className = 'w-24 h-24 object-cover rounded cursor-pointer border-2 border-transparent hover:border-primary';
+            imgEl.onclick = () => {
+                modalMainImg.src = img;
+            };
+            galleryDiv.appendChild(imgEl);
+        });
+    } else {
+        modalMainImg.src = product.image || '';
+    }
+
+    modalName.textContent = product.name;
+    modalPrice.textContent = `$${product.price.toFixed(2)}`;
+    modalDesc.textContent = product.long_description || product.description;
+
+    ul.innerHTML = "";
+    if (product.features && product.features.length) {
+        product.features.forEach(f => {
+            const li = document.createElement('li');
+            li.textContent = f;
+            ul.appendChild(li);
+        });
+    }
+
+    specsDiv.innerHTML = "";
+    if (product.specs) {
+        for (let [key, val] of Object.entries(product.specs)) {
+            const row = document.createElement('div');
+            row.innerHTML = `<b>${key}:</b> <span>${val}</span>`;
+            specsDiv.appendChild(row);
+        }
+    }
+
+    document.getElementById('productModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function hideProductModal() {
+    document.getElementById('productModal').classList.add('hidden');
+    document.body.style.overflow = '';
+}
+
+// --- CARRITO DE COMPRAS DEMO ---
+let cart = [];
+
+// Función para agregar producto al carrito
+function addToCart(product) {
+    // Busca si ya está en el carrito
+    const existing = cart.find(item => item.id === product.id);
+    if (existing) {
+        existing.qty += 1;
+    } else {
+        cart.push({ ...product, qty: 1 });
+    }
+    // Puedes mostrar un mensaje o actualizar un contador visual aquí
+    alert(`"${product.name}" agregado al carrito`);
+    // Si tienes un contador en el header, actualízalo aquí
+    updateCartCounter();
+}
+
+// Actualiza el contador visual del carrito (si tienes un span con id cartCount)
+function updateCartCounter() {
+    const cartCount = document.getElementById('cartCount');
+    if (cartCount) {
+        const total = cart.reduce((sum, item) => sum + item.qty, 0);
+        cartCount.textContent = total;
+    }
+}
+
+// --- EVENTOS PRINCIPALES ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Oculta el spinner si existe
+    const spinner = document.getElementById('loadingSpinner');
+    if (spinner) spinner.style.display = 'none';
+
+    // Renderiza productos de ejemplo si el grid está vacío
+    renderExampleProducts();
+
+    // Actualiza el contador de productos
+    const grid = document.getElementById('productsGrid');
+    const count = grid ? grid.children.length : 0;
+    const productCount = document.getElementById('productCount');
+    if (productCount) productCount.textContent = `Mostrando ${count} productos`;
+
+    // Delegación de eventos: botón "ver detalle"
+    document.getElementById('productsGrid').addEventListener('click', function(e) {
+        if (e.target.classList.contains('view-details-btn')) {
+            const id = Number(e.target.dataset.id);
+            let product = products.find(p => p.id === id);
+
+            // Si no está en los de ejemplo, toma los datos del botón (productos reales)
+            if (!product) {
+                product = {
+                    id: id,
+                    name: e.target.dataset.name,
+                    price: Number(e.target.dataset.price),
+                    image: e.target.dataset.image,
+                    description: e.target.dataset.description,
+                    // features y specs pueden ser agregados si los tienes en tus productos reales
+                };
+            }
+
+            if (product) showProductModal(product);
+        }
+        // Evento para agregar al carrito (puedes personalizar la acción)
+        if (e.target.classList.contains('add-to-cart-btn')) {
+            const card = e.target.closest('.group');
+            const id = Number(card.querySelector('.view-details-btn').dataset.id);
+            let product = products.find(p => p.id === id);
+
+            // Si no está en los de ejemplo, toma los datos del botón (productos reales)
+            if (!product) {
+                product = {
+                    id: id,
+                    name: card.querySelector('h2').textContent,
+                    price: Number(card.querySelector('p').textContent.replace(/[^0-9.]/g, '')),
+                    image: card.querySelector('img').src,
+                    description: '', // Puedes mejorar esto si tienes más datos
+                };
+            }
+
+            addToCart(product);
+        }
+    });
+
+    // Cerrar modal
+    document.getElementById('closeProductModal').addEventListener('click', hideProductModal);
+    document.getElementById('productModal').addEventListener('click', function(e) {
+        if (e.target === this) hideProductModal();
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === "Escape") hideProductModal();
+    });
+});
+
+/*
+INSTRUCCIONES PARA AGREGAR FOTOS MANUALMENTE:
+
+- Para la imagen principal de cada producto, usa la propiedad `image`:
+  image: "URL_DE_LA_IMAGEN_PRINCIPAL"
+
+- Para las imágenes que aparecen en el modal de detalles, usa la propiedad `gallery_images` (array de URLs):
+  gallery_images: [
+      "URL_IMAGEN_1",
+      "URL_IMAGEN_2",
+      "URL_IMAGEN_3"
+  ]
+
+- Si no agregas `gallery_images`, solo se mostrará la imagen principal.
+- Puedes usar cualquier URL pública de imagen (Unsplash, Pexels, tu propio servidor, etc).
+
+EJEMPLO:
+{
+    id: 21,
+    name: "Producto de ejemplo",
+    image: "https://ejemplo.com/imagen-principal.jpg",
+    gallery_images: [
+        "https://ejemplo.com/imagen1.jpg",
+        "https://ejemplo.com/imagen2.jpg",
+        "https://ejemplo.com/imagen3.jpg"
+    ],
+    // ...otros campos...
+}
+*/
+
+// --- CORRECCIÓN DE IMÁGENES QUE NO SE VEN ---
+// Verifica que las URLs sean accesibles y usen HTTPS, y que no tengan restricciones de hotlinking.
+// Si usas imágenes de Bing o MercadoLibre, pueden tener restricciones y no mostrarse en todos los navegadores.
+// Usa imágenes de Unsplash, Pexels, Pixabay, o sube tus propias imágenes a un servidor sin restricciones.
+

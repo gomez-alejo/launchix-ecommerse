@@ -112,7 +112,7 @@
 
                 <!-- Contador de resultados -->
                 <div class="mb-6 text-sm text-gray-600">
-                    Mostrando <span id="results-count">12</span> servicios
+                    Mostrando <span id="results-count">8</span> servicios
                 </div>
 
                 <!-- Grid de servicios -->

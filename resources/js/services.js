@@ -148,6 +148,8 @@ function filterServices() {
 // Función para renderizar servicios
 function renderServices(servicesToRender) {
     const grid = document.getElementById('services-grid');
+    if (!grid) return; // Evita errores si el grid no existe
+
     const categoryNames = {
         'comida': 'Comida',
         'autolavado': 'Autolavado',
@@ -156,7 +158,7 @@ function renderServices(servicesToRender) {
         'belleza': 'Belleza',
         'reparaciones': 'Reparaciones'
     };
-    
+
     const categoryIcons = {
         'comida': '<i class="fas fa-utensils mr-1"></i>',
         'autolavado': '<i class="fas fa-car mr-1"></i>',
@@ -165,13 +167,13 @@ function renderServices(servicesToRender) {
         'belleza': '<i class="fas fa-cut mr-1"></i>',
         'reparaciones': '<i class="fas fa-wrench mr-1"></i>'
     };
-    
+
     grid.innerHTML = servicesToRender.map(service => `
         <div class="service-card bg-white rounded-lg shadow-lg overflow-hidden" data-category="${service.category}" data-price="${service.price}" data-rating="${service.rating}">
             <div class="relative">
                 <img src="${service.image}" alt="${service.name}" class="w-full h-48 object-cover">
                 <div class="absolute top-3 left-3 bg-primary text-white px-2 py-1 rounded-full text-xs font-medium">
-                    ${categoryIcons[service.category]}${categoryNames[service.category]}
+                    ${categoryIcons[service.category] || ''}${categoryNames[service.category] || ''}
                 </div>
             </div>
             <div class="p-4">
@@ -192,7 +194,7 @@ function renderServices(servicesToRender) {
     `).join('');
 }
 
-// Event listeners
+// --- EVENTOS Y RENDER PRINCIPAL ---
 document.addEventListener('DOMContentLoaded', function() {
     // Marcar "Todas las categorías" por defecto
     const todosCheckbox = document.querySelector('input[data-category="todos"]');
@@ -200,73 +202,67 @@ document.addEventListener('DOMContentLoaded', function() {
         todosCheckbox.checked = true;
         updateCategoryFilterStyles();
     }
-    
+
     // Filtros de categoría
     document.querySelectorAll('.filter-checkbox').forEach(checkbox => {
         checkbox.addEventListener('change', function() {
             if (this.dataset.category === 'todos') {
-                // Si se selecciona "todos", deseleccionar otros
                 document.querySelectorAll('.filter-checkbox').forEach(cb => {
                     if (cb !== this) cb.checked = false;
                 });
             } else {
-                // Si se selecciona otra categoría, deseleccionar "todos"
                 const todosCheckbox = document.querySelector('input[data-category="todos"]');
-                if (todosCheckbox) {
-                    todosCheckbox.checked = false;
-                }
+                if (todosCheckbox) todosCheckbox.checked = false;
             }
             updateCategoryFilterStyles();
             filterServices();
         });
     });
-    
+
     // Filtros de precio
     const minPriceInput = document.getElementById('minPrice');
     const maxPriceInput = document.getElementById('maxPrice');
-    
-    if (minPriceInput) {
-        minPriceInput.addEventListener('input', filterServices);
-    }
-    if (maxPriceInput) {
-        maxPriceInput.addEventListener('input', filterServices);
-    }
-    
+    if (minPriceInput) minPriceInput.addEventListener('input', filterServices);
+    if (maxPriceInput) maxPriceInput.addEventListener('input', filterServices);
+
     // Filtros de calificación
     document.querySelectorAll('input[data-rating]').forEach(checkbox => {
         checkbox.addEventListener('change', filterServices);
     });
-    
+
     // Limpiar filtros
     const clearFiltersBtn = document.getElementById('clear-filters');
     if (clearFiltersBtn) {
         clearFiltersBtn.addEventListener('click', function() {
-            // Limpiar checkboxes
             document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-            
-            // Limpiar inputs de precio
             if (minPriceInput) minPriceInput.value = '';
             if (maxPriceInput) maxPriceInput.value = '';
-            
-            // Marcar "Todas las categorías"
             const todosCheckbox = document.querySelector('input[data-category="todos"]');
-            if (todosCheckbox) {
-                todosCheckbox.checked = true;
-            }
-            
-            // Actualizar estilos de filtros
+            if (todosCheckbox) todosCheckbox.checked = true;
             updateCategoryFilterStyles();
-            
-            // Filtrar servicios
             filterServices();
         });
     }
-    
+
     // Renderizar servicios iniciales
     renderServices(services);
+
+    // Inicializar animaciones
+    setTimeout(() => {
+        const cards = document.querySelectorAll('.service-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    }, 100);
 });
 
-// Animaciones adicionales
+// Animaciones al hacer scroll
 document.addEventListener('scroll', function() {
     const cards = document.querySelectorAll('.service-card');
     cards.forEach(card => {
@@ -275,20 +271,5 @@ document.addEventListener('scroll', function() {
             card.style.opacity = '1';
             card.style.transform = 'translateY(0)';
         }
-    });
-});
-
-// Inicializar animaciones
-document.addEventListener('DOMContentLoaded', function() {
-    const cards = document.querySelectorAll('.service-card');
-    cards.forEach((card, index) => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-        
-        setTimeout(() => {
-            card.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
-        }, index * 100);
     });
 });

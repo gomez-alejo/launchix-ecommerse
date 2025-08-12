@@ -9,16 +9,23 @@ use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
-    // Mostrar todos los productos del emprendedor
+    // Elimina o ajusta el constructor si existe:
+    // public function __construct()
+    // {
+    //     $this->middleware('auth')->except(['index', 'show']);
+    // }
+
+    // Mostrar todos los productos (público)
     public function index()
     {
-        if (Auth::guard('entrepreneur')->check()) {
-            $entrepreneur = Auth::guard('entrepreneur')->user();
-            $products = Product::where('entrepreneur_id', $entrepreneur->id)->get();
-            return view('products.index', compact('products'));
-        }
+        // Si no tienes productos reales, solo retorna la vista Blade
+        return view('products');
+    }
 
-        return redirect()->route('login.entrepreneur')->with('error', 'Debes iniciar sesión para ver tus productos.');
+    // Mostrar detalle de producto (público)
+    public function show(Product $product)
+    {
+        return view('products.show', compact('product'));
     }
 
     // Mostrar formulario de creación de productos
@@ -72,12 +79,6 @@ class ProductController extends Controller
                 'message' => 'Hubo un error al publicar el producto: ' . $e->getMessage()
             ], 500);
         }
-    }
-
-    // Mostrar un producto específico
-    public function show(Product $product)
-    {
-        return response()->json($product);
     }
 
     // Mostrar formulario de edición
@@ -161,4 +162,12 @@ class ProductController extends Controller
             ], 500);
         }
     }
+
+    // Mostrar productos más vendidos (solo muestra algunos productos de ejemplo)
+    public function bestSellers()
+    {
+        $products = Product::take(6)->get();
+        return view('bestsellers', compact('products'));
+    }
 }
+
