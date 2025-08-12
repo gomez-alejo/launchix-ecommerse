@@ -855,7 +855,7 @@
 
             addToCart(product);
         }
-    });
+    
 
     // Cerrar modal
     document.getElementById('closeProductModal').addEventListener('click', hideProductModal);
@@ -865,40 +865,5 @@
     document.addEventListener('keydown', function(e) {
         if (e.key === "Escape") hideProductModal();
     });
-});
 
-/*
-INSTRUCCIONES PARA AGREGAR FOTOS MANUALMENTE:
-
-- Para la imagen principal de cada producto, usa la propiedad `image`:
-  image: "URL_DE_LA_IMAGEN_PRINCIPAL"
-
-- Para las imágenes que aparecen en el modal de detalles, usa la propiedad `gallery_images` (array de URLs):
-  gallery_images: [
-      "URL_IMAGEN_1",
-      "URL_IMAGEN_2",
-      "URL_IMAGEN_3"
-  ]
-
-- Si no agregas `gallery_images`, solo se mostrará la imagen principal.
-- Puedes usar cualquier URL pública de imagen (Unsplash, Pexels, tu propio servidor, etc).
-
-EJEMPLO:
-{
-    id: 21,
-    name: "Producto de ejemplo",
-    image: "https://ejemplo.com/imagen-principal.jpg",
-    gallery_images: [
-        "https://ejemplo.com/imagen1.jpg",
-        "https://ejemplo.com/imagen2.jpg",
-        "https://ejemplo.com/imagen3.jpg"
-    ],
-    // ...otros campos...
-}
-*/
-
-// --- CORRECCIÓN DE IMÁGENES QUE NO SE VEN ---
-// Verifica que las URLs sean accesibles y usen HTTPS, y que no tengan restricciones de hotlinking.
-// Si usas imágenes de Bing o MercadoLibre, pueden tener restricciones y no mostrarse en todos los navegadores.
-// Usa imágenes de Unsplash, Pexels, Pixabay, o sube tus propias imágenes a un servidor sin restricciones.
 
