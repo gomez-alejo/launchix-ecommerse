@@ -1,4 +1,4 @@
-        // Cart data
+// Cart data
         let cart = [];
         let cartCount = 0;
         let subtotal = 0;
@@ -6,23 +6,49 @@
         let taxes = 0;
         let total = 0;
 
-        // Sample products
+        // Sample products (mantener por si se necesitan)
         const sampleProducts = [
             { id: 1, name: "Smartphone Premium", price: 899.99, image: "https://via.placeholder.com/100x100/EB0924/FFFFFF?text=Phone", quantity: 1 },
             { id: 2, name: "Auriculares Bluetooth", price: 129.99, image: "https://via.placeholder.com/100x100/F77786/FFFFFF?text=Audio", quantity: 2 },
             { id: 3, name: "Laptop Gamer", price: 1299.99, image: "https://via.placeholder.com/100x100/998486/FFFFFF?text=Laptop", quantity: 1 }
         ];
 
-        // Initialize cart
+        // Initialize cart - MODIFICADO para cargar desde localStorage
         function initCart() {
+            loadCartFromStorage();
             updateCartDisplay();
             updateCartCount();
+        }
+
+        // NUEVA FUNCIÓN: Cargar carrito desde localStorage
+        function loadCartFromStorage() {
+            try {
+                const savedCart = localStorage.getItem('cart');
+                if (savedCart) {
+                    cart = JSON.parse(savedCart);
+                    cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+                }
+            } catch (error) {
+                console.log('Error loading cart from storage:', error);
+                cart = [];
+                cartCount = 0;
+            }
+        }
+
+        // NUEVA FUNCIÓN: Guardar carrito en localStorage
+        function saveCartToStorage() {
+            try {
+                localStorage.setItem('cart', JSON.stringify(cart));
+            } catch (error) {
+                console.log('Error saving cart to storage:', error);
+            }
         }
 
         // Add sample products to cart
         function addSampleProducts() {
             cart = [...sampleProducts];
             cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+            saveCartToStorage(); // AGREGADO: Guardar en localStorage
             updateCartDisplay();
             updateCartCount();
             showSuccessModal("Productos agregados al carrito");
@@ -72,7 +98,7 @@
             calculateTotals();
         }
 
-        // Update quantity
+        // Update quantity - MODIFICADO para guardar en localStorage
         function updateQuantity(productId, change) {
             const item = cart.find(item => item.id === productId);
             if (item) {
@@ -81,16 +107,18 @@
                     removeItem(productId);
                 } else {
                     cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+                    saveCartToStorage(); // AGREGADO
                     updateCartDisplay();
                     updateCartCount();
                 }
             }
         }
 
-        // Remove item
+        // Remove item - MODIFICADO para guardar en localStorage
         function removeItem(productId) {
             cart = cart.filter(item => item.id !== productId);
             cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+            saveCartToStorage(); // AGREGADO
             updateCartDisplay();
             updateCartCount();
             showSuccessModal("Producto eliminado del carrito");
@@ -135,12 +163,25 @@
             showSuccessModal("Continuando con las compras...");
         }
 
+        // MODIFICADO: Proceder al checkout sin limpiar el carrito
         function proceedToCheckout() {
             if (cart.length === 0) {
                 showSuccessModal("Tu carrito está vacío");
                 return;
             }
-            showSuccessModal("Redirigiendo al proceso de pago...");
+            // Mantener los productos en el carrito para mostrarlos
+            showSuccessModal("Procesando pedido...");
+            // Aquí puedes agregar la lógica para procesar el pedido
+            // pero SIN limpiar el carrito hasta que se confirme la compra
+        }
+
+        // NUEVA FUNCIÓN: Limpiar carrito después de compra exitosa
+        function clearCartAfterPurchase() {
+            cart = [];
+            cartCount = 0;
+            localStorage.removeItem('cart');
+            updateCartDisplay();
+            updateCartCount();
         }
 
         // Modal functions
