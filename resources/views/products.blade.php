@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', ' Productos')
+@section('title', 'Productos')
 
 @vite('resources/css/products.css')
 
@@ -31,17 +31,29 @@
                         <button class="filter-btn active w-full text-left px-3 py-2 rounded-lg" data-category="all">
                             Todas las categorías
                         </button>
-                        <button class="filter-btn w-full text-left px-3 py-2 rounded-lg" data-category="electronics">
+                        <button class="filter-btn w-full text-left px-3 py-2 rounded-lg" data-category="electronica">
                             <i class="fas fa-laptop"></i> Electrónicos
                         </button>
-                        <button class="filter-btn w-full text-left px-3 py-2 rounded-lg" data-category="clothing">
+                        <button class="filter-btn w-full text-left px-3 py-2 rounded-lg" data-category="ropa">
                             <i class="fas fa-tshirt"></i> Ropa
                         </button>
-                        <button class="filter-btn w-full text-left px-3 py-2 rounded-lg" data-category="home">
+                        <button class="filter-btn w-full text-left px-3 py-2 rounded-lg" data-category="hogar">
                             <i class="fas fa-home"></i> Hogar
                         </button>
-                        <button class="filter-btn w-full text-left px-3 py-2 rounded-lg" data-category="sports">
+                        <button class="filter-btn w-full text-left px-3 py-2 rounded-lg" data-category="deportes">
                             <i class="fas fa-football-ball"></i> Deportes
+                        </button>
+                        <button class="filter-btn w-full text-left px-3 py-2 rounded-lg" data-category="libros">
+                            <i class="fas fa-book"></i> Libros
+                        </button>
+                        <button class="filter-btn w-full text-left px-3 py-2 rounded-lg" data-category="juguetes">
+                            <i class="fas fa-gamepad"></i> Juguetes
+                        </button>
+                        <button class="filter-btn w-full text-left px-3 py-2 rounded-lg" data-category="belleza">
+                            <i class="fas fa-palette"></i> Belleza
+                        </button>
+                        <button class="filter-btn w-full text-left px-3 py-2 rounded-lg" data-category="automotriz">
+                            <i class="fas fa-car"></i> Automotriz
                         </button>
                     </div>
                 </div>
@@ -51,9 +63,9 @@
                     <h4 class="font-semibold mb-3 text-gray-700">Precio</h4>
                     <div class="space-y-4">
                         <div class="flex items-center space-x-4">
-                            <input type="number" id="minPrice" placeholder="Min" class="w-20 px-2 py-1 border rounded text-sm">
+                            <input type="number" id="minPrice" placeholder="Min" class="w-20 px-2 py-1 border rounded text-sm" min="0">
                             <span class="text-gray-500">-</span>
-                            <input type="number" id="maxPrice" placeholder="Max" class="w-20 px-2 py-1 border rounded text-sm">
+                            <input type="number" id="maxPrice" placeholder="Max" class="w-20 px-2 py-1 border rounded text-sm" min="0">
                         </div>
                     </div>
                 </div>
@@ -107,25 +119,32 @@
                             <button id="toggleFilters" class="lg:hidden btn-secondary px-4 py-2 rounded-lg">
                                 <i class="fas fa-filter"></i> Filtros
                             </button>
+                            
+                           
+                            
                             <select id="sortBy" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
                                 <option value="featured">Destacados</option>
                                 <option value="price-low">Precio: Menor a Mayor</option>
                                 <option value="price-high">Precio: Mayor a Menor</option>
                                 <option value="rating">Mejor Calificados</option>
                                 <option value="newest">Más Recientes</option>
+                                <option value="name-asc">Nombre: A-Z</option>
+                                <option value="name-desc">Nombre: Z-A</option>
                             </select>
                         </div>
                     </div>
                     
                     <!-- Contador de productos -->
                     <div class="mt-4 flex items-center justify-between">
-                        <span id="productCount" class="text-sm text-gray-600">Mostrando 0 productos</span>
+                        <span id="productCount" class="text-sm text-gray-600">Cargando productos...</span>
                     </div>
                 </div>
 
                 <!-- Loading spinner -->
                 <div id="loadingSpinner" class="flex justify-center items-center py-12">
-                    <div class="loading-spinner"></div>
+                    <div class="loading-spinner">
+                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+                    </div>
                 </div>
 
                 <!-- Grid de productos con Tailwind -->
@@ -139,6 +158,19 @@
                     <h3 class="text-xl font-semibold text-gray-600 mb-2">No se encontraron productos</h3>
                     <p class="text-gray-500">Intenta ajustar tus filtros de búsqueda</p>
                 </div>
+
+                <!-- Paginación -->
+                <div id="pagination" class="flex justify-center items-center mt-8 space-x-2 hidden">
+                    <button id="prevPage" class="px-4 py-2 border rounded-lg bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div id="pageNumbers" class="flex space-x-2">
+                        <!-- Números de página se generarán dinámicamente -->
+                    </div>
+                    <button id="nextPage" class="px-4 py-2 border rounded-lg bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -147,5 +179,20 @@
 @include('modals.shopingcart-items.ButtonShopingCart')
 
 @endsection
+
+<script>
+    // Configurar CSRF token para peticiones AJAX
+    window.csrfToken = '{{ csrf_token() }}';
+    
+    // Configurar meta tag si no existe
+    document.addEventListener('DOMContentLoaded', function() {
+        if (!document.querySelector('meta[name="csrf-token"]')) {
+            const meta = document.createElement('meta');
+            meta.name = 'csrf-token';
+            meta.content = '{{ csrf_token() }}';
+            document.head.appendChild(meta);
+        }
+    });
+</script>
 
 @vite('resources/js/products.js')

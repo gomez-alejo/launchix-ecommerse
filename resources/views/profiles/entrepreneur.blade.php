@@ -77,7 +77,7 @@
             <main class="flex-1">
                 @include('modals.login-items.entrepreneur.DashboardSection')
 
-                @include('modals.login-items.entrepreneur.ProductsSection', ['products' => $products])
+                @include('modals.login-items.entrepreneur.ProductsSection')
 
                 @include('modals.login-items.entrepreneur.ProductPublishingSection')
 
@@ -95,4 +95,6 @@
 
 @endsection
 
-@vite(['resources/js/entrepreneur.js', 'resources/js/ProductPublishing.js'])
+@vite('resources/js/entrepreneur.js')
+
+@vite('resources/js/ProductPublishing.js')
