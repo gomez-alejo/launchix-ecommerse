@@ -59,3 +59,46 @@ Route::post('/logout/entrepreneur', [EntrepreneurAuthController::class, 'logout'
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // Rutas de API de productos (igual que servicios)
+    Route::get('/productos', [ProductController::class, 'index'])->name('productos.index');
+    Route::get('/productos/{id}', [ProductController::class, 'show'])->name('productos.show');
+    Route::post('/productos', [ProductController::class, 'store'])->name('productos.store');
+    Route::put('/productos/{id}', [ProductController::class, 'update'])->name('productos.update');
+    Route::patch('/productos/{id}', [ProductController::class, 'update'])->name('productos.patch');
+    Route::delete('/productos/{id}', [ProductController::class, 'destroy'])->name('productos.destroy');
+
+    // Rutas públicas para productos
+    Route::get('/api/productos', [ProductController::class, 'apiIndex'])->name('productos.api');
+    Route::get('/productos', [ProductController::class, 'publicIndex'])->name('productos.public');
+    Route::get('/productos/{id}', [ProductController::class, 'publicShow'])->name('productos.show');
+    Route::get('/api/productos/search', [ProductController::class, 'search'])->name('productos.search');
+
+    // Si tienes un controlador de categorías
+    // Route::get('/api/categories', [CategoryController::class, 'index'])->name('categories.api');
+
+    // Rutas adicionales que podrías necesitar
+    Route::prefix('api')->group(function () {
+        Route::get('/productos', [ProductController::class, 'publicIndex']);
+        Route::get('/productos/{id}', [ProductController::class, 'publicShow']);
+        Route::post('/productos/search', [ProductController::class, 'search']);
+    });
+
+
+

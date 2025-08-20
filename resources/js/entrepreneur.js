@@ -5,25 +5,25 @@
 
 // Función para mostrar secciones - ahora accesible globalmente
 window.showSection = function(sectionId) {
-    // Ocultar todas las secciones
+    // Hide all sections
     const sections = document.querySelectorAll('.section-content');
     sections.forEach(section => {
-        section.style.display = 'none';
+        section.classList.remove('active');
     });
-
-    // Mostrar la sección seleccionada
+    
+    // Show selected section
     const targetSection = document.getElementById(sectionId);
     if (targetSection) {
-        targetSection.style.display = 'block';
+        targetSection.classList.add('active');
     }
-
-    // Actualizar el estado activo del menú
+    
+    // Update menu active state
     const menuItems = document.querySelectorAll('.menu-item');
     menuItems.forEach(item => {
         item.classList.remove('active');
     });
-
-    // Encontrar y activar el elemento del menú clickeado
+    
+    // Find and activate the clicked menu item
     const clickedItem = event?.target?.closest('.menu-item');
     if (clickedItem) {
         clickedItem.classList.add('active');
