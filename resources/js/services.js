@@ -9,7 +9,7 @@ const exampleServices = [
         categoria: "comida",
         precio_base: 25000,
         descripcion: "Deliciosas pizzas artesanales con ingredientes frescos. Servicio a domicilio disponible.",
-        imagen_principal: 'pizza-express.jpg',
+            imagen_principal: "images/ejemplo-servicios/pizza.jpg",
         direccion: "Calle 123, Ciudad",
         telefono: "1234567890",
         horario_atencion: "Lun-Dom 10:00-22:00"
@@ -19,11 +19,32 @@ const exampleServices = [
         categoria: "autolavado",
         precio_base: 15000,
         descripcion: "Servicio completo de lavado y encerado. Cuidamos tu vehículo como si fuera nuestro.",
-        imagen_principal: 'https://tse4.mm.bing.net/th/id/OIP.OdVvocpu_mXYcOlB67PdEAHaFB?pid=Api&P=0&h=180',
+            imagen_principal: "images/ejemplo-servicios/autolavado.jpg",
         direccion: "Av. Principal 456, Ciudad",
         telefono: "0987654321",
         horario_atencion: "Lun-Sab 8:00-18:00"
-    }
+    },
+        {
+            nombre_servicio: "Carpintería Creativa",
+            categoria: "carpinteria",
+            precio_base: 30000,
+            descripcion: "Muebles a medida, restauración y trabajos en madera de alta calidad.",
+            imagen_principal: "images/ejemplo-servicios/carpinteria.jpg",
+            direccion: "Cra 10 #45-67, Ciudad",
+            telefono: "3216549870",
+            horario_atencion: "Lun-Vie 9:00-18:00"
+        },
+        {
+            nombre_servicio: "Belleza Total Spa",
+            categoria: "belleza",
+            precio_base: 40000,
+            descripcion: "Spa, peluquería y tratamientos de belleza para toda la familia.",
+            imagen_principal: "images/ejemplo-servicios/belleza.jpg",
+            direccion: "Calle 50 #12-34, Ciudad",
+            telefono: "3123456789",
+            horario_atencion: "Mar-Sab 10:00-20:00"
+        },
+        
 ];
 
 // =============================
@@ -32,9 +53,19 @@ const exampleServices = [
 
 // Función para renderizar una card de servicio (sirve para ambos tipos)
 function renderServiceCard(servicio) {
+    let imgSrc = 'https://via.placeholder.com/300x200?text=Sin+Imagen';
+    if (servicio.imagen_principal) {
+        if (servicio.imagen_principal.startsWith('images/')) {
+            imgSrc = '/' + servicio.imagen_principal;
+        } else if (servicio.imagen_principal.startsWith('http')) {
+            imgSrc = servicio.imagen_principal;
+        } else {
+            imgSrc = '/storage/' + servicio.imagen_principal;
+        }
+    }
     return `
         <div class="bg-white rounded-lg shadow-lg p-4 flex flex-col h-full">
-            <img src="${servicio.imagen_principal ? '/storage/' + servicio.imagen_principal : 'https://via.placeholder.com/300x200?text=Sin+Imagen'}" alt="${servicio.nombre_servicio}" class="w-full h-40 object-cover rounded mb-3">
+            <img src="${imgSrc}" alt="${servicio.nombre_servicio}" class="w-full h-40 object-cover rounded mb-3">
             <h3 class="text-lg font-bold text-gray-800 mb-1">${servicio.nombre_servicio}</h3>
             <div class="text-sm text-gray-600 mb-2">${servicio.categoria}</div>
             <div class="text-gray-700 mb-2 line-clamp-2">${servicio.descripcion}</div>
@@ -114,11 +145,21 @@ function showServiceModal(servicio) {
     modal = document.createElement('div');
     modal.id = 'modal-ver-detalles';
     modal.className = 'fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center';
+    let imgSrc = 'https://via.placeholder.com/300x200?text=Sin+Imagen';
+    if (servicio.imagen_principal) {
+        if (servicio.imagen_principal.startsWith('images/')) {
+            imgSrc = '/' + servicio.imagen_principal;
+        } else if (servicio.imagen_principal.startsWith('http')) {
+            imgSrc = servicio.imagen_principal;
+        } else {
+            imgSrc = '/storage/' + servicio.imagen_principal;
+        }
+    }
     modal.innerHTML = `
         <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
             <button class="absolute top-2 right-2 text-gray-600 hover:text-primary" onclick="document.getElementById('modal-ver-detalles').remove()">&times;</button>
             <h3 class="text-xl font-bold mb-2">${servicio.nombre_servicio}</h3>
-            <img src="${servicio.imagen_principal ? '/storage/' + servicio.imagen_principal : 'https://via.placeholder.com/300x200?text=Sin+Imagen'}" alt="${servicio.nombre_servicio}" class="w-full h-48 object-cover rounded mb-3">
+            <img src="${imgSrc}" alt="${servicio.nombre_servicio}" class="w-full h-48 object-cover rounded mb-3">
             <div class="mb-2 text-gray-700">${servicio.descripcion || ''}</div>
             <div class="mb-2"><span class="font-semibold">Categoría:</span> ${servicio.categoria || ''}</div>
             <div class="mb-2"><span class="font-semibold">Precio:</span> ${servicio.precio_base ? '$' + Number(servicio.precio_base).toLocaleString() : ''}</div>
