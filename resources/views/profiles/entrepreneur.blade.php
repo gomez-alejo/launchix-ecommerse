@@ -6,6 +6,7 @@
 
 @section('content')
 
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <div class="container mx-auto px-4 py-8 mt-16">
         <div class="flex gap-6">
             <!-- Sidebar -->
@@ -95,4 +96,7 @@
 @endsection
 
 @vite('resources/js/entrepreneur.js')
+
+@vite('resources/js/ProductPublishing.js')
+
 @vite('resources/js/ServicePublishing.js')
