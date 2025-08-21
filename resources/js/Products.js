@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
 async function loadProducts() {
     try {
         showLoading();
-        
+
         // Usar la ruta API específica que siempre devuelve JSON
         const response = await fetch('/api/productos', {
             method: 'GET',
@@ -38,28 +38,28 @@ async function loadProducts() {
         console.log('Data received:', data);
         console.log('First product raw:', data.data[0]);
         console.log('First product transformed:', products[0]);
-        
+
         if (data.success && Array.isArray(data.data)) {
             // Transformar los datos de Laravel al formato esperado por el frontend
             products = data.data.map(product => transformProductData(product));
             filteredProducts = [...products];
-            
+
             initializeApp();
         } else if (Array.isArray(data)) {
             // Si la respuesta es directamente un array de productos (formato simplificado)
             products = data.map(product => transformProductData(product));
             filteredProducts = [...products];
-            
+
             initializeApp();
         } else {
             console.log('Data structure:', data);
             throw new Error('Formato de datos inesperado del servidor');
         }
-        
+
     } catch (error) {
         console.error('Error cargando productos:', error);
         showErrorMessage(`Error al cargar los productos: ${error.message}`);
-        
+
         // Como fallback, mostrar mensaje sin productos
         showNoProducts();
     } finally {
@@ -98,19 +98,19 @@ function transformProductData(laravelProduct) {
 // Verificar si un producto es nuevo (menos de 30 días)
 function isProductNew(createdAt) {
     if (!createdAt) return false;
-    
+
     const productDate = new Date(createdAt);
     const now = new Date();
     const diffTime = Math.abs(now - productDate);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     return diffDays <= 30;
 }
 
 // Calcular el descuento
 function calculateDiscount(currentPrice, originalPrice) {
     if (!originalPrice || originalPrice <= currentPrice) return 0;
-    
+
     return Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
 }
 
@@ -174,17 +174,17 @@ function setupEventListeners() {
         searchInput.addEventListener('input', function(e) {
             console.log('Search event triggered:', e.target.value);
             const searchTerm = e.target.value.toLowerCase();
-            
+
             if (searchTerm === '') {
                 filteredProducts = [...products];
             } else {
-                filteredProducts = products.filter(product => 
+                filteredProducts = products.filter(product =>
                     product.name.toLowerCase().includes(searchTerm) ||
                     product.description.toLowerCase().includes(searchTerm) ||
                     (product.brand && product.brand.toLowerCase().includes(searchTerm))
                 );
             }
-            
+
             console.log('Filtered products count:', filteredProducts.length);
             currentPage = 1;
             displayProducts();
@@ -192,7 +192,7 @@ function setupEventListeners() {
     }console.log('Setting up event listeners');
 
     console.log('Search input found:', searchInput);
-    
+
     // Búsqueda
     searchInput?.addEventListener('input', debounce(searchProducts, 300));
 }
@@ -201,7 +201,7 @@ function setupEventListeners() {
 function searchProducts() {
     const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
     console.log('Search term:', searchTerm);
-    
+
     if (searchTerm === '') {
         filterProducts();
         return;
@@ -240,32 +240,32 @@ function closeSidebar() {
 
 function displayProducts() {
     const grid = document.getElementById('productsGrid');
-    
+
     if (!grid) return;
-    
+
     if (filteredProducts.length === 0) {
         showNoProducts();
         return;
     }
 
     hideNoProducts();
-    
+
     // Paginación
     const startIndex = (currentPage - 1) * productsPerPage;
     const endIndex = startIndex + productsPerPage;
     const productsToShow = filteredProducts.slice(startIndex, endIndex);
-    
+
     grid.innerHTML = productsToShow.map(product => createProductCard(product)).join('');
     updateProductCount(filteredProducts.length);
     setupPagination(filteredProducts.length);
-    
+
     // Agregar event listeners a los botones de agregar al carrito
     document.querySelectorAll('.add-to-cart').forEach(btn => {
         btn.addEventListener('click', function() {
             const productId = parseInt(this.dataset.productId);
             addToCart(productId);
 
-            
+
         });
     });
     // Event listeners para botones de ver detalles
@@ -282,17 +282,17 @@ function displayProducts() {
 }
 
 function createProductCard(product) {
-    const discountBadge = product.discount > 0 ? 
+    const discountBadge = product.discount > 0 ?
         `<div class="absolute top-2 left-2 bg-red-600 text-white px-2 py-1 rounded-full text-xs font-bold">
             -${product.discount}%
         </div>` : '';
 
-    const newBadge = product.isNew ? 
+    const newBadge = product.isNew ?
         `<div class="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold">
             NUEVO
         </div>` : '';
 
-    const stockStatus = product.inStock ? 
+    const stockStatus = product.inStock ?
         `<button class="add-to-cart btn-primary w-full py-2 rounded-lg font-semibold transition-all duration-300" data-product-id="${product.id}">
             <i class="fas fa-cart-plus"></i> Agregar al Carrito
         </button>` :
@@ -305,7 +305,7 @@ function createProductCard(product) {
     return `
         <div class="product-card bg-white rounded-lg shadow-lg overflow-hidden fade-in">
             <div class="relative">
-                <img src="${product.image}" alt="${product.name}" class="w-full h-64 object-cover" 
+                <img src="${product.image}" alt="${product.name}" class="w-full h-64 object-cover"
                      onerror="this.src='https://via.placeholder.com/300x300/F77786/FFFFFF?text=Producto'">
                 ${discountBadge}
                 ${newBadge}
@@ -321,7 +321,7 @@ function createProductCard(product) {
                 ${product.brand ? `<div class="text-xs text-gray-500 mb-1">${product.brand}</div>` : ''}
                 <h3 class="text-lg font-bold text-gray-800 mb-2 line-clamp-2">${product.name}</h3>
                 <p class="text-gray-600 text-sm mb-3 line-clamp-2">${product.description}</p>
-                
+
                 <div class="flex items-center mb-3">
                     <div class="star-rating mr-2">${stars}</div>
                     <span class="text-sm text-gray-600">(${product.reviews} reseñas)</span>
@@ -330,11 +330,11 @@ function createProductCard(product) {
                 <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center space-x-2">
                         <span class="text-2xl font-bold text-red-600">$${product.price.toFixed(2)}</span>
-                        ${product.originalPrice > product.price ? 
+                        ${product.originalPrice > product.price ?
                             `<span class="text-lg text-gray-400 line-through">$${product.originalPrice.toFixed(2)}</span>` : ''}
                     </div>
                     <div class="flex items-center space-x-2">
-                        <button class="text-gray-400 hover:text-red-600 transition-colors p-2" 
+                        <button class="text-gray-400 hover:text-red-600 transition-colors p-2"
                                 onclick="toggleWishlist(${product.id})">
                             <i class="fas fa-heart"></i>
                         </button>
@@ -404,7 +404,7 @@ function filterProducts() {
         const matchesCategory = activeCategory === 'all' || product.category.slug === activeCategory;
         console.log('Product:', product.name, 'Category:', product.category.slug, 'Matches:', matchesCategory);
         const matchesPrice = product.price >= minPrice && product.price <= maxPrice;
-        const matchesRating = selectedRatings.length === 0 || 
+        const matchesRating = selectedRatings.length === 0 ||
             selectedRatings.some(rating => product.rating >= rating);
 
         return matchesCategory && matchesPrice && matchesRating;
@@ -446,17 +446,17 @@ function clearAllFilters() {
     // Resetear categoría
     document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelector('.filter-btn[data-category="all"]')?.classList.add('active');
-    
+
     // Resetear precios
     if (document.getElementById('minPrice')) document.getElementById('minPrice').value = '';
     if (document.getElementById('maxPrice')) document.getElementById('maxPrice').value = '';
-    
+
     // Resetear calificaciones
     document.querySelectorAll('.rating-filter').forEach(cb => cb.checked = false);
-    
+
     // Resetear ordenamiento
     if (document.getElementById('sortBy')) document.getElementById('sortBy').value = 'featured';
-    
+
     // Resetear búsqueda
     if (document.getElementById('searchInput')) document.getElementById('searchInput').value = '';
 
@@ -471,7 +471,7 @@ function addToCart(productId) {
     if (!product || !product.inStock) return;
 
     const existingItem = cart.find(item => item.id === productId);
-    
+
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
@@ -554,9 +554,9 @@ function showAddToCartNotification(productName) {
             <span>¡${productName} agregado al carrito!</span>
         </div>
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
         notification.remove();
     }, 3000);
@@ -565,16 +565,16 @@ function showAddToCartNotification(productName) {
 function setupPagination(totalProducts) {
     const totalPages = Math.ceil(totalProducts / productsPerPage);
     const pagination = document.getElementById('pagination');
-    
+
     if (!pagination) return;
-    
+
     if (totalPages <= 1) {
         pagination.classList.add('hidden');
         return;
     }
 
     pagination.classList.remove('hidden');
-    
+
     const prevBtn = document.getElementById('prevPage');
     const nextBtn = document.getElementById('nextPage');
     const pageNumbers = document.getElementById('pageNumbers');
@@ -608,7 +608,7 @@ function setupPagination(totalProducts) {
         prevBtn.replaceWith(newPrevBtn);
         newPrevBtn.addEventListener('click', () => goToPage(currentPage - 1));
     }
-    
+
     if (nextBtn) {
         const newNextBtn = nextBtn.cloneNode(true);
         nextBtn.replaceWith(newNextBtn);
@@ -633,7 +633,7 @@ function showNoProducts() {
     const grid = document.getElementById('productsGrid');
     const noProducts = document.getElementById('noProducts');
     const pagination = document.getElementById('pagination');
-    
+
     if (grid) grid.classList.add('hidden');
     if (noProducts) noProducts.classList.remove('hidden');
     if (pagination) pagination.classList.add('hidden');
@@ -663,9 +663,9 @@ function showErrorMessage(message) {
             <span>${message}</span>
         </div>
     `;
-    
+
     document.body.appendChild(errorDiv);
-    
+
     setTimeout(() => {
         errorDiv.remove();
     }, 5000);
@@ -675,7 +675,7 @@ function showErrorMessage(message) {
 function viewProductDetails(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
-    
+
     // Crear el modal dinámicamente
     const modalHTML = `
         <div id="productModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -687,7 +687,7 @@ function viewProductDetails(productId) {
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <img src="${product.image}" alt="${product.name}" class="w-full h-64 object-cover rounded-lg mb-4">
@@ -696,7 +696,7 @@ function viewProductDetails(productId) {
                                 ${product.gallery.map(img => `<img src="${img}" alt="${product.name}" class="w-16 h-16 object-cover rounded cursor-pointer border-2 border-gray-200 hover:border-red-500" onclick="this.parentElement.previousElementSibling.src='${img}'">`).join('')}
                             </div>
                         </div>
-                        
+
                         <div>
                             <div class="category-tag inline-block mb-2">${getCategoryName(product.category.slug)}</div>
                             ${product.brand ? `<div class="text-sm text-gray-600 mb-2">${product.brand}</div>` : ''}
@@ -719,10 +719,10 @@ function viewProductDetails(productId) {
             </div>
         </div>
     `;
-    
+
     // Agregar al body
     document.body.insertAdjacentHTML('beforeend', modalHTML);
-    
+
     // Cerrar al hacer clic fuera
     document.getElementById('productModal').addEventListener('click', function(e) {
         if (e.target === this) closeProductModal();
@@ -769,14 +769,14 @@ function refreshProducts() {
 document.addEventListener('click', function(e) {
     const categoriesModal = document.getElementById('categoriesModal');
     const categoriesButton = document.getElementById('categoriesButton');
-    
+
     if (categoriesModal && categoriesButton && !categoriesButton.contains(e.target) && !categoriesModal.contains(e.target)) {
         categoriesModal.classList.add('hidden');
     }
 
     const miniCart = document.getElementById('miniCart');
     const cartToggle = document.getElementById('cartToggle');
-    
+
     if (miniCart && cartToggle && !cartToggle.contains(e.target) && !miniCart.contains(e.target)) {
         miniCart.classList.add('hidden');
     }
@@ -784,13 +784,13 @@ document.addEventListener('click', function(e) {
     const filterSidebar = document.getElementById('filterSidebar');
     const toggleFilters = document.getElementById('toggleFilters');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
-    
-    if (filterSidebar && toggleFilters && window.innerWidth < 1024 && 
+
+    if (filterSidebar && toggleFilters && window.innerWidth < 1024 &&
         !toggleFilters.contains(e.target) && !filterSidebar.contains(e.target)) {
         filterSidebar.classList.remove('active');
         if (sidebarOverlay) sidebarOverlay.classList.remove('active');
     }
-    
+
 });
 // Hacer la función closeProductModal globalmente accesible
 

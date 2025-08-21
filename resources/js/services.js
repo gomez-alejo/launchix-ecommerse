@@ -1,294 +1,134 @@
-// Datos de servicios
-const services = [
+
+
+// =============================
+// Servicios de ejemplo (se mantienen)
+// =============================
+const exampleServices = [
     {
-        name: "Pizza Express",
-        category: "comida",
-        price: 25000,
-        rating: 4.8,
-        reviews: 156,
-        description: "Deliciosas pizzas artesanales con ingredientes frescos. Servicio a domicilio disponible.",
-        image: "https://i.pinimg.com/736x/c3/15/f2/c315f238994440a1342f971546a2ce71.jpg",
-        emoji: "🍕"
+        nombre_servicio: "Pizza Express",
+        categoria: "comida",
+        precio_base: 25000,
+        descripcion: "Deliciosas pizzas artesanales con ingredientes frescos. Servicio a domicilio disponible.",
+        imagen_principal: 'pizza-express.jpg',
+        direccion: "Calle 123, Ciudad",
+        telefono: "1234567890",
+        horario_atencion: "Lun-Dom 10:00-22:00"
     },
     {
-        name: "AutoLavado Premium",
-        category: "autolavado",
-        price: 15000,
-        rating: 4.5,
-        reviews: 89,
-        description: "Servicio completo de lavado y encerado. Cuidamos tu vehículo como si fuera nuestro.",
-        image: "https://i.pinimg.com/736x/4c/9e/b5/4c9eb52e97e1f2b7a84b6f17259435fa.jpg",
-        emoji: "🚗"
-    },
-    {
-        name: "Carpintería Artesanal",
-        category: "carpinteria",
-        price: 50000,
-        rating: 4.9,
-        reviews: 234,
-        description: "Muebles a medida y reparaciones. Trabajamos con maderas de la mejor calidad.",
-        image: "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=300&h=200&fit=crop",
-        emoji: "🔨"
-    },
-    {
-        name: "Droguería Salud",
-        category: "drogeria",
-        price: 12000,
-        rating: 4.6,
-        reviews: 78,
-        description: "Medicamentos, productos de cuidado personal y atención farmacéutica profesional.",
-        image: "https://i.pinimg.com/736x/aa/ef/09/aaef09fcbf62ccb206cadcfa19faed8f.jpg",
-        emoji: "💊"
-    },
-    {
-        name: "Salón Elegancia",
-        category: "belleza",
-        price: 35000,
-        rating: 4.7,
-        reviews: 198,
-        description: "Cortes, peinados, tratamientos faciales y servicios de spa. Tu belleza es nuestra prioridad.",
-        image: "https://images.unsplash.com/photo-1562322140-8baeececf3df?w=300&h=200&fit=crop",
-        emoji: "💄"
-    },
-    {
-        name: "TecniRepara",
-        category: "reparaciones",
-        price: 40000,
-        rating: 4.4,
-        reviews: 112,
-        description: "Reparación de electrodomésticos, celulares y equipos electrónicos. Servicio técnico especializado.",
-        image: "https://images.unsplash.com/photo-1581244277943-fe4a9c777189?w=300&h=200&fit=crop",
-        emoji: "🔧"
-    },
-    {
-        name: "Sabor Casero",
-        category: "comida",
-        price: 18000,
-        rating: 4.3,
-        reviews: 67,
-        description: "Comida tradicional preparada con amor. Menús diarios y platos a la carta.",
-        image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=300&h=200&fit=crop",
-        emoji: "🍕"
-    },
-    {
-        name: "EcoWash",
-        category: "autolavado",
-        price: 20000,
-        rating: 4.8,
-        reviews: 143,
-        description: "Lavado ecológico sin químicos dañinos. Cuidamos tu auto y el medio ambiente.",
-        image: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=300&h=200&fit=crop",
-        emoji: "🚗"
+        nombre_servicio: "AutoLavado Premium",
+        categoria: "autolavado",
+        precio_base: 15000,
+        descripcion: "Servicio completo de lavado y encerado. Cuidamos tu vehículo como si fuera nuestro.",
+        imagen_principal: 'https://tse4.mm.bing.net/th/id/OIP.OdVvocpu_mXYcOlB67PdEAHaFB?pid=Api&P=0&h=180',
+        direccion: "Av. Principal 456, Ciudad",
+        telefono: "0987654321",
+        horario_atencion: "Lun-Sab 8:00-18:00"
     }
 ];
 
-// Función para crear estrellitas
-function createStars(rating) {
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
-    let stars = '';
-    
-    for (let i = 0; i < fullStars; i++) {
-        stars += '★';
-    }
-    
-    if (hasHalfStar) {
-        stars += '☆';
-    }
-    
-    while (stars.length < 5) {
-        stars += '☆';
-    }
-    
-    return stars;
-}
+// =============================
+// Cargar servicios reales desde el backend y combinarlos con los de ejemplo
+// =============================
 
-// Función para actualizar el estilo de los filtros de categoría
-function updateCategoryFilterStyles() {
-    document.querySelectorAll('.filter-checkbox').forEach(checkbox => {
-        const label = checkbox.nextElementSibling;
-        if (checkbox.checked) {
-            label.classList.remove('bg-gray-100', 'text-gray-700', 'border-2', 'border-gray-200');
-            label.classList.add('bg-accent', 'text-white');
-        } else {
-            label.classList.remove('bg-accent', 'text-white');
-            label.classList.add('bg-gray-100', 'text-gray-700', 'border-2', 'border-gray-200');
-        }
-    });
-}
-
-// Función para filtrar servicios
-function filterServices() {
-    const selectedCategories = Array.from(document.querySelectorAll('.filter-checkbox:checked')).map(cb => cb.dataset.category);
-    const minPrice = parseInt(document.getElementById('minPrice').value) || 0;
-    const maxPrice = parseInt(document.getElementById('maxPrice').value) || Infinity;
-    const selectedRatings = Array.from(document.querySelectorAll('input[data-rating]:checked')).map(cb => parseFloat(cb.dataset.rating));
-    
-    let filteredServices = services;
-    
-    // Filtrar por categoría
-    if (selectedCategories.length > 0 && !selectedCategories.includes('todos')) {
-        filteredServices = filteredServices.filter(service => selectedCategories.includes(service.category));
-    }
-    
-    // Filtrar por precio
-    filteredServices = filteredServices.filter(service => service.price >= minPrice && service.price <= maxPrice);
-    
-    // Filtrar por calificación
-    if (selectedRatings.length > 0) {
-        filteredServices = filteredServices.filter(service => {
-            return selectedRatings.some(rating => service.rating >= rating);
-        });
-    }
-    
-    renderServices(filteredServices);
-    document.getElementById('results-count').textContent = filteredServices.length;
-}
-
-// Función para renderizar servicios
-function renderServices(servicesToRender) {
-    const grid = document.getElementById('services-grid');
-    const categoryNames = {
-        'comida': 'Comida',
-        'autolavado': 'Autolavado',
-        'carpinteria': 'Carpintería',
-        'drogeria': 'Droguería',
-        'belleza': 'Belleza',
-        'reparaciones': 'Reparaciones'
-    };
-    
-    const categoryIcons = {
-        'comida': '<i class="fas fa-utensils mr-1"></i>',
-        'autolavado': '<i class="fas fa-car mr-1"></i>',
-        'carpinteria': '<i class="fas fa-hammer mr-1"></i>',
-        'drogeria': '<i class="fas fa-pills mr-1"></i>',
-        'belleza': '<i class="fas fa-cut mr-1"></i>',
-        'reparaciones': '<i class="fas fa-wrench mr-1"></i>'
-    };
-    
-    grid.innerHTML = servicesToRender.map(service => `
-        <div class="service-card bg-white rounded-lg shadow-lg overflow-hidden" data-category="${service.category}" data-price="${service.price}" data-rating="${service.rating}">
-            <div class="relative">
-                <img src="${service.image}" alt="${service.name}" class="w-full h-48 object-cover">
-                <div class="absolute top-3 left-3 bg-primary text-white px-2 py-1 rounded-full text-xs font-medium">
-                    ${categoryIcons[service.category]}${categoryNames[service.category]}
-                </div>
-            </div>
-            <div class="p-4">
-                <h3 class="font-bold text-lg text-gray-800 mb-2">${service.name}</h3>
-                <p class="text-gray-600 text-sm mb-3">${service.description}</p>
-                <div class="flex items-center mb-3">
-                    <div class="star-rating text-sm">${createStars(service.rating)}</div>
-                    <span class="ml-2 text-sm text-gray-600">(${service.reviews} reseñas)</span>
-                </div>
-                <div class="flex items-center justify-between">
-                    <div class="text-primary font-bold text-lg">$${service.price.toLocaleString()}</div>
-                    <button class="bg-primary text-white px-4 py-2 rounded-md hover:bg-secondary transition-colors duration-300 text-sm">
-                        Ver Más
-                    </button>
-                </div>
+// Función para renderizar una card de servicio (sirve para ambos tipos)
+function renderServiceCard(servicio) {
+    return `
+        <div class="bg-white rounded-lg shadow-lg p-4 flex flex-col h-full">
+            <img src="${servicio.imagen_principal ? '/storage/' + servicio.imagen_principal : 'https://via.placeholder.com/300x200?text=Sin+Imagen'}" alt="${servicio.nombre_servicio}" class="w-full h-40 object-cover rounded mb-3">
+            <h3 class="text-lg font-bold text-gray-800 mb-1">${servicio.nombre_servicio}</h3>
+            <div class="text-sm text-gray-600 mb-2">${servicio.categoria}</div>
+            <div class="text-gray-700 mb-2 line-clamp-2">${servicio.descripcion}</div>
+            <div class="text-primary font-semibold mb-2">${servicio.precio_base ? '$' + Number(servicio.precio_base).toLocaleString() : ''}</div>
+            <div class="text-xs text-gray-500 mb-1">${servicio.direccion || ''}</div>
+            <div class="text-xs text-gray-500 mb-1">${servicio.telefono || ''}</div>
+            <div class="text-xs text-gray-500 mb-4">${servicio.horario_atencion || ''}</div>
+            <div class='flex justify-end mt-auto'>
+                <button class='bg-red-500 hover:bg-red-400 text-white px-4 py-1 rounded-lg text-xs font-semibold shadow ver-mas transition-colors duration-200' data-id='${servicio.id}'>
+                    <svg class="w-4 h-4 inline mr-1 -mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m6 0l-3-3m3 3l-3 3"/></svg>
+                    Ver detalle
+                </button>
             </div>
         </div>
-    `).join('');
+    `;
 }
 
-// Event listeners
-document.addEventListener('DOMContentLoaded', function() {
-    // Marcar "Todas las categorías" por defecto
-    const todosCheckbox = document.querySelector('input[data-category="todos"]');
-    if (todosCheckbox) {
-        todosCheckbox.checked = true;
-        updateCategoryFilterStyles();
+// Función para cargar y renderizar servicios
+async function loadServicios() {
+    const grid = document.getElementById('services-grid');
+    const count = document.getElementById('results-count');
+    if (!grid) return;
+    grid.innerHTML = '<div class="col-span-full text-center text-gray-400">Cargando servicios...</div>';
+    try {
+        // Petición AJAX al backend para obtener los servicios reales
+        const response = await fetch('/servicios', { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+        const data = await response.json();
+        let allServices = [...exampleServices]; // Comenzar con los de ejemplo
+        if (data.success && Array.isArray(data.data)) {
+            // Agregar los servicios reales al array
+            allServices = allServices.concat(data.data);
+        }
+        grid.innerHTML = '';
+        if (allServices.length > 0) {
+            allServices.forEach(servicio => {
+                grid.innerHTML += renderServiceCard(servicio);
+            });
+            if (count) count.textContent = allServices.length;
+        } else {
+            grid.innerHTML = '<div class="col-span-full text-center text-gray-400">No hay servicios disponibles.</div>';
+            if (count) count.textContent = 0;
+        }
+    } catch (e) {
+        grid.innerHTML = '<div class="col-span-full text-center text-red-400">Error al cargar servicios.</div>';
+        if (count) count.textContent = 0;
     }
-    
-    // Filtros de categoría
-    document.querySelectorAll('.filter-checkbox').forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            if (this.dataset.category === 'todos') {
-                // Si se selecciona "todos", deseleccionar otros
-                document.querySelectorAll('.filter-checkbox').forEach(cb => {
-                    if (cb !== this) cb.checked = false;
-                });
-            } else {
-                // Si se selecciona otra categoría, deseleccionar "todos"
-                const todosCheckbox = document.querySelector('input[data-category="todos"]');
-                if (todosCheckbox) {
-                    todosCheckbox.checked = false;
-                }
-            }
-            updateCategoryFilterStyles();
-            filterServices();
-        });
-    });
-    
-    // Filtros de precio
-    const minPriceInput = document.getElementById('minPrice');
-    const maxPriceInput = document.getElementById('maxPrice');
-    
-    if (minPriceInput) {
-        minPriceInput.addEventListener('input', filterServices);
-    }
-    if (maxPriceInput) {
-        maxPriceInput.addEventListener('input', filterServices);
-    }
-    
-    // Filtros de calificación
-    document.querySelectorAll('input[data-rating]').forEach(checkbox => {
-        checkbox.addEventListener('change', filterServices);
-    });
-    
-    // Limpiar filtros
-    const clearFiltersBtn = document.getElementById('clear-filters');
-    if (clearFiltersBtn) {
-        clearFiltersBtn.addEventListener('click', function() {
-            // Limpiar checkboxes
-            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-            
-            // Limpiar inputs de precio
-            if (minPriceInput) minPriceInput.value = '';
-            if (maxPriceInput) maxPriceInput.value = '';
-            
-            // Marcar "Todas las categorías"
-            const todosCheckbox = document.querySelector('input[data-category="todos"]');
-            if (todosCheckbox) {
-                todosCheckbox.checked = true;
-            }
-            
-            // Actualizar estilos de filtros
-            updateCategoryFilterStyles();
-            
-            // Filtrar servicios
-            filterServices();
-        });
-    }
-    
-    // Renderizar servicios iniciales
-    renderServices(services);
-});
+}
 
-// Animaciones adicionales
-document.addEventListener('scroll', function() {
-    const cards = document.querySelectorAll('.service-card');
-    cards.forEach(card => {
-        const rect = card.getBoundingClientRect();
-        if (rect.top < window.innerHeight && rect.bottom > 0) {
-            card.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
+
+// Obtener el id del usuario autenticado si está disponible (inyectado desde Blade)
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.currentEntrepreneurId === undefined && window.entrepreneurIdFromBlade) {
+        window.currentEntrepreneurId = window.entrepreneurIdFromBlade;
+    }
+    loadServicios();
+
+    // Delegar evento para el botón 'Ver más'
+    document.body.addEventListener('click', async function(e) {
+        if (e.target.closest('.ver-mas')) {
+            const btn = e.target.closest('.ver-mas');
+            const id = btn.dataset.id;
+            try {
+                const resp = await fetch(`/servicios/${id}`);
+                const data = await resp.json();
+                if (data.success) {
+                    showServiceModal(data.data);
+                }
+            } catch {}
         }
     });
 });
 
-// Inicializar animaciones
-document.addEventListener('DOMContentLoaded', function() {
-    const cards = document.querySelectorAll('.service-card');
-    cards.forEach((card, index) => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-        
-        setTimeout(() => {
-            card.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
-        }, index * 100);
-    });
-});
+// Modal para ver detalles del servicio
+function showServiceModal(servicio) {
+    let modal = document.getElementById('modal-ver-detalles');
+    if (modal) modal.remove();
+    modal = document.createElement('div');
+    modal.id = 'modal-ver-detalles';
+    modal.className = 'fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center';
+    modal.innerHTML = `
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
+            <button class="absolute top-2 right-2 text-gray-600 hover:text-primary" onclick="document.getElementById('modal-ver-detalles').remove()">&times;</button>
+            <h3 class="text-xl font-bold mb-2">${servicio.nombre_servicio}</h3>
+            <img src="${servicio.imagen_principal ? '/storage/' + servicio.imagen_principal : 'https://via.placeholder.com/300x200?text=Sin+Imagen'}" alt="${servicio.nombre_servicio}" class="w-full h-48 object-cover rounded mb-3">
+            <div class="mb-2 text-gray-700">${servicio.descripcion || ''}</div>
+            <div class="mb-2"><span class="font-semibold">Categoría:</span> ${servicio.categoria || ''}</div>
+            <div class="mb-2"><span class="font-semibold">Precio:</span> ${servicio.precio_base ? '$' + Number(servicio.precio_base).toLocaleString() : ''}</div>
+            <div class="mb-2"><span class="font-semibold">Dirección:</span> ${servicio.direccion || ''}</div>
+            <div class="mb-2"><span class="font-semibold">Teléfono:</span> ${servicio.telefono || ''}</div>
+            <div class="mb-2"><span class="font-semibold">Horario:</span> ${servicio.horario_atencion || ''}</div>
+            <div class="flex justify-end mt-6">
+                <button class="bg-red-500 hover:bg-red-400 text-white px-4 py-2 rounded-lg font-semibold shadow transition-colors duration-200" onclick="alert('Funcionalidad de agregar al carrito aquí')">Agregar al carrito</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}

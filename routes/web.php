@@ -5,8 +5,11 @@ use App\Http\Controllers\Auth\UserAuthController;
 use App\Http\Controllers\Auth\EntrepreneurAuthController;
 use App\Http\Controllers\EntrepreneurController;
 use App\Http\Controllers\ProductController;
-
 use App\Http\Controllers\ServicioController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\OrderController;
+
 // Web Routes
 
 // Home Route
@@ -64,14 +67,28 @@ Route::get('/register/entrepreneur', [EntrepreneurAuthController::class, 'showRe
 Route::post('/register/entrepreneur', [EntrepreneurAuthController::class, 'register']);
 
 Route::post('/logout/entrepreneur', [EntrepreneurAuthController::class, 'logout'])->name('logout.entrepreneur');
-// Rutas para servicios
-Route::get('/servicios', [ServicioController::class, 'index'])->name('servicios.index');
-Route::get('/servicios/{id}', [ServicioController::class, 'show'])->name('servicios.show');
-Route::post('/servicios', [ServicioController::class, 'store'])->name('servicios.store');
-Route::put('/servicios/{id}', [ServicioController::class, 'update'])->name('servicios.update');
-Route::patch('/servicios/{id}', [ServicioController::class, 'update'])->name('servicios.patch');
-Route::delete('/servicios/{id}', [ServicioController::class, 'destroy'])->name('servicios.destroy');
 
+
+/**
+ * ===================== RUTAS PRIVADAS Y AJAX DE SERVICIOS EMPRENDEDOR =====================
+ */
+
+// Dashboard para el emprendedor (con modales y JS)
+Route::get('/entrepreneur/services', function () {
+    return view('modals.login-items.entrepreneur.ServicesSection');
+})->middleware('auth:entrepreneur')->name('entrepreneur.services');
+
+// AJAX: Listar mis servicios
+Route::get('/mis-servicios', [ServicioController::class, 'misServicios'])->middleware('auth:entrepreneur');
+
+// AJAX: Ver detalles de un servicio
+Route::get('/servicios/{id}', [ServicioController::class, 'show'])->middleware('auth:entrepreneur');
+
+// AJAX: Editar servicio (POST con _method=PUT)
+Route::post('/servicios/{id}', [ServicioController::class, 'update'])->middleware('auth:entrepreneur');
+
+// AJAX: Eliminar servicio
+Route::delete('/servicios/{id}', [ServicioController::class, 'destroy'])->middleware('auth:entrepreneur');
 
 // Rutas de API de productos (igual que servicios)
     Route::get('/productos', [ProductController::class, 'index'])->name('productos.index');
@@ -96,6 +113,3 @@ Route::delete('/servicios/{id}', [ServicioController::class, 'destroy'])->name('
         Route::get('/productos/{id}', [ProductController::class, 'publicShow']);
         Route::post('/productos/search', [ProductController::class, 'search']);
     });
-
-
-

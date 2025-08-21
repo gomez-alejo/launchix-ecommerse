@@ -435,7 +435,7 @@ class ProductController extends Controller
                 Storage::disk('public')->delete($product->main_image);
             }
 
-            if ($product->gallery_images) { 
+            if ($product->gallery_images) {
                 foreach ($product->gallery_images as $image) {
                     if (Storage::disk('public')->exists($image)) {
                         Storage::disk('public')->delete($image);
@@ -462,7 +462,7 @@ class ProductController extends Controller
             ], 500);
         }
     }
-    
+
 
     /**
      * API específica para obtener productos (siempre devuelve JSON)
@@ -472,12 +472,12 @@ class ProductController extends Controller
         try {
             // Obtener productos
             $products = Product::orderBy('created_at', 'desc')->get();
-            
+
             // Transformar los productos para el frontend
             $transformedProducts = $products->map(function ($product) {
                 return $this->transformProductForPublic($product);
             });
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $transformedProducts,
@@ -485,10 +485,10 @@ class ProductController extends Controller
             ], 200, [
                 'Content-Type' => 'application/json'
             ]);
-            
+
         } catch (\Exception $e) {
             Log::error('Error en apiIndex: ' . $e->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al cargar los productos',
@@ -513,15 +513,15 @@ class ProductController extends Controller
             // Obtener productos con sus relaciones si las tienes
             $products = Product::orderBy('created_at', 'desc')
                 ->get();
-            
+
             // Si no tienes el campo is_active, usa esta línea:
             // $products = Product::orderBy('created_at', 'desc')->get();
-            
+
             // Transformar los productos para el frontend
             $transformedProducts = $products->map(function ($product) {
                 return $this->transformProductForPublic($product);
             });
-            
+
             // Si es una petición AJAX, devolver JSON
             if ($request->ajax() || $request->expectsJson() || $request->header('Accept') === 'application/json') {
                 return response()->json([
@@ -532,18 +532,18 @@ class ProductController extends Controller
                     'Content-Type' => 'application/json'
                 ]);
             }
-            
+
             // Si es una petición normal, devolver la vista Blade
             return view('productos.index', [
                 'products' => $transformedProducts,
                 'productsJson' => $transformedProducts->toJson()
             ]);
-            
+
         } catch (\Exception $e) {
             Log::error('Error en publicIndex: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             if ($request->ajax() || $request->expectsJson() || $request->header('Accept') === 'application/json') {
                 return response()->json([
                     'success' => false,
@@ -553,11 +553,11 @@ class ProductController extends Controller
                     'Content-Type' => 'application/json'
                 ]);
             }
-            
+
             return back()->with('error', 'Error al cargar los productos');
         }
     }
-    
+
     /**
      * Transformar producto para la vista pública
      */
@@ -575,34 +575,34 @@ class ProductController extends Controller
             'is_active' => true,
             'created_at' => $product->created_at,
             'updated_at' => $product->updated_at,
-            
+
             // Imágenes con URLs completas
-            'main_image' => $product->main_image ? 
+            'main_image' => $product->main_image ?
                 asset('storage/' . $product->main_image) : null,
-            'gallery_images' => $product->gallery_images ? 
+            'gallery_images' => $product->gallery_images ?
                 array_map(fn($image) => asset('storage/' . $image), $product->gallery_images) : [],
-            
+
             // Categoría (si tienes relación)
             // Categoría
             'category' => [
                 'id' => null,
                 'name' => is_string($product->category) ? $product->category : 'General',
-                'slug' => is_string($product->category) ? 
-                    strtolower(str_replace([' ', 'ó', 'é', 'í', 'ú', 'ñ'], ['', 'o', 'e', 'i', 'u', 'n'], $product->category)) : 
+                'slug' => is_string($product->category) ?
+                    strtolower(str_replace([' ', 'ó', 'é', 'í', 'ú', 'ñ'], ['', 'o', 'e', 'i', 'u', 'n'], $product->category)) :
                     'general'
             ],
-            
+
             // Calificación y reseñas (si tienes estas relaciones)
             'rating' => 4.0,
-            'reviews_count' => 0,   
-            
+            'reviews_count' => 0,
+
             // Campos calculados
             'discount_percentage' => $this->calculateDiscountPercentage($product),
             'is_new' => $this->isProductNew($product->created_at),
             'in_stock' => $product->stock > 0,
         ];
     }
-    
+
     /**
      * Calcular porcentaje de descuento
      */
@@ -611,10 +611,10 @@ class ProductController extends Controller
         if (!$product->original_price || $product->original_price <= $product->price) {
             return 0;
         }
-        
+
         return round((($product->original_price - $product->price) / $product->original_price) * 100);
     }
-    
+
     /**
      * Verificar si el producto es nuevo (menos de 30 días)
      */
@@ -622,7 +622,7 @@ class ProductController extends Controller
     {
         return $createdAt && $createdAt->diffInDays(now()) <= 30;
     }
-    
+
     /**
      * Obtener un producto específico para la vista pública
      */
@@ -632,32 +632,32 @@ class ProductController extends Controller
             $product = Product::with(['category', 'reviews'])
                 // Sin filtro de is_active
                 ->findOrFail($id);
-            
+
             $transformedProduct = $this->transformProductForPublic($product);
-            
+
             if (request()->ajax() || request()->expectsJson()) {
                 return response()->json([
                     'success' => true,
                     'data' => $transformedProduct
                 ]);
             }
-            
+
             return view('productos.show', compact('product', 'transformedProduct'));
-            
+
         } catch (\Exception $e) {
             Log::error('Error en show product: ' . $e->getMessage());
-            
+
             if (request()->ajax() || request()->expectsJson()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Producto no encontrado'
                 ], 404);
             }
-            
+
             return abort(404);
         }
     }
-    
+
     /**
      * Buscar productos
      */
@@ -670,7 +670,7 @@ class ProductController extends Controller
             $maxPrice = $request->get('max_price', PHP_INT_MAX);
             $sortBy = $request->get('sort_by', 'created_at');
             $sortOrder = $request->get('sort_order', 'desc');
-            
+
             $products = Product::with(['category', 'reviews'])
                 ->where('is_active', true)
                 ->when($query, function ($queryBuilder) use ($query) {
@@ -688,20 +688,20 @@ class ProductController extends Controller
                 ->whereBetween('price', [$minPrice, $maxPrice])
                 ->orderBy($sortBy, $sortOrder)
                 ->get();
-            
+
             $transformedProducts = $products->map(function ($product) {
                 return $this->transformProductForPublic($product);
             });
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $transformedProducts,
                 'total' => $products->count()
             ]);
-            
+
         } catch (\Exception $e) {
             Log::error('Error en search: ' . $e->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error en la búsqueda'
