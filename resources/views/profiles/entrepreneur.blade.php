@@ -1,3 +1,4 @@
+@vite('resources/js/MisServicios.js')
 @extends('layouts.app')
 
 @section('title', 'profile')
@@ -17,10 +18,15 @@
                             <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
                         </svg>
                     </div>
-                    <h2 class="text-lg font-semibold text-gray-800">Juan Pérez</h2>
-                    <p class="text-sm text-gray-600">Emprendedor</p>
+                    @php
+                        $entrepreneur = $entrepreneur ?? (Auth::guard('entrepreneur')->user() ?? null);
+                    @endphp
+                    <h2 class="text-lg font-semibold text-gray-800">
+                        {{ $entrepreneur ? ($entrepreneur->first_name . ' ' . $entrepreneur->last_name) : 'Emprendedor' }}
+                    </h2>
+                    <p class="text-sm text-gray-600">{{ $entrepreneur ? $entrepreneur->email : '' }}</p>
                 </div>
-                
+
                 <nav class="space-y-2">
                     <button class="menu-item active w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-lighter flex items-center space-x-3" onclick="showSection('dashboard')">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -28,42 +34,42 @@
                         </svg>
                         <span>Dashboard</span>
                     </button>
-                    
+
                     <button class="menu-item w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-lighter flex items-center space-x-3" onclick="showSection('productos')">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
                         </svg>
                         <span>Mis Productos</span>
                     </button>
-                    
+
                     <button class="menu-item w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-lighter flex items-center space-x-3" onclick="showSection('publicar-producto')">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M10 2a1 1 0 011 1v6h6a1 1 0 110 2h-6v6a1 1 0 11-2 0v-6H3a1 1 0 110-2h6V3a1 1 0 011-1z"/>
                         </svg>
                         <span>Publicar Producto</span>
                     </button>
-                    
+
                     <button class="menu-item w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-lighter flex items-center space-x-3" onclick="showSection('servicios')">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                         <span>Mis Servicios</span>
                     </button>
-                    
+
                     <button class="menu-item w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-lighter flex items-center space-x-3" onclick="showSection('publicar-servicio')">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
                         </svg>
                         <span>Publicar Servicio</span>
                     </button>
-                    
+
                     <button class="menu-item w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-lighter flex items-center space-x-3" onclick="showSection('perfil')">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 8a2 2 0 00-2 2v6a2 2 0 002 2h.01a2 2 0 002-2v-6a2 2 0 00-2-2H10z"/>
                         </svg>
                         <span>Mi Perfil</span>
                     </button>
-                    
+
                     <button class="menu-item w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-lighter flex items-center space-x-3" onclick="showSection('configuracion')">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 8a2 2 0 00-2 2v6a2 2 0 002 2h.01a2 2 0 002-2v-6a2 2 0 00-2-2H10z"/>
