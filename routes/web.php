@@ -10,67 +10,70 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
 
-// Web Routes
+/**
+ * ===================== RUTAS PÚBLICAS PRINCIPALES =====================
+ */
 
-// Home Route
-Route::get('/home', function () {
-    return view('home');
-})->name('home'); // 
+// Página de inicio dinámica
+Route::get('/home', [HomeController::class, 'index'])->name('home');
 
-
-// Bestsellers Route
+// Bestsellers
 Route::get('/bestsellers', function () {
     return view('bestsellers');
 })->name('masvendidos'); 
 
-// Products Route
+// Productos - Rutas públicas
 Route::get('/products', function () {
     return view('products');
 })->name('productos');
+Route::get('/productos', [ProductController::class, 'index'])->name('productos.index');
+Route::get('/productos/{product}', [ProductController::class, 'show'])->name('productos.show');
 
-// Services Route
+// Servicios - Rutas públicas
 Route::get('/services', function () {
     return view('services');
 })->name('servicios');
+Route::get('/servicios', [ServicioController::class, 'index'])->name('servicios.index');
 
-// Services Route
+// Carrito de compras
 Route::get('/shoppingCart', function () {
-    return view('shopingcart');
+    return view('shoppingcart');
 })->name('shoppingCart');
 
-// users Route
+/**
+ * ===================== PERFILES DE USUARIO =====================
+ */
+
+// Perfil usuario
 Route::get('/user', function () {
     return view('profiles.user');
 })->name('user');
 
+// Perfil emprendedor
 Route::get('/entrepreneur', function () {
     return view('profiles.entrepreneur');
 })->name('entrepreneur');
 
-
+/**
+ * ===================== AUTENTICACIÓN =====================
+ */
 
 // USER AUTH
 Route::get('/login/user', [UserAuthController::class, 'showLogin'])->name('login.user');
 Route::post('/login/user', [UserAuthController::class, 'login']);
-
 Route::get('/register/user', [UserAuthController::class, 'showRegister'])->name('register.user');
 Route::post('/register/user', [UserAuthController::class, 'register']);
-
 Route::post('/logout/user', [UserAuthController::class, 'logout'])->name('logout.user');
-
 
 // ENTREPRENEUR AUTH
 Route::get('/login/entrepreneur', [EntrepreneurAuthController::class, 'showLogin'])->name('login.entrepreneur');
 Route::post('/login/entrepreneur', [EntrepreneurAuthController::class, 'login']);
-
 Route::get('/register/entrepreneur', [EntrepreneurAuthController::class, 'showRegister'])->name('register.entrepreneur');
 Route::post('/register/entrepreneur', [EntrepreneurAuthController::class, 'register']);
-
 Route::post('/logout/entrepreneur', [EntrepreneurAuthController::class, 'logout'])->name('logout.entrepreneur');
 
-
 /**
- * ===================== RUTAS PRIVADAS Y AJAX DE SERVICIOS EMPRENDEDOR =====================
+ * ===================== RUTAS PRIVADAS EMPRENDEDOR =====================
  */
 
 // Dashboard para el emprendedor (con modales y JS)
@@ -78,38 +81,43 @@ Route::get('/entrepreneur/services', function () {
     return view('modals.login-items.entrepreneur.ServicesSection');
 })->middleware('auth:entrepreneur')->name('entrepreneur.services');
 
-// AJAX: Listar mis servicios
+// Servicios - Operaciones CRUD para emprendedores
+Route::post('/servicios', [ServicioController::class, 'store'])->middleware('auth:entrepreneur')->name('servicios.store');
 Route::get('/mis-servicios', [ServicioController::class, 'misServicios'])->middleware('auth:entrepreneur');
-
-// AJAX: Ver detalles de un servicio
 Route::get('/servicios/{id}', [ServicioController::class, 'show'])->middleware('auth:entrepreneur');
-
-// AJAX: Editar servicio (POST con _method=PUT)
 Route::post('/servicios/{id}', [ServicioController::class, 'update'])->middleware('auth:entrepreneur');
-
-// AJAX: Eliminar servicio
 Route::delete('/servicios/{id}', [ServicioController::class, 'destroy'])->middleware('auth:entrepreneur');
 
-// Rutas de API de productos (igual que servicios)
-    Route::get('/productos', [ProductController::class, 'index'])->name('productos.index');
-    Route::get('/productos/{id}', [ProductController::class, 'show'])->name('productos.show');
-    Route::post('/productos', [ProductController::class, 'store'])->name('productos.store');
-    Route::put('/productos/{id}', [ProductController::class, 'update'])->name('productos.update');
-    Route::patch('/productos/{id}', [ProductController::class, 'update'])->name('productos.patch');
-    Route::delete('/productos/{id}', [ProductController::class, 'destroy'])->name('productos.destroy');
+// Productos - Operaciones CRUD para emprendedores
+Route::post('/productos', [ProductController::class, 'store'])->middleware('auth:entrepreneur')->name('productos.store');
+Route::put('/productos/{id}', [ProductController::class, 'update'])->middleware('auth:entrepreneur')->name('productos.update');
+Route::patch('/productos/{id}', [ProductController::class, 'update'])->middleware('auth:entrepreneur')->name('productos.patch');
+Route::delete('/productos/{id}', [ProductController::class, 'destroy'])->middleware('auth:entrepreneur')->name('productos.destroy');
 
-    // Rutas públicas para productos
-    Route::get('/api/productos', [ProductController::class, 'apiIndex'])->name('productos.api');
-    Route::get('/productos', [ProductController::class, 'publicIndex'])->name('productos.public');
-    Route::get('/productos/{id}', [ProductController::class, 'publicShow'])->name('productos.show');
-    Route::get('/api/productos/search', [ProductController::class, 'search'])->name('productos.search');
+/**
+ * ===================== API ROUTES =====================
+ */
 
+// API de productos públicas
+Route::get('/api/productos', [ProductController::class, 'apiIndex'])->name('productos.api');
+Route::get('/api/productos/search', [ProductController::class, 'search'])->name('productos.search');
+
+// Grupo de rutas API con prefijo
+Route::prefix('api')->group(function () {
+    Route::get('/productos', [ProductController::class, 'publicIndex']);
+    Route::get('/productos/{id}', [ProductController::class, 'publicShow']);
+    Route::post('/productos/search', [ProductController::class, 'search']);
+    
     // Si tienes un controlador de categorías
-    // Route::get('/api/categories', [CategoryController::class, 'index'])->name('categories.api');
+    // Route::get('/categories', [CategoryController::class, 'index'])->name('categories.api');
+});
 
-    // Rutas adicionales que podrías necesitar
-    Route::prefix('api')->group(function () {
-        Route::get('/productos', [ProductController::class, 'publicIndex']);
-        Route::get('/productos/{id}', [ProductController::class, 'publicShow']);
-        Route::post('/productos/search', [ProductController::class, 'search']);
-    });
+/**
+ * ===================== RUTAS ADICIONALES (comentadas para revisión) =====================
+ */
+
+// Rutas alternativas de productos (revisar si son necesarias)
+// Route::get('/productos', [ProductController::class, 'publicIndex'])->name('productos.public');
+// Route::get('/productos/{id}', [ProductController::class, 'publicShow'])->name('productos.show');
+
+// Si necesitas más funcionalidades, descomenta según corresponda
