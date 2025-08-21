@@ -5,12 +5,12 @@
 @section('content')
 <div class="container mx-auto px-4 py-8">
 
-    {{-- HERO BANNER ROTATIVO (Hero Carousel) --}}
     <div class="relative w-full mb-10">
         <div id="heroCarousel" class="relative overflow-hidden rounded-lg h-72">
             @php
                 $heroBanners = [
                     [
+                        // Eliminado PHP directo para evitar ensuciar HTML
                         'img' => 'https://www.claroshop.com/c/algolia/assets/portada/laptops.webp',
                         'title' => 'OFERTÓN DE TECNOLOGÍA',
                         'desc' => 'Hasta 12 cuotas sin interés',
@@ -40,9 +40,9 @@
                 @foreach($heroBanners as $i => $banner)
                     <div class="hero-slide absolute inset-0 transition-opacity duration-700 ease-in-out bg-white {{ $i === 0 ? '' : 'hidden' }}" data-hero-slide="{{ $i }}">
                         <div class="w-full h-72 flex items-center justify-center bg-gray-200 relative">
-                            <img 
-                                src="{{ $banner['img'] }}" 
-                                class="w-full h-72 object-cover rounded-lg" 
+                            <img
+                                src="{{ $banner['img'] }}"
+                                class="w-full h-72 object-cover rounded-lg"
                                 alt="{{ $banner['title'] }}"
                                 loading="lazy"
                                 onerror="this.style.display='none'; this.parentElement.innerHTML+='<span class=\'text-gray-500\'>Imagen no disponible</span>';">

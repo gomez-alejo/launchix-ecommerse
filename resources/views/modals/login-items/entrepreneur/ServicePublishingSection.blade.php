@@ -2,14 +2,15 @@
 <div id="publicar-servicio" class="section-content">
     <div class="bg-white rounded-lg shadow-lg p-6">
         <h1 class="text-2xl font-bold text-gray-800 mb-6">Publicar Servicio</h1>
-        
-        <form id="servicio-form" class="space-y-6">
+
+    <form id="servicio-form" class="space-y-6" enctype="multipart/form-data" method="POST" action="{{ route('servicios.store') }}">
+        @csrf
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Servicio *</label>
                     <input type="text" name="nombre_servicio" class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none" required>
                 </div>
-                
+
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Categoría *</label>
                     <select name="categoria" class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none" required>
@@ -28,36 +29,36 @@
                     </select>
                 </div>
             </div>
-            
+
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Descripción del Servicio *</label>
                 <textarea name="descripcion" class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none" rows="4" required></textarea>
             </div>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Dirección *</label>
                     <input type="text" name="direccion" class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none" required>
                 </div>
-                
+
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono de Contacto *</label>
                     <input type="tel" name="telefono" class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none" required>
                 </div>
             </div>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Precio Base</label>
                     <input type="number" name="precio_base" class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none" placeholder="Precio desde" min="0" step="1000">
                 </div>
-                
+
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Horario de Atención</label>
                     <input type="text" name="horario_atencion" class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none" placeholder="Lun-Vie 8:00-18:00">
                 </div>
             </div>
-            
+
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Imagen Principal del Negocio</label>
                 <div class="drag-area" id="service-main-dropzone">
@@ -72,7 +73,7 @@
                 </div>
                 <div id="service-main-preview" class="mt-4"></div>
             </div>
-            
+
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Galería de Imágenes (Opcional)</label>
                 <div class="drag-area" id="service-gallery-dropzone">
@@ -87,7 +88,7 @@
                 </div>
                 <div id="service-gallery-preview" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4"></div>
             </div>
-            
+
             <div class="flex justify-end space-x-4">
                 <button type="button" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50" onclick="showSection('servicios')">
                     Cancelar
@@ -99,3 +100,4 @@
         </form>
     </div>
 </div>
+@vite('resources/js/ServicePublishing.js')

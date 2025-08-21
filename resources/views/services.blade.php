@@ -4,6 +4,11 @@
 
 @vite('resources/css/services.css')
 
+
+@php
+    $entrepreneur = Auth::guard('entrepreneur')->user();
+@endphp
+
 @section('content')
 
 
@@ -117,8 +122,18 @@
 
                 <!-- Grid de servicios -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="services-grid">
-                    
+                    <!-- Las cards se cargan dinámicamente por JS -->
                 </div>
+
+                <!-- Modales globales para ver más y editar (solo si está autenticado como entrepreneur) -->
+                @if($entrepreneur)
+                    @include('modals.login-items.entrepreneur.ServiceViewModal')
+                    @include('modals.login-items.entrepreneur.ServiceEditModal')
+                @endif
+
+                <script>
+                    window.entrepreneurIdFromBlade = @json($entrepreneur ? $entrepreneur->id : null);
+                </script>
             </main>
         </div>
     </div>

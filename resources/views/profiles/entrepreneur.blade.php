@@ -1,3 +1,4 @@
+@vite('resources/js/MisServicios.js')
 @extends('layouts.app')
 
 @section('title', 'profile')
@@ -17,8 +18,13 @@
                             <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
                         </svg>
                     </div>
-                    <h2 class="text-lg font-semibold text-gray-800">Juan Pérez</h2>
-                    <p class="text-sm text-gray-600">Emprendedor</p>
+                    @php
+                        $entrepreneur = $entrepreneur ?? (Auth::guard('entrepreneur')->user() ?? null);
+                    @endphp
+                    <h2 class="text-lg font-semibold text-gray-800">
+                        {{ $entrepreneur ? ($entrepreneur->first_name . ' ' . $entrepreneur->last_name) : 'Emprendedor' }}
+                    </h2>
+                    <p class="text-sm text-gray-600">{{ $entrepreneur ? $entrepreneur->email : '' }}</p>
                 </div>
 
                 <nav class="space-y-2">

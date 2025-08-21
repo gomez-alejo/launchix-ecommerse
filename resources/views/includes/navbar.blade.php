@@ -60,7 +60,7 @@
                 </div>
                 @endguest
                 @endguest
-                
+
                 <!-- Sección de perfil (mostrar solo si hay sesión - CORREGIDO) -->
                 @auth('web')
                 <div class="relative" id="profileContainer">
@@ -125,7 +125,7 @@
                 <a href="{{ route('shoppingCart') }}" class="nav-link hover:text-lighter transition-colors duration-300">
                     <i class="fas fa-shopping-cart"></i> Carrito
                 </a>
-                
+
                 <a href="#" class="nav-link hover:text-lighter transition-colors duration-300">
                     <i class="fas fa-question-circle"></i> Ayuda
                 </a>
@@ -161,7 +161,7 @@
             <a href="{{ route('servicios') }}" class="mobile-menu-link text-white">
                 <i class="fas fa-concierge-bell mr-2"></i> Servicios
             </a>
-            
+
             <!-- Categorías móvil con submenu -->
             <div class="mobile-category-container">
                 <button id="mobileCategoriesBtn" class="mobile-menu-link text-white w-full text-left flex items-center justify-between">
@@ -196,7 +196,7 @@
                 </div>
                 @endguest
                 @endguest
-                
+
                 <!-- Perfil móvil para USUARIOS (mostrar solo si hay sesión de usuario) -->
                 @auth('web')
                 <div class="mobile-profile-container" id="mobileProfileContainer">
@@ -244,7 +244,7 @@
                     </div>
                 </div>
                 @endauth
-                
+
                 <a href="#" class="mobile-menu-link text-white">
                     <i class="fas fa-shopping-cart mr-2"></i> Carrito
                 </a>
@@ -262,7 +262,7 @@
         <div class="text-center">
             <h2 class="text-2xl font-bold text-gray-800 mb-2">¡Únete a Launchix!</h2>
             <p class="text-gray-600 mb-6">Selecciona cómo quieres comenzar</p>
-            
+
             <div class="space-y-4">
                 <!-- Opción Usuario -->
                 <a href="{{ route('register.user') }}" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-300 flex items-center justify-center space-x-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1 block text-decoration-none">
@@ -272,7 +272,7 @@
                         <div class="text-sm opacity-90">Quiero comprar productos y servicios</div>
                     </div>
                 </a>
-                
+
                 <!-- Opción Emprendedor -->
                 <a href="{{ route('register.entrepreneur') }}" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-300 flex items-center justify-center space-x-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1 block text-decoration-none">
                     <i class="fas fa-store text-xl"></i>
@@ -282,7 +282,7 @@
                     </div>
                 </a>
             </div>
-            
+
             <div class="mt-6 pt-4 border-t border-gray-200">
                 <p class="text-sm text-gray-500 mb-3">¿Ya tienes cuenta?</p>
                 <div class="space-y-2">
@@ -294,7 +294,7 @@
                     </a>
                 </div>
             </div>
-            
+
             <!-- Botón cerrar -->
             <button onclick="document.getElementById('userTypeModal').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-300">
                 <i class="fas fa-times text-xl"></i>

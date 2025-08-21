@@ -8,9 +8,9 @@
  */
 
 window.ServicesManager = {
-    
+
     // ========== CONFIGURACIÓN DE SUBIDA DE IMÁGENES ==========
-    
+
     /**
      * Configurar funcionalidad de subida de imágenes
      */
@@ -18,31 +18,31 @@ window.ServicesManager = {
         const dropzone = document.getElementById(dropzoneId);
         const input = document.getElementById(inputId);
         const preview = document.getElementById(previewId);
-        
+
         // Verificar que los elementos existan
         if (!dropzone || !input || !preview) {
             console.warn(`Elementos no encontrados: ${dropzoneId}, ${inputId}, ${previewId}`);
             return;
         }
-        
+
         dropzone.addEventListener('click', () => input.click());
-        
+
         dropzone.addEventListener('dragover', (e) => {
             e.preventDefault();
             dropzone.classList.add('drag-over');
         });
-        
+
         dropzone.addEventListener('dragleave', () => {
             dropzone.classList.remove('drag-over');
         });
-        
+
         dropzone.addEventListener('drop', (e) => {
             e.preventDefault();
             dropzone.classList.remove('drag-over');
             const files = e.dataTransfer.files;
             this.handleFiles(files, preview, inputId);
         });
-        
+
         input.addEventListener('change', (e) => {
             this.handleFiles(e.target.files, preview, inputId);
         });
@@ -54,23 +54,23 @@ window.ServicesManager = {
     handleFiles(files, preview, inputId) {
         preview.innerHTML = '';
         const input = document.getElementById(inputId);
-        
+
         // Crear un nuevo DataTransfer para manejar los archivos
         const dataTransfer = new DataTransfer();
-        
+
         Array.from(files).forEach(file => {
             if (file.type.startsWith('image/')) {
                 dataTransfer.items.add(file);
-                
+
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const img = document.createElement('img');
                     img.src = e.target.result;
                     img.className = 'image-preview w-full h-32 object-cover rounded';
-                    
+
                     const container = document.createElement('div');
                     container.className = 'relative';
-                    
+
                     const deleteBtn = document.createElement('button');
                     deleteBtn.innerHTML = '×';
                     deleteBtn.className = 'absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600';
@@ -80,7 +80,7 @@ window.ServicesManager = {
                         // Actualizar el input file removiendo este archivo
                         this.updateFileInput(input, file);
                     };
-                    
+
                     container.appendChild(img);
                     container.appendChild(deleteBtn);
                     preview.appendChild(container);
@@ -88,7 +88,7 @@ window.ServicesManager = {
                 reader.readAsDataURL(file);
             }
         });
-        
+
         // Actualizar el input con los archivos válidos
         input.files = dataTransfer.files;
     },
@@ -113,27 +113,27 @@ window.ServicesManager = {
      */
     validateServiceForm(formData) {
         const errors = [];
-        
+
         if (!formData.get('nombre_servicio')) {
             errors.push('El nombre del servicio es obligatorio');
         }
-        
+
         if (!formData.get('categoria')) {
             errors.push('La categoría es obligatoria');
         }
-        
+
         if (!formData.get('descripcion')) {
             errors.push('La descripción es obligatoria');
         }
-        
+
         if (!formData.get('direccion')) {
             errors.push('La dirección es obligatoria');
         }
-        
+
         if (!formData.get('telefono')) {
             errors.push('El teléfono es obligatorio');
         }
-        
+
         return errors;
     },
 
@@ -144,29 +144,29 @@ window.ServicesManager = {
         // Remover errores anteriores
         const existingErrors = document.querySelectorAll('.error-message');
         existingErrors.forEach(error => error.remove());
-        
+
         if (errors.length > 0) {
             const errorContainer = document.createElement('div');
             errorContainer.className = 'error-message bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4';
-            
+
             // Título del error
             const errorTitle = document.createElement('h4');
             errorTitle.className = 'font-bold mb-2';
             errorTitle.textContent = 'Se encontraron los siguientes errores:';
             errorContainer.appendChild(errorTitle);
-            
+
             const errorList = document.createElement('ul');
             errorList.className = 'list-disc list-inside space-y-1';
-            
+
             errors.forEach(error => {
                 const li = document.createElement('li');
                 li.className = 'text-sm';
                 li.textContent = error;
                 errorList.appendChild(li);
             });
-            
+
             errorContainer.appendChild(errorList);
-            
+
             // Botón para copiar errores al portapapeles (para debugging)
             const copyButton = document.createElement('button');
             copyButton.type = 'button';
@@ -181,16 +181,16 @@ window.ServicesManager = {
                 });
             };
             errorContainer.appendChild(copyButton);
-            
+
             const form = document.getElementById('servicio-form');
             form.insertBefore(errorContainer, form.firstChild);
-            
+
             // Scroll to top of form to show errors
             form.scrollIntoView({ behavior: 'smooth' });
-            
+
             return false;
         }
-        
+
         return true;
     },
 
@@ -222,14 +222,14 @@ window.ServicesManager = {
     clearServiceForm() {
         const form = document.getElementById('servicio-form');
         form.reset();
-        
+
         // Limpiar previsualizaciones de imágenes
         const mainPreview = document.getElementById('service-main-preview');
         const galleryPreview = document.getElementById('service-gallery-preview');
-        
+
         if (mainPreview) mainPreview.innerHTML = '';
         if (galleryPreview) galleryPreview.innerHTML = '';
-        
+
         // Remover mensajes de error
         const existingErrors = document.querySelectorAll('.error-message');
         existingErrors.forEach(error => error.remove());
@@ -266,14 +266,14 @@ window.ServicesManager = {
 
             let result;
             const contentType = response.headers.get('content-type');
-            
+
             if (contentType && contentType.includes('application/json')) {
                 result = await response.json();
             } else {
                 // Si no es JSON, obtener el texto para ver qué está devolviendo
                 const textResult = await response.text();
                 console.error('Respuesta no JSON:', textResult);
-                
+
                 return {
                     success: false,
                     errors: [
@@ -296,19 +296,19 @@ window.ServicesManager = {
             } else {
                 // Manejo detallado de errores según el tipo
                 let detailedErrors = [];
-                
+
                 // Errores de validación de Laravel
                 if (result.errors && typeof result.errors === 'object') {
                     Object.keys(result.errors).forEach(field => {
-                        const fieldErrors = Array.isArray(result.errors[field]) 
-                            ? result.errors[field] 
+                        const fieldErrors = Array.isArray(result.errors[field])
+                            ? result.errors[field]
                             : [result.errors[field]];
-                        
+
                         fieldErrors.forEach(error => {
                             detailedErrors.push(`${field}: ${error}`);
                         });
                     });
-                } 
+                }
                 // Si errors es un array
                 else if (result.errors && Array.isArray(result.errors)) {
                     detailedErrors = result.errors;
@@ -331,7 +331,7 @@ window.ServicesManager = {
         } catch (error) {
             console.error('Error completo:', error);
             console.error('Stack trace:', error.stack);
-            
+
             return {
                 success: false,
                 errors: [
@@ -353,18 +353,18 @@ window.ServicesManager = {
     async loadServicios() {
         try {
             console.log('Cargando servicios...');
-            
+
             // Mostrar loading
             const loadingElement = document.getElementById('servicios-loading');
             const serviciosContainer = document.querySelector('#servicios .grid');
-            
+
             if (loadingElement) {
                 loadingElement.classList.remove('hidden');
             }
             if (serviciosContainer) {
                 serviciosContainer.innerHTML = '';
             }
-            
+
             const response = await fetch('/servicios', {
                 method: 'GET',
                 headers: {
@@ -374,27 +374,35 @@ window.ServicesManager = {
             });
 
             const result = await response.json();
-            
+
             // Ocultar loading
             if (loadingElement) {
                 loadingElement.classList.add('hidden');
             }
-            
+
             if (result.success) {
-                this.displayServicios(result.data);
+                // Solo intentar renderizar si existe el contenedor
+                const serviciosContainer = document.getElementById('services-grid');
+                if (serviciosContainer) {
+                    this.displayServicios(result.data);
+                }
+                // Si existe la función global para recargar 'Mis Servicios', llamarla
+                if (window.loadMisServicios) {
+                    window.loadMisServicios();
+                }
             } else {
                 console.error('Error al cargar servicios:', result);
                 this.showServiciosError('Error al cargar los servicios');
             }
         } catch (error) {
             console.error('Error al cargar servicios:', error);
-            
+
             // Ocultar loading en caso de error
             const loadingElement = document.getElementById('servicios-loading');
             if (loadingElement) {
                 loadingElement.classList.add('hidden');
             }
-            
+
             this.showServiciosError('Error de conexión al cargar servicios');
         }
     },
@@ -403,8 +411,8 @@ window.ServicesManager = {
      * Mostrar servicios en la vista
      */
     displayServicios(servicios) {
-        const serviciosContainer = document.querySelector('#servicios .grid');
-        
+    const serviciosContainer = document.getElementById('services-grid');
+
         if (!serviciosContainer) {
             console.warn('Contenedor de servicios no encontrado');
             return;
@@ -412,7 +420,7 @@ window.ServicesManager = {
 
         // Limpiar contenido anterior
         serviciosContainer.innerHTML = '';
-        
+
         if (servicios.length === 0) {
             serviciosContainer.innerHTML = `
                 <div class="col-span-full text-center py-12">
@@ -442,18 +450,18 @@ window.ServicesManager = {
     createServicioCard(servicio) {
         const card = document.createElement('div');
         card.className = 'product-card bg-white border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow';
-        
-        const precioTexto = servicio.precio_base 
+
+        const precioTexto = servicio.precio_base
             ? `Desde ${parseInt(servicio.precio_base).toLocaleString()}`
             : 'Precio por consultar';
-        
-        const imagenSrc = servicio.imagen_principal 
-            ? servicio.imagen_principal 
+
+        const imagenSrc = servicio.imagen_principal
+            ? servicio.imagen_principal
             : null;
 
         card.innerHTML = `
             <div class="h-48 bg-gray-200 flex items-center justify-center overflow-hidden">
-                ${imagenSrc ? 
+                ${imagenSrc ?
                     `<img src="${imagenSrc}" alt="${servicio.nombre_servicio}" class="w-full h-full object-cover">` :
                     `<svg class="w-16 h-16 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
@@ -473,7 +481,7 @@ window.ServicesManager = {
                     ${servicio.direccion}
                 </p>
                 <p class="text-gray-600 text-sm mb-3 line-clamp-2">${servicio.descripcion}</p>
-                ${servicio.horario_atencion ? 
+                ${servicio.horario_atencion ?
                     `<p class="text-gray-500 text-xs mb-3">
                         <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -494,9 +502,59 @@ window.ServicesManager = {
                 </div>
             </div>
         `;
-        
+
         return card;
     },
+        /**
+         * Modal para galería de imágenes (slider)
+         */
+        showGalleryModal(servicioId, startIdx = 0) {
+            // Buscar el servicio en la lista cargada
+            const servicio = this._lastServicios?.find(s => s.id === servicioId);
+            if (!servicio || !servicio.galeria_imagenes || !servicio.galeria_imagenes.length) return;
+
+            let currentIdx = startIdx;
+
+            // Crear modal
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50';
+            modal.style.animation = 'fadeIn .2s';
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg shadow-lg p-4 max-w-lg w-full relative">
+                    <button class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-2xl font-bold" onclick="document.body.removeChild(this.closest('.fixed'))">&times;</button>
+                    <div class="flex items-center justify-center mb-4">
+                        <button id="gallery-prev" class="text-2xl px-2 py-1 text-gray-400 hover:text-primary">&#8592;</button>
+                        <img id="gallery-img" src="${servicio.galeria_imagenes[currentIdx]}" alt="Galería" class="max-h-80 rounded shadow mx-4">
+                        <button id="gallery-next" class="text-2xl px-2 py-1 text-gray-400 hover:text-primary">&#8594;</button>
+                    </div>
+                    <div class="flex justify-center space-x-2">
+                        ${servicio.galeria_imagenes.map((img, idx) =>
+                            `<img src="${img}" alt="Miniatura" class="w-10 h-10 object-cover rounded border ${idx === currentIdx ? 'border-primary' : 'border-gray-200'} cursor-pointer" data-idx="${idx}">`
+                        ).join('')}
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            // Slider funcionalidad
+            const updateImg = (idx) => {
+                currentIdx = idx;
+                modal.querySelector('#gallery-img').src = servicio.galeria_imagenes[currentIdx];
+                modal.querySelectorAll('img[data-idx]').forEach((thumb, i) => {
+                    thumb.classList.toggle('border-primary', i === currentIdx);
+                    thumb.classList.toggle('border-gray-200', i !== currentIdx);
+                });
+            };
+            modal.querySelector('#gallery-prev').onclick = () => {
+                if (currentIdx > 0) updateImg(currentIdx - 1);
+            };
+            modal.querySelector('#gallery-next').onclick = () => {
+                if (currentIdx < servicio.galeria_imagenes.length - 1) updateImg(currentIdx + 1);
+            };
+            modal.querySelectorAll('img[data-idx]').forEach(thumb => {
+                thumb.onclick = () => updateImg(Number(thumb.dataset.idx));
+            });
+        },
 
     /**
      * Mostrar errores en la vista de servicios
@@ -554,7 +612,7 @@ window.ServicesManager = {
             });
 
             const result = await response.json();
-            
+
             if (result.success) {
                 window.showSuccessMessage('Servicio eliminado exitosamente');
                 // Recargar la lista de servicios
@@ -581,10 +639,10 @@ window.ServicesManager = {
         try {
             // Mostrar loading mientras carga los datos
             this.showEditLoading();
-            
+
             // Obtener datos del servicio
             const serviceData = await this.getServicioById(id);
-            
+
             if (serviceData.success) {
                 // Mostrar modal de edición con los datos
                 this.showEditModal(serviceData.data);
@@ -612,7 +670,7 @@ window.ServicesManager = {
             });
 
             const result = await response.json();
-            
+
             if (response.ok) {
                 return {
                     success: true,
@@ -667,28 +725,28 @@ window.ServicesManager = {
         const editModal = document.createElement('div');
         editModal.id = 'edit-service-modal';
         editModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
-        
+
         editModal.innerHTML = `
             <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
                 <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
                     <h2 class="text-xl font-bold text-gray-800">Editar Servicio</h2>
                     <button id="close-edit-modal" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
                 </div>
-                
+
                 <form id="edit-service-form" class="p-6">
                     <input type="hidden" id="edit-service-id" value="${servicio.id}">
-                    
+
                     <!-- Grid de dos columnas -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        
+
                         <!-- Columna izquierda: Información básica -->
                         <div class="space-y-4">
                             <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Información Básica</h3>
-                            
+
                             <!-- Nombre del servicio -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Servicio *</label>
-                                <input type="text" id="edit-nombre-servicio" value="${servicio.nombre_servicio || ''}" 
+                                <input type="text" id="edit-nombre-servicio" value="${servicio.nombre_servicio || ''}"
                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                        placeholder="Ej: Reparación de celulares" required>
                             </div>
@@ -715,7 +773,7 @@ window.ServicesManager = {
                             <!-- Descripción -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Descripción *</label>
-                                <textarea id="edit-descripcion" rows="4" 
+                                <textarea id="edit-descripcion" rows="4"
                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                           placeholder="Describe tu servicio en detalle..." required>${servicio.descripcion || ''}</textarea>
                             </div>
@@ -725,7 +783,7 @@ window.ServicesManager = {
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Precio Base</label>
                                 <div class="relative">
                                     <span class="absolute left-3 top-2 text-gray-500">$</span>
-                                    <input type="number" id="edit-precio-base" value="${servicio.precio_base || ''}" 
+                                    <input type="number" id="edit-precio-base" value="${servicio.precio_base || ''}"
                                            class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                            placeholder="0" min="0" step="1000">
                                 </div>
@@ -736,11 +794,11 @@ window.ServicesManager = {
                         <!-- Columna derecha: Información de contacto -->
                         <div class="space-y-4">
                             <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Información de Contacto</h3>
-                            
+
                             <!-- Dirección -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Dirección *</label>
-                                <input type="text" id="edit-direccion" value="${servicio.direccion || ''}" 
+                                <input type="text" id="edit-direccion" value="${servicio.direccion || ''}"
                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                        placeholder="Dirección completa donde ofreces el servicio" required>
                             </div>
@@ -748,7 +806,7 @@ window.ServicesManager = {
                             <!-- Teléfono -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono *</label>
-                                <input type="tel" id="edit-telefono" value="${servicio.telefono || ''}" 
+                                <input type="tel" id="edit-telefono" value="${servicio.telefono || ''}"
                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                        placeholder="Ej: +57 300 123 4567" required>
                             </div>
@@ -756,7 +814,7 @@ window.ServicesManager = {
                             <!-- Horario de atención -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Horario de Atención</label>
-                                <input type="text" id="edit-horario-atencion" value="${servicio.horario_atencion || ''}" 
+                                <input type="text" id="edit-horario-atencion" value="${servicio.horario_atencion || ''}"
                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                        placeholder="Ej: Lun-Vie 8:00-17:00, Sáb 9:00-12:00">
                             </div>
@@ -798,7 +856,7 @@ window.ServicesManager = {
         `;
 
         document.body.appendChild(editModal);
-        
+
         // Configurar eventos del modal
         this.setupEditModalEvents(editModal, servicio);
     },
@@ -808,7 +866,7 @@ window.ServicesManager = {
      */
     renderCurrentImages(servicio) {
         let imagesHtml = '';
-        
+
         // Imagen principal
         if (servicio.imagen_principal) {
             imagesHtml += `
@@ -820,7 +878,7 @@ window.ServicesManager = {
                 </div>
             `;
         }
-        
+
         // Galería de imágenes
         if (servicio.galeria_imagenes && servicio.galeria_imagenes.length > 0) {
             servicio.galeria_imagenes.forEach((imagen, index) => {
@@ -834,11 +892,11 @@ window.ServicesManager = {
                 `;
             });
         }
-        
+
         if (!imagesHtml) {
             imagesHtml = '<p class="text-gray-400 text-sm col-span-2 text-center py-4">No hay imágenes</p>';
         }
-        
+
         return imagesHtml;
     },
 
@@ -849,14 +907,14 @@ window.ServicesManager = {
         // Cerrar modal
         const closeBtn = modal.querySelector('#close-edit-modal');
         const cancelBtn = modal.querySelector('#cancel-edit');
-        
+
         const closeModal = () => {
             document.body.removeChild(modal);
         };
-        
+
         closeBtn.addEventListener('click', closeModal);
         cancelBtn.addEventListener('click', closeModal);
-        
+
         // Cerrar con ESC
         const handleKeyDown = (e) => {
             if (e.key === 'Escape') {
@@ -865,10 +923,10 @@ window.ServicesManager = {
             }
         };
         document.addEventListener('keydown', handleKeyDown);
-        
+
         // Configurar drag & drop para imagen principal
         this.setupImageUpload('edit-main-dropzone', 'edit-main-image', 'edit-main-preview');
-        
+
         // Manejar envío del formulario
         const form = modal.querySelector('#edit-service-form');
         form.addEventListener('submit', async (e) => {
@@ -884,37 +942,37 @@ window.ServicesManager = {
         const form = document.getElementById('edit-service-form');
         const submitButton = form.querySelector('button[type="submit"]');
         const originalButtonText = submitButton.innerHTML;
-        
+
         // Crear FormData
         const formData = new FormData();
-        
+
         // Datos básicos
         formData.append('nombre_servicio', document.getElementById('edit-nombre-servicio').value);
         formData.append('categoria', document.getElementById('edit-categoria').value);
         formData.append('descripcion', document.getElementById('edit-descripcion').value);
         formData.append('direccion', document.getElementById('edit-direccion').value);
         formData.append('telefono', document.getElementById('edit-telefono').value);
-        
+
         // Datos opcionales
         const precioBase = document.getElementById('edit-precio-base').value;
         if (precioBase) {
             formData.append('precio_base', precioBase);
         }
-        
+
         const horarioAtencion = document.getElementById('edit-horario-atencion').value;
         if (horarioAtencion) {
             formData.append('horario_atencion', horarioAtencion);
         }
-        
+
         // Nueva imagen principal si se seleccionó
         const mainImageInput = document.getElementById('edit-main-image');
         if (mainImageInput.files[0]) {
             formData.append('imagen_principal', mainImageInput.files[0]);
         }
-        
+
         // Método HTTP para Laravel (PUT/PATCH via POST)
         formData.append('_method', 'PUT');
-        
+
         // Validar datos básicos
         const errors = [];
         if (!formData.get('nombre_servicio')) errors.push('El nombre del servicio es obligatorio');
@@ -922,15 +980,15 @@ window.ServicesManager = {
         if (!formData.get('descripcion')) errors.push('La descripción es obligatoria');
         if (!formData.get('direccion')) errors.push('La dirección es obligatoria');
         if (!formData.get('telefono')) errors.push('El teléfono es obligatorio');
-        
+
         if (errors.length > 0) {
             window.showErrorMessage(errors.join(', '));
             return;
         }
-        
+
         // Mostrar loading
         this.showLoading(submitButton);
-        
+
         try {
             const response = await fetch(`/servicios/${id}`, {
                 method: 'POST', // Laravel usa POST con _method=PUT
@@ -942,7 +1000,7 @@ window.ServicesManager = {
             });
 
             const result = await response.json();
-            
+
             if (response.ok && result.success) {
                 window.showSuccessMessage('Servicio actualizado exitosamente');
                 closeModalCallback();
@@ -968,14 +1026,14 @@ window.ServicesManager = {
      */
     init() {
         console.log('Services Manager initialized successfully');
-        
+
         // Setup image upload functionality para servicios
         this.setupImageUpload('service-main-dropzone', 'service-main-image', 'service-main-preview');
         this.setupImageUpload('service-gallery-dropzone', 'service-gallery-images', 'service-gallery-preview');
-        
+
         // Cargar servicios al inicio
         this.loadServicios();
-        
+
         // Form submission handler para servicios
         this.setupFormHandler();
     },
@@ -988,28 +1046,28 @@ window.ServicesManager = {
         if (servicioForm) {
             servicioForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                
+
                 const submitButton = e.target.querySelector('button[type="submit"]');
                 const originalButtonText = submitButton.innerHTML;
-                
+
                 // Crear FormData con todos los campos del formulario
                 const formData = this.buildFormData(servicioForm);
-                
+
                 // Validar formulario
                 const errors = this.validateServiceForm(formData);
                 if (!this.showErrors(errors)) {
                     return;
                 }
-                
+
                 // Mostrar loading
                 this.showLoading(submitButton);
-                
+
                 try {
                     // Log detallado antes de enviar
                     console.log('=== INICIO DEBUG SERVICIO ===');
                     console.log('FormData entries:', Array.from(formData.entries()));
                     console.log('URL objetivo:', '/servicios');
-                    
+
                     // Verificar CSRF token
                     const csrfToken = document.querySelector('meta[name="csrf-token"]');
                     if (!csrfToken) {
@@ -1017,19 +1075,19 @@ window.ServicesManager = {
                         return;
                     }
                     console.log('CSRF Token encontrado:', csrfToken.getAttribute('content').substring(0, 10) + '...');
-                    
+
                     // Guardar servicio
                     const result = await this.saveService(formData);
                     console.log('Resultado final:', result);
                     console.log('=== FIN DEBUG SERVICIO ===');
-                    
+
                     if (result.success) {
-                        // Mostrar mensaje de éxito
-                        alert(result.message);
-                        
+                        // Mostrar notificación visual tipo toast
+                        this.showToast(result.message || 'Servicio guardado exitosamente', 'success');
+
                         // Limpiar formulario
                         this.clearServiceForm();
-                        
+
                         // Regresar a la vista de servicios
                         if (window.showSection) {
                             window.showSection('servicios');
@@ -1060,84 +1118,125 @@ window.ServicesManager = {
     },
 
     /**
-     * Construir FormData desde el formulario
+     * Mostrar notificación tipo toast
      */
-    buildFormData(servicioForm) {
-        const formData = new FormData();
-        
-        // Obtener todos los campos del formulario
-        const inputs = servicioForm.querySelectorAll('input, select, textarea');
-        inputs.forEach(input => {
-            if (input.type === 'file') {
-                // Manejar archivos
-                if (input.files.length > 0) {
-                    if (input.multiple) {
-                        // Para múltiples archivos (galería)
-                        Array.from(input.files).forEach((file, index) => {
-                            formData.append(`${input.name || input.id}[]`, file);
-                        });
+    showToast(message, type = 'success') {
+        let toast = document.getElementById('service-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'service-toast';
+            toast.style.position = 'fixed';
+            toast.style.top = '32px';
+            toast.style.right = '32px';
+            toast.style.zIndex = '9999';
+            toast.style.minWidth = '220px';
+            if (servicioForm) {
+                // Elimina listeners previos para evitar doble submit
+                servicioForm.onsubmit = null;
+                servicioForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    if (servicioForm.dataset.submitting === 'true') return;
+                    servicioForm.dataset.submitting = 'true';
+
+                    const submitButton = e.target.querySelector('button[type="submit"]');
+                    const originalButtonText = submitButton.innerHTML;
+
+                    // Verificar input file antes de manipular
+                    const mainImageInput = document.getElementById('service-main-image');
+                    if (mainImageInput) {
+                        console.log('Archivo seleccionado en service-main-image:', mainImageInput.files[0]);
+                        if (!mainImageInput.files[0] || mainImageInput.files[0].size === 0) {
+                            console.warn('No hay archivo seleccionado o el archivo tiene tamaño 0.');
+                        }
                     } else {
-                        // Para un solo archivo (imagen principal)
-                        formData.append(input.name || input.id, input.files[0]);
+                        console.warn('No se encontró el input service-main-image');
                     }
-                }
-            } else if (input.value) {
-                // Para campos de texto, select, etc.
-                formData.append(input.name || input.id, input.value);
+
+                    // Crear FormData con todos los campos del formulario (sin manipular el input file antes)
+                    const formData = this.buildFormData(servicioForm);
+
+                    // Validar formulario
+                    const errors = this.validateServiceForm(formData);
+                    if (!this.showErrors(errors)) {
+                        servicioForm.dataset.submitting = 'false';
+                        return;
+                    }
+
+                    // Mostrar loading
+                    this.showLoading(submitButton);
+
+                    try {
+                        // Log detallado antes de enviar
+                        console.log('=== INICIO DEBUG SERVICIO ===');
+                        for (let [key, value] of formData.entries()) {
+                            if (value instanceof File) {
+                                console.log(`${key}: [Archivo] ${value.name} (${value.size} bytes)`);
+                            } else {
+                                console.log(`${key}: ${value}`);
+                            }
+                        }
+                        console.log('URL objetivo:', '/servicios');
+
+                        // Verificar CSRF token
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]');
+                        if (!csrfToken) {
+                            this.showErrors(['Error: No se encontró el token CSRF. Asegúrate de tener <meta name="csrf-token" content="{{ csrf_token() }}"> en tu HTML']);
+                            servicioForm.dataset.submitting = 'false';
+                            return;
+                        }
+                        console.log('CSRF Token encontrado:', csrfToken.getAttribute('content').substring(0, 10) + '...');
+
+                        // Guardar servicio
+                        const result = await this.saveService(formData);
+                        console.log('Resultado final:', result);
+                        console.log('=== FIN DEBUG SERVICIO ===');
+
+                        if (result.success) {
+                            // Mostrar notificación visual tipo toast
+                            this.showToast(result.message || 'Servicio guardado exitosamente', 'success');
+
+                            // Limpiar formulario
+                            this.clearServiceForm();
+
+                            // Regresar a la vista de servicios
+                            if (window.showSection) {
+                                window.showSection('servicios');
+                            }
+                            // Recargar ambas vistas si existen
+                            if (window.ServicesManager && typeof window.ServicesManager.loadServicios === 'function') {
+                                window.ServicesManager.loadServicios();
+                            }
+                            if (window.loadMisServicios) {
+                                window.loadMisServicios();
+                            }
+                        } else {
+                            // Mostrar errores del servidor
+                            console.error('Errores del servidor:', result.errors);
+                            this.showErrors(result.errors);
+                        }
+                    } catch (error) {
+                        console.error('Error al procesar:', error);
+                        this.showErrors([
+                            'Error inesperado al procesar la solicitud',
+                            `Tipo: ${error.name}`,
+                            `Mensaje: ${error.message}`,
+                            'Revisa la consola del navegador para más detalles'
+                        ]);
+                    } finally {
+                        // Ocultar loading
+                        this.hideLoading(submitButton, originalButtonText);
+                        servicioForm.dataset.submitting = 'false';
+                    }
+                });
             }
-        });
-        
-        // Mapear los IDs a nombres esperados por Laravel
-        const fieldMapping = {
-            'service-main-image': 'imagen_principal',
-            'service-gallery-images': 'galeria_imagenes'
-        };
-        
-        // Renombrar campos si es necesario
-        for (const [oldName, newName] of Object.entries(fieldMapping)) {
-            if (formData.has(oldName)) {
-                const values = formData.getAll(oldName);
-                formData.delete(oldName);
-                values.forEach(value => formData.append(newName, value));
-            }
-        }
-        
-        // Asignar nombres correctos a los campos principales
-        const serviceNameInput = servicioForm.querySelector('input[type="text"]');
-        if (serviceNameInput && serviceNameInput.value) {
-            formData.set('nombre_servicio', serviceNameInput.value);
-        }
-        
-        const categorySelect = servicioForm.querySelector('select');
-        if (categorySelect && categorySelect.value) {
-            formData.set('categoria', categorySelect.value);
-        }
-        
-        const descriptionTextarea = servicioForm.querySelector('textarea');
-        if (descriptionTextarea && descriptionTextarea.value) {
-            formData.set('descripcion', descriptionTextarea.value);
-        }
-        
-        const addressInput = servicioForm.querySelector('input[type="text"]:nth-of-type(2)');
-        if (addressInput && addressInput.value) {
-            formData.set('direccion', addressInput.value);
-        }
-        
-        const phoneInput = servicioForm.querySelector('input[type="tel"]');
-        if (phoneInput && phoneInput.value) {
-            formData.set('telefono', phoneInput.value);
-        }
-        
-        const priceInput = servicioForm.querySelector('input[type="number"]');
-        if (priceInput && priceInput.value) {
             formData.set('precio_base', priceInput.value);
         }
-        
+
         const scheduleInput = servicioForm.querySelector('input[placeholder*="Lun-Vie"]');
         if (scheduleInput && scheduleInput.value) {
             formData.set('horario_atencion', scheduleInput.value);
         }
-        
+
         return formData;
     }
 };
