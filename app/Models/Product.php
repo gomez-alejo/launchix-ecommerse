@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,10 +9,26 @@ class Product extends Model
 {
     use HasFactory;
 
-    // Campos que se pueden asignar masivamente
     protected $fillable = [
-        'name',
-        'description',
-        'rating',
+    'name', 'category', 'description', 'price', 'stock',
+    'main_image', 'gallery_images', 'entrepreneur_id', 'user_id'
     ];
+
+    protected $casts = [
+        'gallery_images' => 'array'
+    ];
+
+    public function entrepreneur()
+    {
+        return $this->belongsTo(Entrepreneur::class);
+    }
+    public function category()
+{
+    return $this->belongsTo(Category::class);
+}
+
+public function reviews()
+{
+    return $this->hasMany(reviews::class);
+}
 }
