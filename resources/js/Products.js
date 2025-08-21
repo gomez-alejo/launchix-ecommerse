@@ -5,6 +5,204 @@ let cart = [];
 let currentPage = 1;
 const productsPerPage = 12;
 
+
+//si se quieren quitar los productos estaticos primero toca eliminar esta funcion getStaticProducts()
+//despues le das a la tecla Ctrl + F para abrir la barra de busqueda y pon : transformProductData los 4 primeros ahi estan las otras instrucciones :)
+function getStaticProducts() {
+    return [
+        {
+            id: 99001,
+            name: "Smartphone Samsung Galaxy A54",
+            category: { name: "Electrónicos", slug: "electronica" },
+            price: 299999,
+            originalPrice: 349999,
+            rating: 4.5,
+            reviews: 128,
+            image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=300&fit=crop",
+            gallery: [],
+            description: "Smartphone con pantalla AMOLED de 6.4 pulgadas, cámara triple de 50MP y batería de 5000mAh.",
+            inStock: true,
+            stock: 25,
+            isNew: true,
+            discount: 14,
+            brand: "Samsung",
+            sku: "SAM-A54-001",
+            created_at: new Date().toISOString()
+        },
+        {
+            id: 99002,
+            name: "Auriculares Bluetooth Sony WH-1000XM4",
+            category: { name: "Electrónicos", slug: "electronica" },
+            price: 199999,
+            originalPrice: 199999,
+            rating: 4.8,
+            reviews: 89,
+            image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=300&fit=crop",
+            gallery: [],
+            description: "Auriculares inalámbricos con cancelación de ruido líder en la industria.",
+            inStock: true,
+            stock: 15,
+            isNew: false,
+            discount: 0,
+            brand: "Sony",
+            sku: "SONY-WH1000-001",
+            created_at: "2024-01-15T10:00:00Z"
+        },
+        {
+            id: 99003,
+            name: "Camiseta Nike Dri-FIT",
+            category: { name: "Deportes", slug: "deportes" },
+            price: 29999,
+            originalPrice: 39999,
+            rating: 4.2,
+            reviews: 45,
+            image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&h=300&fit=crop",
+            gallery: [],
+            description: "Camiseta deportiva con tecnología Dri-FIT para mantenerte seco y cómodo.",
+            inStock: true,
+            stock: 50,
+            isNew: false,
+            discount: 25,
+            brand: "Nike",
+            sku: "NIKE-DRI-001",
+            created_at: "2024-02-10T10:00:00Z"
+        },
+        {
+            id: 99004,
+            name: "Laptop HP Pavilion 15",
+            category: { name: "Electrónicos", slug: "electronica" },
+            price: 599999,
+            originalPrice: 699999,
+            rating: 4.3,
+            reviews: 67,
+            image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&h=300&fit=crop",
+            gallery: [],
+            description: "Laptop con procesador Intel Core i5, 8GB RAM, SSD 256GB y pantalla Full HD.",
+            inStock: true,
+            stock: 8,
+            isNew: false,
+            discount: 14,
+            brand: "HP",
+            sku: "HP-PAV15-001",
+            created_at: "2024-01-20T10:00:00Z"
+        },
+        {
+            id: 99005,
+            name: "Cafetera Nespresso Vertuo",
+            category: { name: "Hogar", slug: "hogar" },
+            price: 149999,
+            originalPrice: 149999,
+            rating: 4.6,
+            reviews: 92,
+            image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300&h=300&fit=crop",
+            gallery: [],
+            description: "Cafetera automática que prepara café y espresso de calidad profesional.",
+            inStock: true,
+            stock: 12,
+            isNew: true,
+            discount: 0,
+            brand: "Nespresso",
+            sku: "NESP-VER-001",
+            created_at: new Date().toISOString()
+        },
+        {
+            id: 99006,
+            name: "Zapatillas Adidas Ultraboost 22",
+            category: { name: "Deportes", slug: "deportes" },
+            price: 179999,
+            originalPrice: 199999,
+            rating: 4.7,
+            reviews: 156,
+            image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&h=300&fit=crop",
+            gallery: [],
+            description: "Zapatillas de running con tecnología Boost para máximo retorno de energía.",
+            inStock: true,
+            stock: 30,
+            isNew: false,
+            discount: 10,
+            brand: "Adidas",
+            sku: "ADI-UB22-001",
+            created_at: "2024-03-05T10:00:00Z"
+        },
+        {
+            id: 99007,
+            name: "Set de Maquillaje Urban Decay",
+            category: { name: "Belleza", slug: "belleza" },
+            price: 89999,
+            originalPrice: 120000,
+            rating: 4.4,
+            reviews: 73,
+            image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=300&h=300&fit=crop",
+            gallery: [],
+            description: "Set completo de maquillaje con paleta de sombras, labiales y base.",
+            inStock: true,
+            stock: 18,
+            isNew: false,
+            discount: 25,
+            brand: "Urban Decay",
+            sku: "UD-SET-001",
+            created_at: "2024-02-20T10:00:00Z"
+        },
+        {
+            id: 99008,
+            name: "Libro 'El Arte de la Guerra'",
+            category: { name: "Libros", slug: "libros" },
+            price: 12999,
+            originalPrice: 15999,
+            rating: 4.9,
+            reviews: 245,
+            image: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&h=300&fit=crop",
+            gallery: [],
+            description: "Clásico tratado de estrategia militar aplicable a los negocios y la vida.",
+            inStock: true,
+            stock: 100,
+            isNew: false,
+            discount: 19,
+            brand: "Editorial Planeta",
+            sku: "LIB-ARTE-001",
+            created_at: "2024-01-10T10:00:00Z"
+        },
+        {
+            id: 99009,
+            name: "Silla Gamer RGB",
+            category: { name: "Hogar", slug: "hogar" },
+            price: 249999,
+            originalPrice: 299999,
+            rating: 4.1,
+            reviews: 34,
+            image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=300&fit=crop",
+            gallery: [],
+            description: "Silla ergonómica para gaming con iluminación RGB y soporte lumbar ajustable.",
+            inStock: true,
+            stock: 6,
+            isNew: true,
+            discount: 17,
+            brand: "GamerPro",
+            sku: "GP-CHAIR-001",
+            created_at: new Date().toISOString()
+        },
+        {
+            id: 99010,
+            name: "Juego de Mesa Monopoly Clásico",
+            category: { name: "Juguetes", slug: "juguetes" },
+            price: 24999,
+            originalPrice: 24999,
+            rating: 4.0,
+            reviews: 189,
+            image: "https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5?w=300&h=300&fit=crop",
+            gallery: [],
+            description: "El clásico juego de mesa Monopoly para disfrutar en familia.",
+            inStock: false,
+            stock: 0,
+            isNew: false,
+            discount: 0,
+            brand: "Hasbro",
+            sku: "HAS-MON-001",
+            created_at: "2024-01-05T10:00:00Z"
+        }
+    ];
+}
+
 // Inicialización
 document.addEventListener('DOMContentLoaded', function() {
     loadProducts();
@@ -41,13 +239,25 @@ async function loadProducts() {
 
         if (data.success && Array.isArray(data.data)) {
             // Transformar los datos de Laravel al formato esperado por el frontend
-            products = data.data.map(product => transformProductData(product));
+
+            //Si se quiere quitar los productos de ejemplo tienes que cambiar las 2 lineas siguientes por las 3 que le siguen 
+
+            // products = data.data.map(product => transformProductData(product));
+            // filteredProducts = [...products];
+            const apiProducts = data.data.map(product => transformProductData(product));
+            products = [...getStaticProducts(), ...apiProducts];
             filteredProducts = [...products];
 
             initializeApp();
         } else if (Array.isArray(data)) {
             // Si la respuesta es directamente un array de productos (formato simplificado)
-            products = data.map(product => transformProductData(product));
+
+            //Si se quiere quitar los productos de ejemplo tienes que cambiar las 2 lineas siguientes por las 3 que le siguen
+
+            // products = data.map(product => transformProductData(product));
+            // filteredProducts = [...products];
+            const apiProducts = data.map(product => transformProductData(product));
+            products = [...getStaticProducts(), ...apiProducts];
             filteredProducts = [...products];
 
             initializeApp();
@@ -59,6 +269,8 @@ async function loadProducts() {
     } catch (error) {
         console.error('Error cargando productos:', error);
         showErrorMessage(`Error al cargar los productos: ${error.message}`);
+
+        
 
         // Como fallback, mostrar mensaje sin productos
         showNoProducts();
