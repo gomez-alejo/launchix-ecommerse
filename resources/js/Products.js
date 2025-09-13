@@ -304,9 +304,11 @@ function createProductCard(product) {
 
     return `
         <div class="product-card bg-white rounded-lg shadow-lg overflow-hidden fade-in">
-            <div class="relative">
-                <img src="${product.image}" alt="${product.name}" class="w-full h-64 object-cover" 
-                     onerror="this.src='https://via.placeholder.com/300x300/F77786/FFFFFF?text=Producto'">
+            <div class="relative overflow-hidden"">
+                <div class="product-image-container">
+                    <img src="${product.image}" alt="${product.name}" class="product-image" 
+                        onerror="this.src='https://via.placeholder.com/300x300/F77786/FFFFFF?text=Producto'">
+                </div>
                 ${discountBadge}
                 ${newBadge}
                 <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-300 flex items-center justify-center opacity-0 hover:opacity-100">
@@ -548,10 +550,11 @@ function toggleMiniCart() {
 function showAddToCartNotification(productName) {
     const notification = document.createElement('div');
     notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300';
+    //despues de ${productName} iba agregado al carrito 
     notification.innerHTML = `
         <div class="flex items-center space-x-2">
             <i class="fas fa-check-circle"></i>
-            <span>¡${productName} agregado al carrito!</span>
+            <span>¡${productName} </span>
         </div>
     `;
     

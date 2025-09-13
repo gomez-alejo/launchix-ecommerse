@@ -43,67 +43,64 @@ window.ProductsManager = {
         });
 
         input.addEventListener('change', (e) => {
-            this.handleFiles(e.target.files, preview, inputId);
+            if (e.target.files && e.target.files.length > 0) {
+                this.handleFiles(e.target.files, preview, inputId);
+            }
         });
     },
 
     /**
      * Manejar archivos seleccionados
      */
-    handleFiles(files, preview, inputId) {
-        preview.innerHTML = '';
-        const input = document.getElementById(inputId);
+    /**
+ * Manejar archivos seleccionados
+ */
+handleFiles(files, preview, inputId) {
+    if (!files || files.length === 0) return;
+    
+    preview.innerHTML = '';
 
-        // Crear un nuevo DataTransfer para manejar los archivos
-        const dataTransfer = new DataTransfer();
+    Array.from(files).forEach((file, index) => {
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'image-preview w-full h-32 object-cover rounded';
 
-        Array.from(files).forEach(file => {
-            if (file.type.startsWith('image/')) {
-                dataTransfer.items.add(file);
+                const container = document.createElement('div');
+                container.className = 'relative';
+                container.setAttribute('data-file-index', index);
 
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.className = 'image-preview w-full h-32 object-cover rounded';
-
-                    const container = document.createElement('div');
-                    container.className = 'relative';
-
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.innerHTML = '×';
-                    deleteBtn.className = 'absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600';
-                    deleteBtn.type = 'button';
-                    deleteBtn.onclick = () => {
-                        container.remove();
-                        // Actualizar el input file removiendo este archivo
-                        this.updateFileInput(input, file);
-                    };
-
-                    container.appendChild(img);
-                    container.appendChild(deleteBtn);
-                    preview.appendChild(container);
+                const deleteBtn = document.createElement('button');
+                deleteBtn.innerHTML = '×';
+                deleteBtn.className = 'absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600';
+                deleteBtn.type = 'button';
+                deleteBtn.onclick = () => {
+                    container.remove();
                 };
-                reader.readAsDataURL(file);
-            }
-        });
 
-        // Actualizar el input con los archivos válidos
-        input.files = dataTransfer.files;
-    },
+                container.appendChild(img);
+                container.appendChild(deleteBtn);
+                preview.appendChild(container);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+},
 
     /**
      * Actualizar input de archivos removiendo un archivo específico
      */
-    updateFileInput(input, fileToRemove) {
-        const dataTransfer = new DataTransfer();
-        Array.from(input.files).forEach(file => {
-            if (file !== fileToRemove) {
-                dataTransfer.items.add(file);
-            }
-        });
-        input.files = dataTransfer.files;
-    },
+    // updateFileInput(input, fileToRemove) {
+    //     const dataTransfer = new DataTransfer();
+    //     Array.from(input.files).forEach(file => {
+    //         if (file !== fileToRemove) {
+    //             dataTransfer.items.add(file);
+    //         }
+    //     });
+    //     input.files = dataTransfer.files;
+    // },
 
     // ========== VALIDACIÓN Y MANEJO DE FORMULARIOS ==========
 
@@ -126,9 +123,14 @@ window.ProductsManager = {
         }
 
         if (!formData.get('price')) {
-            errors.push('El precio es obligatorio');
-        } else if (isNaN(parseFloat(formData.get('price'))) || parseFloat(formData.get('price')) < 0) {
-            errors.push('El precio debe ser un número válido mayor o igual a 0');
+        errors.push('El precio es obligatorio');
+        } else {
+            const price = parseFloat(formData.get('price'));
+            if (isNaN(price) || price < 0) {
+                errors.push('El precio debe ser un número válido mayor o igual a 0');
+            } else if (price > 99999999.99) {
+                errors.push('El precio no puede ser mayor a $99,999,999.99');
+            }
         }
 
         if (!formData.get('stock')) {

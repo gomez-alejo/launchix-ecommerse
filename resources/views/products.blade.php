@@ -148,7 +148,7 @@
                 </div>
 
                 <!-- Grid de productos con Tailwind -->
-                <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 hidden">
+                <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 hidden">
                     <!-- Los productos se cargarán dinámicamente aquí -->
                 </div>
 

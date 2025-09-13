@@ -32,6 +32,38 @@
             border-color: var(--primary);
         }
 
+        /* Contenedor de imagen para mejor control */
+        .product-image-container {
+            width: 100%;
+            height: 256px; /* 64 * 4 = 256px (equivalente a h-64 de Tailwind) */
+            overflow: hidden;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0; /* Sin border-radius aquí para que coincida con la card */
+        }
+
+        /* Imagen del producto optimizada */
+        .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Mantiene la proporción y recorta si es necesario */
+            object-position: center; /* Centra la imagen */
+            transition: transform 0.3s ease;
+            display: block;
+        }
+
+        /* Efecto hover en la imagen */
+        .product-card:hover .product-image {
+            transform: scale(1.05); /* Efecto zoom al hover */
+        }
+
+        /* Asegurar que el contenedor relativo no tenga overflow visible */
+        .product-card .relative {
+            overflow: hidden;
+        }
+
         .filter-btn {
             transition: all 0.3s ease;
             border: 2px solid var(--light);
