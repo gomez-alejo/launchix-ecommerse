@@ -14,35 +14,37 @@ window.ServicesManager = {
     /**
      * Configurar funcionalidad de subida de imágenes
      */
+
     setupImageUpload(dropzoneId, inputId, previewId) {
         const dropzone = document.getElementById(dropzoneId);
         const input = document.getElementById(inputId);
         const preview = document.getElementById(previewId);
-
-        // Verificar que los elementos existan
         if (!dropzone || !input || !preview) {
             console.warn(`Elementos no encontrados: ${dropzoneId}, ${inputId}, ${previewId}`);
             return;
         }
+        // Eliminar onclick directo del botón si existe
+        const button = dropzone.querySelector('button');
+        if (button) button.onclick = () => input.click();
 
-        dropzone.addEventListener('click', () => input.click());
-
+        dropzone.addEventListener('click', (e) => {
+            // Evitar que el botón dispare dos veces
+            if (e.target.tagName === 'BUTTON') return;
+            input.click();
+        });
         dropzone.addEventListener('dragover', (e) => {
             e.preventDefault();
             dropzone.classList.add('drag-over');
         });
-
         dropzone.addEventListener('dragleave', () => {
             dropzone.classList.remove('drag-over');
         });
-
         dropzone.addEventListener('drop', (e) => {
             e.preventDefault();
             dropzone.classList.remove('drag-over');
             const files = e.dataTransfer.files;
             this.handleFiles(files, preview, inputId);
         });
-
         input.addEventListener('change', (e) => {
             this.handleFiles(e.target.files, preview, inputId);
         });
@@ -52,45 +54,93 @@ window.ServicesManager = {
      * Manejar archivos seleccionados
      */
     handleFiles(files, preview, inputId) {
-        preview.innerHTML = '';
         const input = document.getElementById(inputId);
+        preview.innerHTML = '';
+        // Configuración para la galería
+        const isGallery = inputId === 'service-gallery-images';
+        const maxGallery = 5;
+        const maxSize = 2 * 1024 * 1024; // 2MB
+        const allowedTypes = ['image/jpeg', 'image/png'];
 
-        // Crear un nuevo DataTransfer para manejar los archivos
-        const dataTransfer = new DataTransfer();
-
-        Array.from(files).forEach(file => {
-            if (file.type.startsWith('image/')) {
-                dataTransfer.items.add(file);
-
+        if (isGallery) {
+            let validFiles = [];
+            let errorMsg = '';
+            if (files.length > maxGallery) {
+                errorMsg = `Solo puedes subir hasta ${maxGallery} imágenes.`;
+            }
+            for (let i = 0; i < Math.min(files.length, maxGallery); i++) {
+                const file = files[i];
+                if (!allowedTypes.includes(file.type)) {
+                    errorMsg = 'Solo se permiten imágenes JPG o PNG.';
+                    continue;
+                }
+                if (file.size > maxSize) {
+                    errorMsg = 'Cada imagen debe pesar máximo 2MB.';
+                    continue;
+                }
+                validFiles.push(file);
+            }
+            if (errorMsg) {
+                this.showErrors([errorMsg]);
+                input.value = '';
+                return;
+            }
+            validFiles.forEach((file, idx) => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const img = document.createElement('img');
                     img.src = e.target.result;
-                    img.className = 'image-preview w-full h-32 object-cover rounded';
-
+                    img.className = 'image-preview w-full h-24 object-cover rounded';
                     const container = document.createElement('div');
                     container.className = 'relative';
-
                     const deleteBtn = document.createElement('button');
-                    deleteBtn.innerHTML = '×';
-                    deleteBtn.className = 'absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600';
+                    deleteBtn.innerHTML = 'x';
+                    deleteBtn.className = 'absolute top-2 right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600';
                     deleteBtn.type = 'button';
                     deleteBtn.onclick = () => {
                         container.remove();
-                        // Actualizar el input file removiendo este archivo
-                        this.updateFileInput(input, file);
+                        // Eliminar archivo del input (no se puede modificar input.files directamente, así que se limpia todo)
+                        input.value = '';
+                        preview.innerHTML = '';
                     };
-
                     container.appendChild(img);
                     container.appendChild(deleteBtn);
                     preview.appendChild(container);
                 };
                 reader.readAsDataURL(file);
+            });
+        } else {
+            // Imagen principal
+            const file = files[0];
+            if (file && allowedTypes.includes(file.type) && file.size <= maxSize) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'image-preview w-full h-32 object-cover rounded';
+                    const container = document.createElement('div');
+                    container.className = 'relative';
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.innerHTML = 'x';
+                    deleteBtn.className = 'absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600';
+                    deleteBtn.type = 'button';
+                    deleteBtn.onclick = () => {
+                        container.remove();
+                        input.value = '';
+                    };
+                    container.appendChild(img);
+                    container.appendChild(deleteBtn);
+                    preview.appendChild(container);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                input.value = '';
+                if (file) {
+                    let msg = 'Solo se permite una imagen JPG o PNG de máximo 2MB.';
+                    this.showErrors([msg]);
+                }
             }
-        });
-
-        // Actualizar el input con los archivos válidos
-        input.files = dataTransfer.files;
+        }
     },
 
     /**
@@ -122,16 +172,37 @@ window.ServicesManager = {
             errors.push('La categoría es obligatoria');
         }
 
-        if (!formData.get('descripcion')) {
+        const descripcion = formData.get('descripcion');
+        if (!descripcion) {
             errors.push('La descripción es obligatoria');
+        } else if (descripcion.length < 10) {
+            errors.push('La descripción debe tener al menos 10 caracteres.');
         }
 
         if (!formData.get('direccion')) {
             errors.push('La dirección es obligatoria');
         }
 
-        if (!formData.get('telefono')) {
+        const telefono = formData.get('telefono');
+        if (!telefono) {
             errors.push('El teléfono es obligatorio');
+        } else {
+            // Solo dígitos
+            const phoneDigits = telefono.replace(/\D/g, '');
+            if (phoneDigits.length !== 10) {
+                errors.push('El teléfono debe tener exactamente 10 dígitos.');
+            }
+        }
+
+        // Validar precio_base
+        const precio = formData.get('precio_base');
+        // Cambia el límite según tu base de datos (por ejemplo, para INT: 2147483647)
+        const LIMITE = 999999999; // ejemplo: 9 dígitos
+        if (precio) {
+            const precioNum = Number(precio);
+            if (isNaN(precioNum) || precioNum <= 0 || precioNum > LIMITE) {
+                errors.push('Por favor ingresa un precio válido y que no sea mayor a ' + LIMITE);
+            }
         }
 
         return errors;

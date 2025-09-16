@@ -59,6 +59,7 @@
                 </div>
             </div>
 
+
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Imagen Principal del Negocio</label>
                 <div class="drag-area" id="service-main-dropzone">
@@ -67,9 +68,10 @@
                     </svg>
                     <p class="text-gray-600 mb-2">Arrastra la imagen principal aquí o haz clic para seleccionar</p>
                     <input type="file" name="imagen_principal" id="service-main-image" class="hidden" accept="image/*">
-                    <button type="button" class="text-primary hover:text-secondary" onclick="document.getElementById('service-main-image').click()">
+                    <button type="button" class="text-primary hover:text-secondary">
                         Seleccionar Imagen
                     </button>
+                    <p class="text-xs text-gray-500 mt-1">Formatos permitidos: JPG, PNG. Tamaño máximo: 2MB.</p>
                 </div>
                 <div id="service-main-preview" class="mt-4"></div>
             </div>
@@ -82,9 +84,10 @@
                     </svg>
                     <p class="text-gray-600 mb-2">Arrastra más imágenes aquí o haz clic para seleccionar</p>
                     <input type="file" name="galeria_imagenes[]" id="service-gallery-images" class="hidden" multiple accept="image/*">
-                    <button type="button" class="text-primary hover:text-secondary" onclick="document.getElementById('service-gallery-images').click()">
+                    <button type="button" class="text-primary hover:text-secondary">
                         Seleccionar Imágenes
                     </button>
+                    <p class="text-xs text-gray-500 mt-1">Máximo 5 imágenes. Formatos: JPG, PNG. Tamaño máximo por imagen: 2MB.</p>
                 </div>
                 <div id="service-gallery-preview" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4"></div>
             </div>

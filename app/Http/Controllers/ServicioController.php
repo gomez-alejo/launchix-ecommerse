@@ -106,7 +106,8 @@ class ServicioController extends Controller
                 'descripcion' => 'required|string|min:10',
                 'direccion' => 'required|string|max:255',
                 'telefono' => 'required|string|max:20',
-                'precio_base' => 'nullable|numeric|min:0',
+                // Limite máximo ajustado según frontend (999999999)
+                'precio_base' => 'nullable|numeric|min:0|max:999999999',
                 'horario_atencion' => 'nullable|string|max:255',
                 'imagen_principal' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
                 'galeria_imagenes.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
