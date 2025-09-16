@@ -44,7 +44,7 @@ const exampleServices = [
             telefono: "3123456789",
             horario_atencion: "Mar-Sab 10:00-20:00"
         },
-        
+
 ];
 
 // =============================
@@ -74,13 +74,13 @@ function renderServiceCard(servicio) {
             <div class="text-xs text-gray-500 mb-1">${servicio.telefono || ''}</div>
             <div class="text-xs text-gray-500 mb-4">${servicio.horario_atencion || ''}</div>
             <div class='flex justify-end mt-auto'>
-                <button class='bg-red-500 hover:bg-red-400 text-white px-4 py-1 rounded-lg text-xs font-semibold shadow ver-mas transition-colors duration-200' data-id='${servicio.id}'>
+                <button class='bg-blue-500 hover:bg-blue-400 text-white px-4 py-1 rounded-lg text-xs font-semibold shadow ver-mas transition-colors duration-200' data-id='${servicio.id}'>
                     <svg class="w-4 h-4 inline mr-1 -mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m6 0l-3-3m3 3l-3 3"/></svg>
                     Ver detalle
                 </button>
             </div>
         </div>
-    `;
+    `
 }
 
 // Función para cargar y renderizar servicios
@@ -155,6 +155,21 @@ function showServiceModal(servicio) {
             imgSrc = '/storage/' + servicio.imagen_principal;
         }
     }
+  // Generar enlaces de contacto si hay teléfono
+    let contactButtons = '';
+    if (servicio.telefono) {
+        // Limpiar el número para WhatsApp (solo dígitos)
+        const phoneDigits = servicio.telefono.replace(/\D/g, '');
+        contactButtons = `
+            <a href="tel:${phoneDigits}" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg font-semibold shadow transition-colors duration-200 mr-2" target="_blank">
+                📞 Llamar
+            </a>
+            <a href="https://wa.me/${phoneDigits}" class="bg-green-500 hover:bg-green-400 text-white px-4 py-2 rounded-lg font-semibold shadow transition-colors duration-200" target="_blank">
+                📱 WhatsApp
+            </a>
+        `;
+    }
+
     modal.innerHTML = `
         <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
             <button class="absolute top-2 right-2 text-gray-600 hover:text-primary" onclick="document.getElementById('modal-ver-detalles').remove()">&times;</button>
@@ -162,14 +177,16 @@ function showServiceModal(servicio) {
             <img src="${imgSrc}" alt="${servicio.nombre_servicio}" class="w-full h-48 object-cover rounded mb-3">
             <div class="mb-2 text-gray-700">${servicio.descripcion || ''}</div>
             <div class="mb-2"><span class="font-semibold">Categoría:</span> ${servicio.categoria || ''}</div>
-            <div class="mb-2"><span class="font-semibold">Precio:</span> ${servicio.precio_base ? '$' + Number(servicio.precio_base).toLocaleString() : ''}</div>
+            <div class="mb-2"><span class="font-semibold">Precio:</span> ${servicio.precio_base ? '`$' + Number(servicio.precio_base).toLocaleString() : ''}</div>
             <div class="mb-2"><span class="font-semibold">Dirección:</span> ${servicio.direccion || ''}</div>
             <div class="mb-2"><span class="font-semibold">Teléfono:</span> ${servicio.telefono || ''}</div>
             <div class="mb-2"><span class="font-semibold">Horario:</span> ${servicio.horario_atencion || ''}</div>
-            <div class="flex justify-end mt-6">
-                <button class="bg-red-500 hover:bg-red-400 text-white px-4 py-2 rounded-lg font-semibold shadow transition-colors duration-200" onclick="alert('Funcionalidad de agregar al carrito aquí')">Agregar al carrito</button>
+            <div class="flex flex-wrap gap-2 justify-end mt-6">
+                ${contactButtons}
             </div>
-        </div>
+        </img>
     `;
     document.body.appendChild(modal);
 }
+
+

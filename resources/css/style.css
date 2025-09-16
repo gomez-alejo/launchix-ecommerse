@@ -1,11 +1,11 @@
 
-/*
+
 :root {
-    --primary: #0066FF;        
-    --secondary: #4A90E2;      
-    --accent: #1E3A8A;         
-    --light: #E1F0FF;          
-    --lighter: #F0F8FF;        
+    --primary: #0066FF;
+    --secondary: #4A90E2;
+    --accent: #1E3A8A;
+    --light: #E1F0FF;
+    --lighter: #F0F8FF;
 }
 
 .bg-primary { background-color: var(--primary); }
@@ -22,9 +22,9 @@
 .hover\:bg-primary:hover { background-color: var(--primary); }
 .hover\:bg-secondary:hover { background-color: var(--secondary); }
 
-*/
 
 
+/*
         :root {
             --primary: #EB0924;
             --secondary: #F77786;
@@ -46,4 +46,4 @@
         .border-primary { border-color: var(--primary); }
         .hover\:bg-primary:hover { background-color: var(--primary); }
         .hover\:bg-secondary:hover { background-color: var(--secondary); }
-        
+*/
