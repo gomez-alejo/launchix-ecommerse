@@ -12,16 +12,24 @@
         <div class="flex gap-8">
             <!-- Sidebar -->
             <aside class="w-80 bg-white rounded-lg shadow-lg sticky-aside filter-sidebar p-6">
-                <div class="text-center mb-8">
-                    <div class="profile-avatar rounded-full bg-gray-200 mx-auto mb-4 flex items-center justify-center">
-                        <svg class="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
-                        </svg>
-                    </div>
-                    <h2 class="text-xl font-bold text-gray-800">Juan Pérez</h2>
-                    <p class="text-gray-600">juan.perez@email.com</p>
+    <div class="text-center mb-8">
+    <div class="profile-avatar rounded-full bg-gray-200 mx-auto mb-4 flex items-center justify-center">
+        <svg class="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+        </svg>
                 </div>
+                @auth
+                    {{-- Nombre del usuario autenticado --}}
+                    <h2 class="text-xl font-bold text-gray-800">
+                        {{ Auth::user()->name }}
+                    </h2>
 
+                    {{-- Correo del usuario autenticado --}}
+                    <p class="text-gray-600">
+                        {{ Auth::user()->email }}
+                    </p>
+                @endauth
+                </div>
                 <nav class="space-y-2">
                     <a href="#" class="menu-item active-menu flex items-center p-3 rounded-lg font-medium" onclick="showSection('profile')">
                         <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
