@@ -105,6 +105,8 @@ Route::middleware(['auth:entrepreneur'])->group(function () {
     Route::post('/entrepreneur/profile/update', [EntrepreneurProfileController::class, 'updateEntrepreneurProfile']);
     Route::post('/entrepreneur/profile/avatar', [EntrepreneurProfileController::class, 'updateEntrepreneurAvatar']);
     Route::delete('/entrepreneur/profile/avatar', [EntrepreneurProfileController::class, 'deleteEntrepreneurAvatar']);
+     // Ruta para cambiar contraseña
+    Route::post('/entrepreneur/password', [EntrepreneurProfileController::class, 'updatePassword']);
 });
 
 /**

@@ -265,8 +265,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const observer = new MutationObserver(function(mutations) {
             mutations.forEach(function(mutation) {
                 const isVisible = !perfilSection.classList.contains('hidden') && 
-                                 perfilSection.style.display !== 'none' &&
-                                 perfilSection.offsetParent !== null;
+                                perfilSection.style.display !== 'none' &&
+                                perfilSection.offsetParent !== null;
                 
                 if (isVisible && typeof window.loadEntrepreneurProfile === 'function') {
                     console.log('🔵 [AUTO] Sección de perfil visible, cargando datos...');

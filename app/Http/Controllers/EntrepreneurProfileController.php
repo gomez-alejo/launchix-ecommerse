@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;  // ← AGREGAR ESTA LÍNEA
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use App\Models\Entrepreneur;
@@ -182,5 +183,49 @@ class EntrepreneurProfileController extends Controller
             'success' => false,
             'message' => 'No hay foto de perfil para eliminar'
         ], 400);
+    }
+    
+    /**
+     * Cambiar contraseña del emprendedor
+     */
+    public function updatePassword(Request $request)
+    {
+        $entrepreneur = Auth::guard('entrepreneur')->user();
+
+        if (!$entrepreneur) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuario no autenticado'
+            ], 401);
+        }
+
+        $validated = $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|min:6',
+            'new_password_confirmation' => 'required|same:new_password',
+        ], [
+            'current_password.required' => 'La contraseña actual es requerida',
+            'new_password.required' => 'La nueva contraseña es requerida',
+            'new_password.min' => 'La nueva contraseña debe tener al menos 6 caracteres',
+            'new_password_confirmation.required' => 'Debes confirmar la nueva contraseña',
+            'new_password_confirmation.same' => 'Las contraseñas no coinciden',
+        ]);
+
+        // Verificar contraseña actual
+        if (!Hash::check($validated['current_password'], $entrepreneur->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'La contraseña actual es incorrecta'
+            ], 422);
+        }
+
+        // Actualizar contraseña
+        $entrepreneur->password = Hash::make($validated['new_password']);
+        $entrepreneur->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Contraseña actualizada correctamente'
+        ]);
     }
 }
