@@ -9,6 +9,7 @@ use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\EntrepreneurProfileController;
 
 /**
  * ===================== RUTAS PÚBLICAS PRINCIPALES =====================
@@ -95,6 +96,18 @@ Route::patch('/productos/{id}', [ProductController::class, 'update'])->middlewar
 Route::delete('/productos/{id}', [ProductController::class, 'destroy'])->middleware('auth:entrepreneur')->name('productos.destroy');
 
 /**
+ * ===================== PERFIL DE EMPRENDEDOR =====================
+ */
+
+Route::middleware(['auth:entrepreneur'])->group(function () {
+    Route::get('/entrepreneur/profile', [EntrepreneurProfileController::class, 'show'])->name('entrepreneur.profile');
+    Route::get('/entrepreneur/profile/data', [EntrepreneurProfileController::class, 'getEntrepreneurData']);
+    Route::post('/entrepreneur/profile/update', [EntrepreneurProfileController::class, 'updateEntrepreneurProfile']);
+    Route::post('/entrepreneur/profile/avatar', [EntrepreneurProfileController::class, 'updateEntrepreneurAvatar']);
+    Route::delete('/entrepreneur/profile/avatar', [EntrepreneurProfileController::class, 'deleteEntrepreneurAvatar']);
+});
+
+/**
  * ===================== API ROUTES =====================
  */
 
@@ -107,17 +120,4 @@ Route::prefix('api')->group(function () {
     Route::get('/productos', [ProductController::class, 'publicIndex']);
     Route::get('/productos/{id}', [ProductController::class, 'publicShow']);
     Route::post('/productos/search', [ProductController::class, 'search']);
-    
-    // Si tienes un controlador de categorías
-    // Route::get('/categories', [CategoryController::class, 'index'])->name('categories.api');
 });
-
-/**
- * ===================== RUTAS ADICIONALES (comentadas para revisión) =====================
- */
-
-// Rutas alternativas de productos (revisar si son necesarias)
-// Route::get('/productos', [ProductController::class, 'publicIndex'])->name('productos.public');
-// Route::get('/productos/{id}', [ProductController::class, 'publicShow'])->name('productos.show');
-
-// Si necesitas más funcionalidades, descomenta según corresponda

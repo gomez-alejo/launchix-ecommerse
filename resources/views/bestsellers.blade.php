@@ -96,8 +96,8 @@
                 
                 @foreach($quickCategories as $cat)
                     <a href="{{ route('productos') }}" 
-                       class="group flex flex-col items-center justify-center p-6 rounded-2xl hover:shadow-xl transform hover:scale-105 hover:-translate-y-1 transition-all duration-300"
-                       style="background-color: {{ $cat['bg'] }};">
+                        class="group flex flex-col items-center justify-center p-6 rounded-2xl hover:shadow-xl transform hover:scale-105 hover:-translate-y-1 transition-all duration-300"
+                        style="background-color: {{ $cat['bg'] }};">
                         <i class="{{ $cat['icon'] }} text-3xl mb-3 group-hover:scale-110 transition-transform duration-300" style="color: {{ $cat['color'] }};"></i>
                         <span class="text-sm font-bold text-center" style="color: #1A1A1A;">{{ $cat['name'] }}</span>
                     </a>
@@ -216,7 +216,7 @@
                 <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 scroll-animate">
                     <div class="flex items-center mb-6">
                         <div class="w-14 h-14 rounded-full flex items-center justify-center text-white font-black text-lg mr-4"
-                             style="background: linear-gradient(135deg, #2388FF, #1E40AF);">
+                            style="background: linear-gradient(135deg, #2388FF, #1E40AF);">
                             JG
                         </div>
                         <div>

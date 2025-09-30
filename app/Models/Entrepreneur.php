@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Storage;
 
 class Entrepreneur extends Authenticatable
 {
@@ -31,4 +32,23 @@ class Entrepreneur extends Authenticatable
         'email_verified_at' => 'datetime',
         'registered_at' => 'datetime',
     ];
+
+    // Accessor para obtener la URL completa del avatar
+    public function getProfilePhotoUrlAttribute()
+    {
+        if ($this->profile_photo) {
+            return Storage::url($this->profile_photo);
+        }
+        
+        // Avatar por defecto con iniciales usando UI Avatars
+        return "https://ui-avatars.com/api/?name=" . 
+            urlencode($this->first_name . ' ' . $this->last_name) . 
+            "&size=200&background=FDC040&color=fff&bold=true";
+    }
+
+    // Accessor para obtener nombre completo
+    public function getFullNameAttribute()
+    {
+        return "{$this->first_name} {$this->last_name}";
+    }
 }
