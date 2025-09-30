@@ -1,87 +1,274 @@
-        .footer {
-            background: linear-gradient(135deg, var(--accent), var(--primary));
-        }
+/* ====================================
+   FOOTER STYLES - MiTienda
+   ==================================== */
 
-        .footer-link {
-            transition: all 0.3s ease;
-            position: relative;
-        }
+/* Footer principal */
+.footer-section {
+    background-color: var(--text-dark);
+    color: var(--bg-gray-100);
+    margin-top: 80px;
+}
 
-        .footer-link::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--lighter);
-            transition: width 0.3s ease;
-        }
+/* Top section del footer */
+.footer-top {
+    padding: 60px 0 40px;
+    border-bottom: 1px solid rgba(253, 192, 64, 0.1);
+}
 
-        .footer-link:hover::after {
-            width: 100%;
-        }
+/* Columnas del footer */
+.footer-column {
+    display: flex;
+    flex-direction: column;
+}
 
-        .footer-link:hover {
-            color: var(--lighter);
-            transform: translateY(-2px);
-        }
+/* Brand del footer */
+.footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 20px;
+}
 
-        .social-icon {
-            transition: all 0.3s ease;
-        }
+.footer-brand i {
+    font-size: 32px;
+}
 
-        .social-icon:hover {
-            transform: scale(1.2) rotate(5deg);
-            color: var(--lighter);
-        }
+/* Descripción */
+.footer-description {
+    color: var(--text-light);
+    line-height: 1.7;
+    margin-bottom: 24px;
+    font-size: 14px;
+}
 
-        .auth-btn {
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
+/* Social links */
+.social-links {
+    display: flex;
+    gap: 12px;
+}
 
-        .auth-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s ease;
-        }
+.social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: rgba(253, 192, 64, 0.1);
+    border-radius: 8px;
+    color: var(--primary);
+    font-size: 18px;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
 
-        .auth-btn:hover::before {
-            left: 100%;
-        }
+.social-link:hover {
+    background-color: var(--primary);
+    color: var(--text-dark);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(253, 192, 64, 0.25);
+}
 
-        .auth-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
+/* Títulos de columnas */
+.footer-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--bg-white);
+    margin-bottom: 20px;
+    position: relative;
+    padding-bottom: 12px;
+}
 
-        .bounce-icon {
-            animation: bounce 2s infinite;
-        }
+.footer-title::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 40px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: 2px;
+}
 
-                @keyframes bounce {
-            0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
-            40%, 43% { transform: translateY(-10px); }
-            70% { transform: translateY(-5px); }
-        }
+/* Links del footer */
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
 
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+.footer-link {
+    color: var(--text-light);
+    font-size: 14px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+    padding-left: 0;
+}
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+.footer-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--primary);
+    transition: width 0.3s ease;
+    bottom: -2px;
+}
 
-        .content-spacer {
-            min-height: 60vh;
-        }
+.footer-link:hover {
+    color: var(--primary);
+    padding-left: 8px;
+}
+
+.footer-link:hover::before {
+    width: 20px;
+}
+
+/* Contacto */
+.footer-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.contact-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    color: var(--text-light);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.contact-item i {
+    color: var(--primary);
+    font-size: 16px;
+    margin-top: 2px;
+    min-width: 20px;
+}
+
+.contact-item span {
+    flex: 1;
+}
+
+/* Footer bottom */
+.footer-bottom {
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 24px 0;
+}
+
+.footer-bottom-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    text-align: center;
+}
+
+.copyright {
+    color: var(--text-light);
+    font-size: 14px;
+    margin: 0;
+}
+
+.footer-legal {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.legal-link {
+    color: var(--text-light);
+    font-size: 13px;
+    transition: color 0.3s ease;
+}
+
+.legal-link:hover {
+    color: var(--primary);
+}
+
+.separator {
+    color: var(--text-gray);
+    font-size: 12px;
+}
+
+/* ====================================
+   RESPONSIVE DESIGN
+   ==================================== */
+
+@media (min-width: 768px) {
+    .footer-top {
+        padding: 80px 0 60px;
+    }
+
+    .footer-bottom-content {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 767px) {
+    .footer-brand {
+        font-size: 24px;
+    }
+
+    .footer-brand i {
+        font-size: 28px;
+    }
+
+    .footer-title {
+        font-size: 16px;
+        margin-top: 32px;
+    }
+
+    .footer-title:first-child {
+        margin-top: 0;
+    }
+
+    .social-links {
+        justify-content: flex-start;
+    }
+}
+
+/* Animaciones sutiles */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.footer-column {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.footer-column:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.footer-column:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.footer-column:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.footer-column:nth-child(4) {
+    animation-delay: 0.4s;
+}
