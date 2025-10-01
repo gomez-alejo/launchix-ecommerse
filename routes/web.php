@@ -123,3 +123,42 @@ Route::prefix('api')->group(function () {
     Route::get('/productos/{id}', [ProductController::class, 'publicShow']);
     Route::post('/productos/search', [ProductController::class, 'search']);
 });
+
+use App\Http\Controllers\ProfileController;
+
+// Rutas protegidas por autenticación
+Route::middleware('auth')->group(function () {
+    // Vista del perfil
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    
+    // API endpoints para el perfil
+    Route::get('/api/profile/data', [ProfileController::class, 'getUserData'])->name('profile.data');
+    Route::post('/api/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/api/profile/change-password', [ProfileController::class, 'changePassword'])->name('profile.changePassword');
+});
+
+
+//rutas del perfil de usuario
+Route::get('/userProfile', function () {
+    return view('modals.login-items.user.ProfileSection');
+})->name('profile');
+
+Route::get('/userOrders', function () {
+    return view('modals.login-items.user.OrderSection');
+})->name('orders');
+
+Route::get('/userReviews', function () {
+    return view('modals.login-items.user.ReviewsSection');
+})->name('reviews');
+
+Route::get('/userFollowed', function () {
+    return view('modals.login-items.user.FollowedStore');
+})->name('followed');
+
+Route::get('/userHistory', function () {
+    return view('modals.login-items.user.BrowsingHistory');
+})->name('history');
+
+Route::get('/userSettings', function () {
+    return view('modals.login-items.user.SettingsSection');
+})->name('settings');

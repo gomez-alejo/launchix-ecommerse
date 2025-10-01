@@ -7,7 +7,7 @@
             <div class="text-xl font-bold">
                 <a href="{{ route('home') }}" class="logo flex items-center space-x-2">
                     <i class="fas fa-shopping-cart text-2xl bounce-icon"></i>
-                    <span>launchix</span>
+                    <span>Launchix</span>
                 </a>
             </div>
 
