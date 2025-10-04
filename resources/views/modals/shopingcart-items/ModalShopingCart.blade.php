@@ -17,7 +17,7 @@
                 <span id="cartTotal" class="font-bold text-red-600 text-lg">$0</span>
             </div>
             <button class="btn-primary w-full py-3 rounded-lg font-semibold">
-                <i class="fas fa-credit-card"></i><a href="/html/Carrito.html"> Finalizar Compra</a>
+                <i class="fas fa-credit-card"></i><a href="{{ route('shoppingCart') }}"> Finalizar Compra</a>
             </button>
         </div>
     </div>

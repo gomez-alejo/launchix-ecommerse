@@ -1,6 +1,25 @@
-                <div id="orders-section" class="section hidden">
-                    <div class="bg-white rounded-lg shadow-lg p-8">
-                        <h1 class="text-3xl font-bold text-gray-800 mb-8">Tus Pedidos</h1>
-                        <p class="text-gray-600">Aquí verás todos tus pedidos realizados.</p>
-                    </div>
-                </div>
+@extends('layouts.app')
+
+@section('title', 'profile')
+
+@vite('resources/css/profile.css')
+
+@section('content')
+
+<!-- Main Content -->
+<div class="container mx-auto px-4 py-8">
+    
+    <div class="flex gap-8">
+        <!-- Sidebar -->
+         @include('modals.login-items.user.sideBar')
+
+        <!-- Main Content Area -->
+        <main class="flex-1">
+            
+        </main>
+    </div>
+</div>
+
+@endsection
+
+@vite('resources/js/profile.js')

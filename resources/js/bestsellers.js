@@ -1,421 +1,424 @@
+// Datos de ejemplo de productos (estos vendrían de tu backend)
+const productsData = [
+    {
+        id: 1,
+        name: "Auriculares Bluetooth Premium",
+        category: "electronics",
+        price: 89.99,
+        oldPrice: 129.99,
+        rating: 4.8,
+        sales: 1234,
+        image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500",
+        discount: 31,
+        isBestseller: true
+    },
+    {
+        id: 2,
+        name: "Smartwatch Deportivo",
+        category: "electronics",
+        price: 199.99,
+        oldPrice: 299.99,
+        rating: 4.7,
+        sales: 987,
+        image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500",
+        discount: 33,
+        isBestseller: true
+    },
+    {
+        id: 3,
+        name: "Zapatillas Running Pro",
+        category: "sports",
+        price: 119.99,
+        oldPrice: 159.99,
+        rating: 4.9,
+        sales: 1456,
+        image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500",
+        discount: 25,
+        isBestseller: true
+    },
+    {
+        id: 4,
+        name: "Cámara Digital 4K",
+        category: "electronics",
+        price: 449.99,
+        oldPrice: 599.99,
+        rating: 4.6,
+        sales: 678,
+        image: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=500",
+        discount: 25,
+        isBestseller: false
+    },
+    {
+        id: 5,
+        name: "Chaqueta de Cuero",
+        category: "fashion",
+        price: 179.99,
+        oldPrice: 249.99,
+        rating: 4.5,
+        sales: 543,
+        image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500",
+        discount: 28,
+        isBestseller: false
+    },
+    {
+        id: 6,
+        name: "Lámpara LED Moderna",
+        category: "home",
+        price: 59.99,
+        oldPrice: 89.99,
+        rating: 4.7,
+        sales: 890,
+        image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=500",
+        discount: 33,
+        isBestseller: true
+    },
+    {
+        id: 7,
+        name: "Mochila Táctica",
+        category: "sports",
+        price: 79.99,
+        oldPrice: 109.99,
+        rating: 4.8,
+        sales: 1123,
+        image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500",
+        discount: 27,
+        isBestseller: true
+    },
+    {
+        id: 8,
+        name: "Cafetera Espresso",
+        category: "home",
+        price: 299.99,
+        oldPrice: 399.99,
+        rating: 4.9,
+        sales: 765,
+        image: "https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?w=500",
+        discount: 25,
+        isBestseller: false
+    },
+    {
+        id: 9,
+        name: "Gafas de Sol Polarizadas",
+        category: "fashion",
+        price: 49.99,
+        oldPrice: 79.99,
+        rating: 4.6,
+        sales: 1345,
+        image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500",
+        discount: 38,
+        isBestseller: true
+    }
+];
 
-        // Datos de productos
-        const products = [
-            {
-                id: 1,
-                name: "Cargador Inalámbrico Premium",
-                description: "Carga rápida y segura para todos tus dispositivos",
-                price: 49.99,
-                image: "https://via.placeholder.com/400x300/F77786/FFFFFF?text=Cargador",
-                category: "electronics"
-            },
-            {
-                id: 2,
-                name: "Auriculares Bluetooth Pro",
-                description: "Sonido de alta calidad con cancelación de ruido",
-                price: 89.99,
-                image: "https://via.placeholder.com/400x300/998486/FFFFFF?text=Auriculares",
-                category: "electronics"
-            },
-            {
-                id: 3,
-                name: "Smartwatch Deportivo",
-                description: "Monitorea tu salud y mantente conectado",
-                price: 199.99,
-                image: "https://via.placeholder.com/400x300/D1A1A7/FFFFFF?text=Smartwatch",
-                category: "electronics"
-            },
-            {
-                id: 4,
-                name: "Mochila Inteligente",
-                description: "Con puerto USB y compartimento para laptop",
-                price: 79.99,
-                image: "https://via.placeholder.com/400x300/EB0924/FFFFFF?text=Mochila",
-                category: "accessories"
-            },
-            {
-                id: 5,
-                name: "Lámpara LED Inteligente",
-                description: "Control por voz y múltiples colores",
-                price: 34.99,
-                image: "https://via.placeholder.com/400x300/C7AFB2/FFFFFF?text=Lámpara",
-                category: "home"
-            },
-            {
-                id: 6,
-                name: "Teclado Mecánico RGB",
-                description: "Para gamers y profesionales exigentes",
-                price: 129.99,
-                image: "https://via.placeholder.com/400x300/F77786/FFFFFF?text=Teclado",
-                category: "electronics"
-            }
-        ];
+// Variables globales
+let currentCategory = 'all';
+let currentSort = 'popularity';
+let displayedProducts = 6;
+let filteredProducts = [...productsData];
 
-        // Variables globales
-        let currentIndex = 0;
-        let cart = [];
-        const totalItems = document.querySelectorAll('.carousel-item').length;
+// Inicialización
+document.addEventListener('DOMContentLoaded', function() {
+    initializeFilters();
+    initializeSorting();
+    initializeScrollAnimations();
+    renderProducts();
+    setupLoadMore();
+});
 
-        // Funciones del carrusel
-        function updateCarousel() {
-            const offset = -currentIndex * 100;
-            document.querySelector('.carousel-inner').style.transform = `translateX(${offset}%)`;
-            updateIndicators();
+// Renderizar productos
+function renderProducts() {
+    const grid = document.getElementById('productsGrid');
+    
+    // Filtrar productos
+    filteredProducts = productsData.filter(product => {
+        if (currentCategory === 'all') return true;
+        return product.category === currentCategory;
+    });
+
+    // Ordenar productos
+    sortProducts();
+
+    // Mostrar productos
+    const productsToShow = filteredProducts.slice(0, displayedProducts);
+    
+    grid.innerHTML = productsToShow.map(product => createProductCard(product)).join('');
+
+    // Actualizar botón "Cargar más"
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    if (loadMoreBtn) {
+        if (displayedProducts >= filteredProducts.length) {
+            loadMoreBtn.style.display = 'none';
+        } else {
+            loadMoreBtn.style.display = 'inline-block';
         }
+    }
 
-        function updateIndicators() {
-            document.querySelectorAll('.carousel-indicator').forEach((indicator, index) => {
-                indicator.classList.toggle('active', index === currentIndex);
-            });
-        }
+    // Añadir animaciones
+    animateCards();
+}
 
-        function nextSlide() {
-            currentIndex = (currentIndex + 1) % totalItems;
-            updateCarousel();
-        }
-
-        function prevSlide() {
-            currentIndex = (currentIndex - 1 + totalItems) % totalItems;
-            updateCarousel();
-        }
-
-        function goToSlide(index) {
-            currentIndex = index;
-            updateCarousel();
-        }
-
-        // Renderizar productos
-        function renderProducts() {
-            const grid = document.getElementById('productsGrid');
-            grid.innerHTML = products.map(product => `
-                <div class="product-card scroll-animate p-6" data-product-id="${product.id}">
-                    <div class="overflow-hidden rounded-lg mb-4">
-                        <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover">
-                    </div>
-                    <h3 class="text-xl font-bold mb-2 text-primary">${product.name}</h3>
-                    <p class="text-gray-600 mb-4">${product.description}</p>
-                    <div class="flex justify-between items-center">
-                        <span class="text-2xl font-bold text-primary">$${product.price}</span>
-                        <button onclick="addToCart(${product.id})" class="btn-primary py-2 px-4 rounded-lg transform hover:scale-105 transition-all duration-300">
-                            <i class="fas fa-cart-plus mr-2"></i>Agregar
-                        </button>
-                    </div>
+// Crear tarjeta de producto
+function createProductCard(product) {
+    const stars = '⭐'.repeat(Math.floor(product.rating));
+    
+    return `
+        <div class="product-card scroll-animate" data-product-id="${product.id}">
+            ${product.isBestseller ? '<div class="badge bestseller">🏆 Bestseller</div>' : '<div class="badge">Popular</div>'}
+            
+            <div class="image-container">
+                <img src="${product.image}" alt="${product.name}" loading="lazy">
+                <div class="quick-view" onclick="quickView(${product.id})">
+                    Vista Rápida
                 </div>
-            `).join('');
-        }
+            </div>
 
-        // Funciones del carrito
-        function addToCart(productId) {
-            const product = products.find(p => p.id === productId);
-            const existingItem = cart.find(item => item.id === productId);
-            
-            if (existingItem) {
-                existingItem.quantity += 1;
-            } else {
-                cart.push({ ...product, quantity: 1 });
-            }
-            
-            updateCartUI();
-            showCartNotification();
-        }
+            <div class="content">
+                <div class="rating">
+                    <span class="stars">${stars}</span>
+                    <span class="sales-count">(${product.sales.toLocaleString()} vendidos)</span>
+                </div>
 
-        function removeFromCart(productId) {
-            cart = cart.filter(item => item.id !== productId);
-            updateCartUI();
-        }
+                <h3>${product.name}</h3>
 
-        function updateCartUI() {
-            const cartBadge = document.getElementById('cartBadge');
-            const cartItems = document.getElementById('cartItems');
-            const cartTotal = document.getElementById('cartTotal');
-            
-            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            
-            cartBadge.textContent = totalItems;
-            cartTotal.textContent = `$${totalPrice.toFixed(2)}`;
-            
-            cartItems.innerHTML = cart.map(item => `
-                <div class="flex items-center justify-between p-2 border-b">
-                    <div class="flex-1">
-                        <h4 class="font-medium text-sm">${item.name}</h4>
-                        <p class="text-xs text-gray-500">$${item.price} x ${item.quantity}</p>
-                    </div>
-                    <button onclick="removeFromCart(${item.id})" class="text-red-500 hover:text-red-700">
-                        <i class="fas fa-trash text-xs"></i>
+                <div class="price-section">
+                    <span class="current-price">$${product.price.toFixed(2)}</span>
+                    <span class="old-price">$${product.oldPrice.toFixed(2)}</span>
+                    <span class="discount-badge">-${product.discount}%</span>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="addToCart(${product.id})">
+                        Agregar al Carrito
+                    </button>
+                    <button class="btn btn-outline" onclick="addToWishlist(${product.id})">
+                        ❤️
                     </button>
                 </div>
-            `).join('');
-        }
+            </div>
+        </div>
+    `;
+}
 
-        function showCartNotification() {
-            // Crear notificación temporal
-            const notification = document.createElement('div');
-            notification.className = 'fixed top-4 right-4 bg-primary text-white p-4 rounded-lg shadow-lg z-50 animate-fadeInUp';
-            notification.innerHTML = '<i class="fas fa-check mr-2"></i>Producto agregado al carrito';
-            document.body.appendChild(notification);
+// Inicializar filtros
+function initializeFilters() {
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remover clase active de todos los botones
+            filterButtons.forEach(btn => btn.classList.remove('active'));
             
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
-
-        // Funciones de animación en scroll
-        function handleScrollAnimations() {
-            const elements = document.querySelectorAll('.scroll-animate');
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('visible');
-                    }
-                });
-            }, { threshold: 0.1 });
-
-            elements.forEach(el => observer.observe(el));
-        }
-
-        // Funciones del modal de categorías
-        function setupCategoriesModal() {
-            const container = document.getElementById('categoriesContainer');
-            const modal = document.getElementById('modal');
+            // Agregar clase active al botón clickeado
+            this.classList.add('active');
             
-            container.addEventListener('mouseenter', () => {
-                modal.classList.remove('hidden');
-                setTimeout(() => modal.classList.add('show'), 10);
-            });
+            // Actualizar categoría actual
+            currentCategory = this.dataset.category;
             
-            container.addEventListener('mouseleave', () => {
-                modal.classList.remove('show');
-                setTimeout(() => modal.classList.add('hidden'), 300);
-            });
-        }
-
-        // Setup del mini carrito
-        function setupMiniCart() {
-            const cartToggle = document.getElementById('cartToggle');
-            const miniCart = document.getElementById('miniCart');
-            const closeMiniCart = document.getElementById('closeMiniCart');
+            // Resetear productos mostrados
+            displayedProducts = 6;
             
-            cartToggle.addEventListener('click', (e) => {
-                e.preventDefault();
-                miniCart.classList.toggle('hidden');
-            });
-            
-            closeMiniCart.addEventListener('click', () => {
-                miniCart.classList.add('hidden');
-            });
-            
-            // Cerrar al hacer clic fuera
-            document.addEventListener('click', (e) => {
-                if (!miniCart.contains(e.target) && !cartToggle.contains(e.target)) {
-                    miniCart.classList.add('hidden');
-                }
-            });
-        }
-
-        // Setup del menú móvil
-        function setupMobileMenu() {
-            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-            const navLinks = document.getElementById('navLinks');
-            
-            mobileMenuBtn.addEventListener('click', () => {
-                navLinks.classList.toggle('hidden');
-                navLinks.classList.toggle('flex');
-            });
-        }
-
-        // Función de búsqueda
-        function setupSearch() {
-            const searchInput = document.getElementById('searchInput');
-            
-            searchInput.addEventListener('input', (e) => {
-                const query = e.target.value.toLowerCase();
-                const productCards = document.querySelectorAll('[data-product-id]');
-                
-                productCards.forEach(card => {
-                    const productName = card.querySelector('h3').textContent.toLowerCase();
-                    const productDesc = card.querySelector('p').textContent.toLowerCase();
-                    
-                    if (productName.includes(query) || productDesc.includes(query)) {
-                        card.style.display = 'block';
-                        card.classList.add('animate-fadeInUp');
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            });
-        }
-
-        // Función para efectos de hover en productos
-        function setupProductEffects() {
-            document.addEventListener('mouseover', (e) => {
-                if (e.target.closest('.product-card')) {
-                    const card = e.target.closest('.product-card');
-                    card.style.transform = 'translateY(-10px) scale(1.02)';
-                }
-            });
-            
-            document.addEventListener('mouseout', (e) => {
-                if (e.target.closest('.product-card')) {
-                    const card = e.target.closest('.product-card');
-                    card.style.transform = 'translateY(0) scale(1)';
-                }
-            });
-        }
-
-        // Funciones para categorías
-        function filterByCategory(category) {
-            const productCards = document.querySelectorAll('[data-product-id]');
-            
-            productCards.forEach(card => {
-                const productId = parseInt(card.dataset.productId);
-                const product = products.find(p => p.id === productId);
-                
-                if (category === 'all' || product.category === category) {
-                    card.style.display = 'block';
-                    card.classList.add('animate-fadeInUp');
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        }
-
-        // Setup de filtros de categoría
-        function setupCategoryFilters() {
-            document.querySelectorAll('.category-card').forEach(card => {
-                card.addEventListener('click', () => {
-                    const categoryName = card.querySelector('h3').textContent.toLowerCase();
-                    let category = 'all';
-                    
-                    switch(categoryName) {
-                        case 'electrónicos':
-                            category = 'electronics';
-                            break;
-                        case 'ropa':
-                            category = 'fashion';
-                            break;
-                        case 'hogar':
-                            category = 'home';
-                            break;
-                        case 'deportes':
-                            category = 'sports';
-                            break;
-                    }
-                    
-                    filterByCategory(category);
-                    
-                    // Scroll a la sección de productos
-                    document.querySelector('#productsGrid').scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                });
-            });
-        }
-
-        // Función para lazy loading de imágenes
-        function setupLazyLoading() {
-            const images = document.querySelectorAll('img[data-src]');
-            const imageObserver = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const img = entry.target;
-                        img.src = img.dataset.src;
-                        img.classList.remove('lazy');
-                        imageObserver.unobserve(img);
-                    }
-                });
-            });
-
-            images.forEach(img => imageObserver.observe(img));
-        }
-
-        // Función para efectos de partículas (opcional)
-        function createParticleEffect(element) {
-            const particle = document.createElement('div');
-            particle.className = 'absolute w-2 h-2 bg-primary rounded-full opacity-70';
-            particle.style.left = Math.random() * 100 + '%';
-            particle.style.top = Math.random() * 100 + '%';
-            particle.style.animation = 'pulse 2s infinite';
-            
-            element.appendChild(particle);
-            
-            setTimeout(() => {
-                particle.remove();
-            }, 2000);
-        }
-
-        // Función de inicialización
-        function init() {
+            // Renderizar productos
             renderProducts();
-            setupCategoriesModal();
-            setupMiniCart();
-            setupMobileMenu();
-            setupSearch();
-            setupProductEffects();
-            setupCategoryFilters();
-            setupLazyLoading();
-            handleScrollAnimations();
-            
-            // Auto-advance del carrusel
-            setInterval(nextSlide, 5000);
-            
-            // Efectos adicionales
-            document.querySelectorAll('.btn-primary').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    // Efecto de ripple
-                    const ripple = document.createElement('span');
-                    ripple.className = 'absolute inset-0 rounded-full bg-white opacity-25 scale-0';
-                    ripple.style.animation = 'pulse 0.6s ease-out';
-                    this.appendChild(ripple);
-                    
-                    setTimeout(() => ripple.remove(), 600);
-                });
-            });
-            
-            console.log('🚀 E-commerce inicializado correctamente!');
-        }
+        });
+    });
+}
 
-        // Inicializar cuando el DOM esté listo
-        document.addEventListener('DOMContentLoaded', init);
+// Inicializar ordenamiento
+function initializeSorting() {
+    const sortSelect = document.getElementById('sortSelect');
+    
+    if (sortSelect) {
+        sortSelect.addEventListener('change', function() {
+            currentSort = this.value;
+            renderProducts();
+        });
+    }
+}
 
-        // Función adicional para notificaciones de stock
-        function checkStock(productId) {
-            // Simulación de verificación de stock
-            const random = Math.random();
-            if (random < 0.1) {
-                showNotification('¡Última unidad disponible!', 'warning');
-            } else if (random < 0.05) {
-                showNotification('Producto agotado', 'error');
-                return false;
+// Ordenar productos
+function sortProducts() {
+    switch(currentSort) {
+        case 'popularity':
+            filteredProducts.sort((a, b) => b.sales - a.sales);
+            break;
+        case 'price-low':
+            filteredProducts.sort((a, b) => a.price - b.price);
+            break;
+        case 'price-high':
+            filteredProducts.sort((a, b) => b.price - a.price);
+            break;
+        case 'rating':
+            filteredProducts.sort((a, b) => b.rating - a.rating);
+            break;
+    }
+}
+
+// Configurar botón "Cargar más"
+function setupLoadMore() {
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', function() {
+            displayedProducts += 6;
+            renderProducts();
+            
+            // Scroll suave a los nuevos productos
+            setTimeout(() => {
+                const cards = document.querySelectorAll('.product-card');
+                if (cards.length > displayedProducts - 6) {
+                    cards[displayedProducts - 6].scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'center' 
+                    });
+                }
+            }, 100);
+        });
+    }
+}
+
+// Animaciones de scroll
+function initializeScrollAnimations() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
             }
-            return true;
-        }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
 
-        function showNotification(message, type = 'success') {
-            const colors = {
-                success: 'bg-green-500',
-                warning: 'bg-yellow-500',
-                error: 'bg-red-500'
-            };
-            
-            const notification = document.createElement('div');
-            notification.className = `fixed top-4 left-1/2 transform -translate-x-1/2 ${colors[type]} text-white p-4 rounded-lg shadow-lg z-50 animate-fadeInUp`;
-            notification.textContent = message;
-            document.body.appendChild(notification);
+    // Observar elementos con animación
+    document.querySelectorAll('.scroll-animate').forEach(el => {
+        observer.observe(el);
+    });
+}
+
+// Animar tarjetas de productos
+function animateCards() {
+    const cards = document.querySelectorAll('.product-card');
+    
+    cards.forEach((card, index) => {
+        setTimeout(() => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
             
             setTimeout(() => {
-                notification.style.animation = 'fadeInUp 0.5s ease-out reverse';
-                setTimeout(() => notification.remove(), 500);
-            }, 3000);
-        }
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 50);
+        }, index * 100);
+    });
 
-        // Función para modo oscuro (bonus)
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark');
-            localStorage.setItem('darkMode', document.body.classList.contains('dark'));
-        }
+    // Re-observar los nuevos elementos
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, {
+        threshold: 0.1
+    });
 
-        // Restaurar modo oscuro del localStorage
-        if (localStorage.getItem('darkMode') === 'true') {
-            document.body.classList.add('dark');
+    cards.forEach(card => observer.observe(card));
+}
+
+// Agregar al carrito
+function addToCart(productId) {
+    const product = productsData.find(p => p.id === productId);
+    
+    if (product) {
+        // Aquí iría tu lógica para agregar al carrito
+        console.log('Producto agregado al carrito:', product);
+        
+        // Mostrar notificación
+        showNotification(`${product.name} agregado al carrito`, 'success');
+        
+        // Puedes hacer una petición AJAX a tu backend aquí
+        // fetch('/cart/add', { ... })
+    }
+}
+
+// Agregar a favoritos
+function addToWishlist(productId) {
+    const product = productsData.find(p => p.id === productId);
+    
+    if (product) {
+        console.log('Producto agregado a favoritos:', product);
+        showNotification(`${product.name} agregado a favoritos`, 'success');
+        
+        // Petición AJAX a tu backend
+        // fetch('/wishlist/add', { ... })
+    }
+}
+
+// Vista rápida del producto
+function quickView(productId) {
+    const product = productsData.find(p => p.id === productId);
+    
+    if (product) {
+        console.log('Vista rápida:', product);
+        // Aquí puedes abrir un modal con los detalles del producto
+        alert(`Vista rápida de: ${product.name}\nPrecio: $${product.price}\nCalificación: ${product.rating}⭐`);
+    }
+}
+
+// Mostrar notificación
+function showNotification(message, type = 'info') {
+    // Crear elemento de notificación
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#10b981' : '#3b82f6'};
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        z-index: 9999;
+        animation: slideIn 0.3s ease;
+    `;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // Remover después de 3 segundos
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 3000);
+}
+
+// Agregar estilos para las animaciones de notificación
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from {
+            transform: translateX(400px);
+            opacity: 0;
         }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);

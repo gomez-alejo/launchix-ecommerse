@@ -258,7 +258,7 @@
             <div class="text-center">
                 <p class="text-gray-600">
                     ¿Ya tienes cuenta? 
-                    <a href="#" class="text-primary hover:text-secondary font-semibold transition-colors">
+                    <a href="{{ route('login.entrepreneur') }}" class="text-primary hover:text-secondary font-semibold transition-colors">
                         Inicia sesión aquí
                     </a>
                 </p>

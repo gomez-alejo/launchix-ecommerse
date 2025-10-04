@@ -60,6 +60,7 @@
                 <div id="product-main-preview" class="mt-4 grid grid-cols-1 gap-4 max-w-xs"></div>
             </div>
             
+            
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Galería de Imágenes (Opcional)</label>
                 <div class="drag-area" id="product-gallery-dropzone">

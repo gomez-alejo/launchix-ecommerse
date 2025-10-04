@@ -10,25 +10,25 @@ window.showSection = function(sectionId) {
     sections.forEach(section => {
         section.classList.remove('active');
     });
-    
+
     // Show selected section
     const targetSection = document.getElementById(sectionId);
     if (targetSection) {
         targetSection.classList.add('active');
     }
-    
+
     // Update menu active state
     const menuItems = document.querySelectorAll('.menu-item');
     menuItems.forEach(item => {
         item.classList.remove('active');
     });
-    
+
     // Find and activate the clicked menu item
     const clickedItem = event?.target?.closest('.menu-item');
     if (clickedItem) {
         clickedItem.classList.add('active');
     }
-    
+
     // Si estamos mostrando la sección de servicios, cargar los datos
     if (sectionId === 'servicios') {
         setTimeout(() => {
@@ -43,12 +43,12 @@ window.showSection = function(sectionId) {
 window.showToast = function(message, type = 'info') {
     const toast = document.createElement('div');
     const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
-    
+
     toast.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300`;
     toast.innerHTML = `
         <div class="flex items-center">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                ${type === 'success' ? 
+                ${type === 'success' ?
                     '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>' :
                     type === 'error' ?
                     '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>' :
@@ -58,14 +58,14 @@ window.showToast = function(message, type = 'info') {
             <span>${message}</span>
         </div>
     `;
-    
+
     document.body.appendChild(toast);
-    
+
     // Animar entrada
     setTimeout(() => {
         toast.classList.remove('translate-x-full');
     }, 100);
-    
+
     // Auto remover después de 4 segundos
     setTimeout(() => {
         toast.classList.add('translate-x-full');
@@ -92,10 +92,10 @@ window.showConfirmDialog = function({ title, message, confirmText, cancelText, t
     return new Promise((resolve) => {
         const modal = document.createElement('div');
         modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-        
+
         const iconColor = type === 'danger' ? 'text-red-600' : 'text-yellow-600';
         const confirmButtonColor = type === 'danger' ? 'bg-red-600 hover:bg-red-700' : 'bg-yellow-600 hover:bg-yellow-700';
-        
+
         modal.innerHTML = `
             <div class="bg-white rounded-lg p-6 max-w-md mx-4">
                 <div class="flex items-center mb-4">
@@ -115,22 +115,22 @@ window.showConfirmDialog = function({ title, message, confirmText, cancelText, t
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(modal);
-        
+
         const cancelBtn = modal.querySelector('#cancel-btn');
         const confirmBtn = modal.querySelector('#confirm-btn');
-        
+
         cancelBtn.onclick = () => {
             document.body.removeChild(modal);
             resolve(false);
         };
-        
+
         confirmBtn.onclick = () => {
             document.body.removeChild(modal);
             resolve(true);
         };
-        
+
         // Cerrar con ESC
         const handleKeyDown = (e) => {
             if (e.key === 'Escape') {
@@ -146,7 +146,60 @@ window.showConfirmDialog = function({ title, message, confirmText, cancelText, t
 // Inicialización de navegación
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Navigation script loaded successfully');
-    
+
+    // Inicializar subida de imágenes para el formulario de servicios
+    if (window.ServicesManager && ServicesManager.setupImageUpload) {
+        ServicesManager.setupImageUpload('service-main-dropzone', 'service-main-image', 'service-main-preview');
+        ServicesManager.setupImageUpload('service-gallery-dropzone', 'service-gallery-images', 'service-gallery-preview');
+    }
+
+    // Handler para el submit del formulario de servicios
+    const servicioForm = document.getElementById('servicio-form');
+    if (servicioForm && window.ServicesManager && ServicesManager.saveService) {
+        servicioForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(servicioForm);
+            // Validar antes de enviar
+            const errors = ServicesManager.validateServiceForm(formData);
+            if (errors.length > 0) {
+                ServicesManager.showErrors(errors);
+                return;
+            }
+            // Mostrar loading en el botón
+            const submitBtn = servicioForm.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Publicando...';
+            }
+            const result = await ServicesManager.saveService(formData);
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Publicar Servicio';
+            }
+            if (result.success) {
+                window.showSuccessMessage(result.message || 'Servicio publicado correctamente');
+                servicioForm.reset();
+                document.getElementById('service-main-preview').innerHTML = '';
+                document.getElementById('service-gallery-preview').innerHTML = '';
+                showSection('servicios');
+                // Mostrar la nueva card instantáneamente
+                if (window.ServicesManager && ServicesManager.createServicioCard && result.data && result.data.data) {
+                    const serviciosContainer = document.querySelector('#servicios .grid');
+                    if (serviciosContainer) {
+                        const newCard = ServicesManager.createServicioCard(result.data.data);
+                        serviciosContainer.prepend(newCard);
+                    }
+                }
+                // También recargar la lista completa después de un breve delay para sincronizar
+                if (window.ServicesManager && ServicesManager.loadServicios) {
+                    setTimeout(() => ServicesManager.loadServicios(), 1500);
+                }
+            } else {
+                ServicesManager.showErrors(result.errors || ['Error al publicar el servicio']);
+            }
+        });
+    }
+
     // Aquí puedes agregar más inicializaciones de navegación si es necesario
     // Por ejemplo, configurar eventos de teclado para navegación, etc.
 });

@@ -175,7 +175,9 @@
         </div>
     </div>
 
+    <!-- modalShoppingCart -->
 @include('modals.shopingcart-items.ModalShopingCart')
+    <!-- Button modalShoppingCart -->
 @include('modals.shopingcart-items.ButtonShopingCart')
 
 @endsection

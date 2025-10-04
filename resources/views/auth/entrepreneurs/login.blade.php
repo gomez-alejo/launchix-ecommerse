@@ -166,7 +166,7 @@
             <div class="text-center mt-6">
                 <p class="text-gray-600">
                     ¿No tienes cuenta? 
-                    <a href="#" class="text-primary hover:text-secondary font-semibold transition-colors">
+                    <a href="{{ route('register.entrepreneur') }}" class="text-primary hover:text-secondary font-semibold transition-colors">
                         Regístrate aquí
                     </a>
                 </p>
