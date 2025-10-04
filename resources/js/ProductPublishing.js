@@ -131,7 +131,7 @@ handleFiles(files, preview, inputId) {
             } else if (price > 99999999.99) {
                 errors.push('El precio no puede ser mayor a $99,999,999.99');
             }
-        }
+        } 
 
         if (!formData.get('stock')) {
             errors.push('El stock es obligatorio');
