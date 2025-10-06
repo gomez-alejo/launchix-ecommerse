@@ -64,7 +64,7 @@
                     <div class="flex items-start justify-between mb-8 pb-6 border-b border-gray-100">
                         <div class="flex items-center gap-6">
                             <!-- Avatar -->
-                            <div class="w-24 h-24 rounded-full bg-gradient-primary flex items-center justify-center text-white text-3xl font-bold shadow-primary">
+                            <div class="w-24 h-24 rounded-full bg-gradient-primary flex items-center justify-center text-white text-3xl font-bold shadow-primary" style="background-color: #FFB800;">
                                 <span id="viewUserInitials">U</span>
                             </div>
                             

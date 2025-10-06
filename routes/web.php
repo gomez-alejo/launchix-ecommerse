@@ -11,6 +11,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\EntrepreneurProfileController;
 
+
 /**
  * ===================== RUTAS PÚBLICAS PRINCIPALES =====================
  */
@@ -147,6 +148,10 @@ Route::get('/userOrders', function () {
     return view('modals.login-items.user.OrderSection');
 })->name('orders');
 
+Route::get('/userOrdersDetail', function () {
+    return view('modals.login-items.user.OrderDetail');
+})->name('ordersDetail');
+
 Route::get('/userReviews', function () {
     return view('modals.login-items.user.ReviewsSection');
 })->name('reviews');
@@ -162,3 +167,12 @@ Route::get('/userHistory', function () {
 Route::get('/userSettings', function () {
     return view('modals.login-items.user.SettingsSection');
 })->name('settings');
+
+// Rutas para la gestión de pedidos
+Route::middleware('auth')->group(function () {
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+    Route::get('/orders/{order}/invoice', [OrderController::class, 'downloadInvoice'])->name('orders.invoice');
+});
