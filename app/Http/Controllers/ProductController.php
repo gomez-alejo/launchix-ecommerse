@@ -470,8 +470,18 @@ class ProductController extends Controller
     public function apiIndex(Request $request)
     {
         try {
+
+            Log::info('publicIndex called', [
+            'is_ajax' => $request->ajax(),
+            'expects_json' => $request->expectsJson(),
+            'accept_header' => $request->header('Accept'),
+            'x_requested_with' => $request->header('X-Requested-With')
+            ]);
+
             // Obtener productos
-            $products = Product::orderBy('created_at', 'desc')->get();
+            $products = Product::with('entrepreneur')
+            ->orderBy('created_at', 'desc')
+            ->get();
 
             // Transformar los productos para el frontend
             $transformedProducts = $products->map(function ($product) {
@@ -563,6 +573,10 @@ class ProductController extends Controller
      */
     private function transformProductForPublic($product)
     {
+        if (!$product->relationLoaded('entrepreneur')) {
+            $product->load('entrepreneur');
+        }
+
         return [
             'id' => $product->id,
             'name' => $product->name,
@@ -575,15 +589,8 @@ class ProductController extends Controller
             'is_active' => true,
             'created_at' => $product->created_at,
             'updated_at' => $product->updated_at,
-
-            // Imágenes con URLs completas
-            'main_image' => $product->main_image ?
-                asset('storage/' . $product->main_image) : null,
-            'gallery_images' => $product->gallery_images ?
-                array_map(fn($image) => asset('storage/' . $image), $product->gallery_images) : [],
-
-            // Categoría (si tienes relación)
-            // Categoría
+            'main_image' => $product->main_image ? asset('storage/' . $product->main_image) : null,
+            'gallery_images' => $product->gallery_images ? array_map(fn($image) => asset('storage/' . $image), $product->gallery_images) : [],
             'category' => [
                 'id' => null,
                 'name' => is_string($product->category) ? $product->category : 'General',
@@ -591,12 +598,19 @@ class ProductController extends Controller
                     strtolower(str_replace([' ', 'ó', 'é', 'í', 'ú', 'ñ'], ['', 'o', 'e', 'i', 'u', 'n'], $product->category)) :
                     'general'
             ],
-
-            // Calificación y reseñas (si tienes estas relaciones)
+            'entrepreneur' => $product->entrepreneur ? [
+                'id' => $product->entrepreneur->id,
+                'name' => $product->entrepreneur->first_name . ' ' . $product->entrepreneur->last_name,
+                'first_name' => $product->entrepreneur->first_name,
+                'last_name' => $product->entrepreneur->last_name,
+                'business_name' => $product->entrepreneur->business_name ?? 
+                                ($product->entrepreneur->first_name . ' ' . $product->entrepreneur->last_name),
+                'avatar' => $product->entrepreneur->avatar ? 
+                    asset('storage/' . $product->entrepreneur->avatar) : 
+                    'https://ui-avatars.com/api/?name=' . urlencode($product->entrepreneur->first_name . ' ' . $product->entrepreneur->last_name) . '&background=F77786&color=fff'
+            ] : null,
             'rating' => 4.0,
             'reviews_count' => 0,
-
-            // Campos calculados
             'discount_percentage' => $this->calculateDiscountPercentage($product),
             'is_new' => $this->isProductNew($product->created_at),
             'in_stock' => $product->stock > 0,
@@ -629,7 +643,7 @@ class ProductController extends Controller
     public function publicShow($id)
     {
         try {
-            $product = Product::with(['category', 'reviews'])
+            $product = Product::with(['category', 'reviews', 'entrepreneur'])
                 // Sin filtro de is_active
                 ->findOrFail($id);
 
