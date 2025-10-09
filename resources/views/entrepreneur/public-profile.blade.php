@@ -239,70 +239,70 @@
                         <!-- Grid de servicios -->
                         <div id="servicesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                             @foreach($transformedServices as $service)
-                                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 service-card">
+                                <div class="service-card bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
                                     <div class="relative">
                                         <img src="{{ $service['imagen_principal'] }}"
                                              alt="{{ $service['nombre_servicio'] }}"
                                              class="w-full h-48 object-cover"
                                              onerror="this.src='https://via.placeholder.com/300x300/3B82F6/FFFFFF?text=Servicio'">
-                                        <div class="absolute top-2 right-2">
-                                            <span class="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
-                                                {{ $service['categoria'] }}
-                                            </span>
+                                        <div class="absolute top-2 right-2 bg-blue-500 text-white px-2 py-1 rounded text-xs">
+                                            {{ $service['categoria'] }}
                                         </div>
                                     </div>
                                     <div class="p-4">
                                         <h3 class="text-lg font-semibold text-gray-800 mb-2">{{ $service['nombre_servicio'] }}</h3>
                                         <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ $service['descripcion'] }}</p>
 
-                                        <div class="flex items-center justify-between mb-3">
-                                            <div class="text-xl font-bold text-blue-600">
-                                                @if($service['precio_base'] > 0)
-                                                    ${{ number_format($service['precio_base'], 0, ',', '.') }}
-                                                @else
-                                                    Consultar
-                                                @endif
-                                            </div>
+                                        <div class="text-xl font-bold text-red-600 mb-3">
+                                            @if($service['precio_base'] > 0)
+                                                ${{ number_format($service['precio_base'], 0, ',', '.') }}
+                                            @else
+                                                Consultar
+                                            @endif
                                         </div>
 
-                                        <div class="space-y-2 text-sm text-gray-500 mb-4">
+                                        <div class="space-y-2 text-sm text-gray-600">
                                             @if($service['direccion'])
                                                 <div class="flex items-center">
-                                                    <i class="fas fa-map-marker-alt w-4 mr-2 text-blue-500"></i>
+                                                    <i class="fas fa-map-marker-alt text-gray-400 mr-2"></i>
                                                     <span class="truncate">{{ $service['direccion'] }}</span>
                                                 </div>
                                             @endif
                                             @if($service['telefono'])
                                                 <div class="flex items-center">
-                                                    <i class="fas fa-phone w-4 mr-2 text-green-500"></i>
+                                                    <i class="fas fa-phone text-gray-400 mr-2"></i>
                                                     <span>{{ $service['telefono'] }}</span>
                                                 </div>
                                             @endif
                                             @if($service['horario_atencion'])
                                                 <div class="flex items-center">
-                                                    <i class="fas fa-clock w-4 mr-2 text-orange-500"></i>
+                                                    <i class="fas fa-clock text-gray-400 mr-2"></i>
                                                     <span class="truncate">{{ $service['horario_atencion'] }}</span>
                                                 </div>
                                             @endif
                                         </div>
 
-                                        <div class="flex space-x-2">
-                                            @if($service['telefono'])
+                                        @if($service['telefono'])
+                                            <div class="mt-4 flex space-x-2">
                                                 <a href="tel:{{ preg_replace('/\D/', '', $service['telefono']) }}"
-                                                   class="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-center py-2 px-3 rounded-lg text-sm font-medium transition-colors">
-                                                    <i class="fas fa-phone mr-1"></i> Llamar
+                                                   class="flex-1 bg-yellow-500 text-white px-3 py-2 rounded text-center hover:bg-yellow-600 transition-colors text-sm">
+                                                    <i class="fas fa-phone"></i> Llamar
                                                 </a>
                                                 <a href="https://wa.me/{{ preg_replace('/\D/', '', $service['telefono']) }}?text=Hola, estoy interesado en el servicio {{ urlencode($service['nombre_servicio']) }}"
                                                    target="_blank"
-                                                   class="flex-1 bg-green-500 hover:bg-green-600 text-white text-center py-2 px-3 rounded-lg text-sm font-medium transition-colors service-contact-button">
-                                                    <i class="fab fa-whatsapp mr-1"></i> WhatsApp
+                                                   class="flex-1 bg-green-500 text-white px-3 py-2 rounded text-center hover:bg-green-600 transition-colors text-sm">
+                                                    <i class="fab fa-whatsapp"></i> WhatsApp
                                                 </a>
-                                            @else
-                                                <button class="w-full bg-gray-400 text-white py-2 px-3 rounded-lg text-sm font-medium cursor-not-allowed">
-                                                    Sin contacto disponible
+                                            </div>
+                                        @else
+                                            <div class="mt-4">
+                                                <button class="w-full bg-gray-400 text-white px-3 py-2 rounded text-sm cursor-not-allowed" disabled>
+                                                    <i class="fas fa-info-circle"></i> Sin contacto disponible
                                                 </button>
-                                            @endif
-                                        </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
                                     </div>
                                 </div>
                             @endforeach

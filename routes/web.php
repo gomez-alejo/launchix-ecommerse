@@ -87,7 +87,7 @@ Route::get('/entrepreneur/services', function () {
 Route::post('/servicios', [ServicioController::class, 'store'])->middleware('auth:entrepreneur')->name('servicios.store');
 Route::get('/mis-servicios', [ServicioController::class, 'misServicios'])->middleware('auth:entrepreneur');
 Route::get('/servicios/{id}', [ServicioController::class, 'show'])->middleware('auth:entrepreneur');
-Route::post('/servicios/{id}', [ServicioController::class, 'update'])->middleware('auth:entrepreneur');
+Route::put('/servicios/{id}', [ServicioController::class, 'update'])->middleware('auth:entrepreneur')->name('servicios.update');
 Route::delete('/servicios/{id}', [ServicioController::class, 'destroy'])->middleware('auth:entrepreneur');
 
 // Productos - Operaciones CRUD para emprendedores

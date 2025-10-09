@@ -94,64 +94,70 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function renderServicioCard(servicio) {
-        const categoryTag = getServiceCategoryName(servicio.categoria);
-        const imageUrl = servicio.imagen_principal ? '/storage/' + servicio.imagen_principal : 'https://via.placeholder.com/300x300/F77786/FFFFFF?text=Servicio';
-        const precio = servicio.precio_base ? '$' + Number(servicio.precio_base).toLocaleString() : 'Consultar precio';
+        const imgSrc = servicio.imagen_principal ?
+            (servicio.imagen_principal.startsWith('images/') ? '/' + servicio.imagen_principal : '/storage/' + servicio.imagen_principal) :
+            'https://via.placeholder.com/300x300/F77786/FFFFFF?text=Servicio';
 
-        return `
-        <div class="product-card bg-white rounded-lg shadow-lg overflow-hidden fade-in transform hover:scale-105 transition-all duration-300">
-            <div class="relative">
-                <img src="${imageUrl}" alt="${servicio.nombre_servicio}" class="w-full h-64 object-cover"
-                     onerror="this.src='https://via.placeholder.com/300x300/F77786/FFFFFF?text=Servicio'">
-                <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-300 flex items-center justify-center opacity-0 hover:opacity-100">
-                    <div class="flex space-x-2">
-                        <button class="bg-white text-gray-800 px-3 py-2 rounded-lg font-semibold shadow-lg transform hover:scale-105 transition-all duration-300 ver-mas text-sm" data-id="${servicio.id}">
-                            <i class="fas fa-eye mr-1"></i> Ver Detalle
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="p-6">
-                <div class="category-tag inline-block mb-2 bg-red-100 text-red-600 px-2 py-1 rounded-full text-xs font-semibold">${categoryTag}</div>
-                <h3 class="text-lg font-bold text-gray-800 mb-2 line-clamp-2">${servicio.nombre_servicio}</h3>
-                <p class="text-gray-600 text-sm mb-3 line-clamp-2">${servicio.descripcion}</p>
+        const precio = servicio.precio_base ? '$' + Number(servicio.precio_base).toLocaleString() : 'Consultar';
+        const categoria = getServiceCategoryName(servicio.categoria?.slug || servicio.categoria);
 
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center space-x-2">
-                        <span class="text-2xl font-bold text-red-600">${precio}</span>
+        return `<div class="product-card bg-white rounded-lg shadow-lg overflow-hidden fade-in hover:shadow-xl transition-shadow duration-300">
+                    <div class="relative">
+                        <img src="${imgSrc}" alt="${servicio.nombre_servicio}" class="w-full h-64 object-cover"
+                             onerror="this.src='https://via.placeholder.com/300x300/F77786/FFFFFF?text=Servicio'">
+                        <div class="absolute top-2 right-2 bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
+                            ${categoria}
+                        </div>
+                        <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-300 flex items-center justify-center opacity-0 hover:opacity-100">
+                            <button class="bg-white text-gray-800 px-4 py-2 rounded-lg font-semibold shadow-lg transform hover:scale-105 transition-all duration-300 ver-mas"
+                                    data-id="${servicio.id}">
+                                <i class="fas fa-eye"></i> Ver Detalle
+                            </button>
+                        </div>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <i class="fas fa-map-marker-alt text-gray-400 text-sm"></i>
-                        <span class="text-xs text-gray-500">${servicio.direccion || 'Ubicación por definir'}</span>
-                    </div>
-                </div>
+                    <div class="p-6">
+                        <h3 class="text-lg font-bold text-gray-800 mb-2 line-clamp-2">${servicio.nombre_servicio}</h3>
+                        <p class="text-gray-600 text-sm mb-3 line-clamp-2">${servicio.descripcion}</p>
 
-                <div class="mb-3">
-                    <div class="flex items-center space-x-2 text-xs text-gray-500">
-                        <i class="fas fa-phone text-blue-500"></i>
-                        <span>${servicio.telefono || 'No especificado'}</span>
-                    </div>
-                    <div class="flex items-center space-x-2 text-xs text-gray-500 mt-1">
-                        <i class="fas fa-clock text-green-500"></i>
-                        <span>${servicio.horario_atencion || 'Horarios flexibles'}</span>
-                    </div>
-                </div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-2xl font-bold text-red-600">${precio}</span>
+                        </div>
 
-                <!-- Botones de administración -->
-                <div class="admin-controls border-t border-gray-200 pt-4 flex space-x-2">
-                    <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 flex-1 editar-servicio" data-id="${servicio.id}">
-                        <i class="fas fa-edit mr-2"></i> Editar
-                    </button>
-                    <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 eliminar-servicio" data-id="${servicio.id}">
-                        <i class="fas fa-trash mr-2"></i> Eliminar
-                    </button>
-                </div>
-            </div>
-        </div>
-        `;
-    }
+                        ${servicio.direccion || servicio.telefono || servicio.horario_atencion ? `
+                            <div class="space-y-2 text-sm text-gray-600 mb-4">
+                                ${servicio.direccion ? `
+                                    <div class="flex items-center">
+                                        <i class="fas fa-map-marker-alt text-gray-400 mr-2"></i>
+                                        <span class="truncate">${servicio.direccion}</span>
+                                    </div>
+                                ` : ''}
+                                ${servicio.telefono ? `
+                                    <div class="flex items-center">
+                                        <i class="fas fa-phone text-gray-400 mr-2"></i>
+                                        <span>${servicio.telefono}</span>
+                                    </div>
+                                ` : ''}
+                                ${servicio.horario_atencion ? `
+                                    <div class="flex items-center">
+                                        <i class="fas fa-clock text-gray-400 mr-2"></i>
+                                        <span class="truncate">${servicio.horario_atencion}</span>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        ` : ''}
 
-    function getServiceCategoryName(categoria) {
+                        <!-- Botones de administración -->
+                        <div class="flex space-x-2 border-t border-gray-200 pt-4">
+                            <button class="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg editar-servicio" data-id="${servicio.id}">
+                                <i class="fas fa-edit mr-2"></i>Editar
+                            </button>
+                            <button class="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg eliminar-servicio" data-id="${servicio.id}">
+                                <i class="fas fa-trash mr-2"></i>Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+    }    function getServiceCategoryName(categoria) {
         const categoryMap = {
             'limpieza': 'Servicios de Limpieza',
             'reparaciones': 'Reparaciones del Hogar',
@@ -383,40 +389,34 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('_method', 'PUT');
 
         try {
-            // Usar ServicesManager si está disponible
-            if (window.ServicesManager && typeof window.ServicesManager.saveService === 'function') {
-                const result = await window.ServicesManager.saveService(formData, `/servicios/${id}`);
+            // Agregar logging para debugging
+            console.log('Enviando solicitud PUT a:', `/servicios/${id}`);
+            console.log('FormData contiene _method:', formData.get('_method'));
 
-                if (result.success) {
-                    closeModal('modal-editar');
-                    loadMisServicios();
-                    showSuccessToast('Servicio actualizado exitosamente');
+            // Usar método directo con fetch
+            const resp = await fetch(`/servicios/${id}`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: formData
+            });
 
-                    // Recargar la vista pública si existe
-                    if (window.ServicesManager && typeof window.ServicesManager.loadServicios === 'function') {
-                        window.ServicesManager.loadServicios();
-                    }
-                } else {
-                    showEditErrors(result.errors || {'general': [result.message || 'Error al actualizar servicio']});
+            console.log('Respuesta recibida:', resp.status, resp.statusText);
+            const data = await resp.json();
+            console.log('Datos de respuesta:', data);
+            if (data.success) {
+                closeModal('modal-editar');
+                loadMisServicios();
+                showSuccessToast('Servicio actualizado exitosamente');
+
+                // Recargar la vista pública si existe
+                if (window.ServicesManager && typeof window.ServicesManager.loadServicios === 'function') {
+                    window.ServicesManager.loadServicios();
                 }
             } else {
-                // Fallback al método original
-                const resp = await fetch(`/servicios/${id}`, {
-                    method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    body: formData
-                });
-                const data = await resp.json();
-                if (data.success) {
-                    closeModal('modal-editar');
-                    loadMisServicios();
-                    showSuccessToast('Servicio actualizado exitosamente');
-                } else {
-                    showEditErrors(data.errors || {'general': [data.message || 'Error al actualizar servicio']});
-                }
+                showEditErrors(data.errors || {'general': [data.message || 'Error al actualizar servicio']});
             }
         } catch (e) {
             console.error('Error al actualizar servicio:', e);

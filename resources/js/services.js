@@ -150,18 +150,6 @@ function createServiceCard(servicio) {
                     <span class="text-xs text-gray-500">${servicio.horario_atencion || 'Horarios flexibles'}</span>
                 </div>
 
-                <!-- Botones de administración (solo para usuarios autorizados) -->
-                <div class="admin-controls mb-3 flex space-x-2" style="display: none;">
-                    <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors duration-300"
-                            onclick="editService(${servicio.id})">
-                        <i class="fas fa-edit mr-1"></i> Editar
-                    </button>
-                    <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors duration-300"
-                            onclick="deleteService(${servicio.id})">
-                        <i class="fas fa-trash mr-1"></i> Eliminar
-                    </button>
-                </div>
-
                 ${disponibilidadStatus}
             </div>
         </div>
@@ -371,6 +359,7 @@ function changeServicesPage(page) {
     document.getElementById('services-grid').scrollIntoView({ behavior: 'smooth' });
 }
 
+// ====================================
 // ====================================
 // FUNCIONES AUXILIARES PARA EL MODAL
 // ====================================
