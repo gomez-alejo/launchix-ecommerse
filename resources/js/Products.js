@@ -307,7 +307,17 @@ function transformProductData(laravelProduct) {
         discount: calculateDiscount(laravelProduct.price, laravelProduct.original_price),
         brand: laravelProduct.brand || '',
         sku: laravelProduct.sku || '',
-        created_at: laravelProduct.created_at
+        created_at: laravelProduct.created_at,
+        // NUEVO: Agregar información del emprendedor
+        entrepreneur: laravelProduct.entrepreneur ? {
+            id: laravelProduct.entrepreneur.id,
+            name: laravelProduct.entrepreneur.name || 
+                  `${laravelProduct.entrepreneur.first_name} ${laravelProduct.entrepreneur.last_name}`,
+            business_name: laravelProduct.entrepreneur.business_name || 
+                          `${laravelProduct.entrepreneur.first_name} ${laravelProduct.entrepreneur.last_name}`,
+            avatar: laravelProduct.entrepreneur.avatar || 
+                   `https://ui-avatars.com/api/?name=${encodeURIComponent(laravelProduct.entrepreneur.first_name + ' ' + laravelProduct.entrepreneur.last_name)}&background=F77786&color=fff`
+        } : null
     };
 }
 
@@ -330,6 +340,12 @@ function initializeApp() {
     displayProducts();
     setupEventListeners();
     updateCartBadge();
+    // Inicializar clases de los íconos de favoritos
+    document.querySelectorAll('[onclick^="toggleWishlist("] i').forEach(icon => {
+        icon.classList.add('fas', 'fa-heart', 'text-gray-400');
+    });
+
+    initializeWishlistIcons(); // Inicializar los íconos de favoritos
     updateMiniCart(); // Actualizar minicarrito con datos cargados
     hideLoading();
 }
@@ -455,12 +471,10 @@ function createProductCard(product) {
         `<div class="absolute top-2 left-2 bg-red-600 text-white px-2 py-1 rounded-full text-xs font-bold">
             -${product.discount}%
         </div>` : '';
-
     const newBadge = product.isNew ?
         `<div class="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold">
             NUEVO
         </div>` : '';
-
     const stockStatus = product.inStock ?
         `<button class="add-to-cart btn-primary w-full py-2 rounded-lg font-semibold transition-all duration-300" data-product-id="${product.id}">
             <i class="fas fa-cart-plus"></i> Agregar al Carrito
@@ -468,14 +482,15 @@ function createProductCard(product) {
         `<button class="bg-gray-400 text-white w-full py-2 rounded-lg font-semibold cursor-not-allowed" disabled>
             <i class="fas fa-times"></i> Sin Stock
         </button>`;
-
     const stars = generateStarRating(product.rating);
-
     return `
         <div class="product-card bg-white rounded-lg shadow-lg overflow-hidden fade-in">
-            <div class="relative">
-                <img src="${product.image}" alt="${product.name}" class="w-full h-64 object-cover"
-                     onerror="this.src='https://via.placeholder.com/300x300/F77786/FFFFFF?text=Producto'">
+            <div class="relative overflow-hidden">
+                <div class="product-image-container">
+                    <img src="${product.image}" alt="${product.name}"
+                        class="product-image w-full h-64 object-cover"
+                        onerror="this.src='https://via.placeholder.com/300x300/F77786/FFFFFF?text=Producto'">
+                </div>
                 ${discountBadge}
                 ${newBadge}
                 <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-300 flex items-center justify-center opacity-0 hover:opacity-100">
@@ -486,39 +501,49 @@ function createProductCard(product) {
                 </div>
             </div>
             <div class="p-6">
-                <div class="category-tag inline-block mb-2">${getCategoryName(product.category.slug)}</div>
                 ${product.brand ? `<div class="text-xs text-gray-500 mb-1">${product.brand}</div>` : ''}
-                <h3 class="text-lg font-bold text-gray-800 mb-2 line-clamp-2">${product.name}</h3>
-                <p class="text-gray-600 text-sm mb-3 line-clamp-2">${product.description}</p>
+                <h3 class="text-lg font-bold text-gray-800 mb-2 line-clamp-1">${product.name}</h3>
+                <p class="text-gray-600 text-sm mb-3 line-clamp-2 truncate">${product.description}</p>
                 <div class="flex items-center mb-3">
                     <div class="star-rating mr-2">${stars}</div>
                     <span class="text-sm text-gray-600">(${product.reviews} reseñas)</span>
                 </div>
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center space-x-2">
-                        <span class="text-2xl font-bold text-red-600">$${product.price.toFixed(2)}</span>
-                        ${product.originalPrice > product.price ?
-                            `<span class="text-lg text-gray-400 line-through">$${product.originalPrice.toFixed(2)}</span>` : ''}
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <button class="text-gray-400 hover:text-red-600 transition-colors p-2"
-                                onclick="toggleWishlist(${product.id})">
-                            <i class="fas fa-heart"></i>
+                <!-- Línea 1: Precio y descuento -->
+                <div class="flex items-center mb-2">
+                    <span class="text-2xl font-bold text-red-600 truncate">$${product.price.toFixed(2)}</span>
+                    ${product.originalPrice > product.price ?
+                        `<span class="text-lg text-gray-400 line-through ml-2">$${product.originalPrice.toFixed(2)}</span>` : ''}
+                </div>
+                <!-- Línea 2: Botones de favorito/compartir -->
+                <div class="flex justify-between items-center mb-4">
+                    ${product.discount > 0 ?
+                        `<span class="text-sm bg-red-100 text-red-600 px-2 py-1 rounded-full">
+                            -${product.discount}% OFF
+                        </span>` : '<div></div>'}
+                    <div class="flex space-x-2">
+                        <button class="text-gray-400 hover:text-red-600 p-2" onclick="toggleWishlist(${product.id})" title="Agregar a favoritos">
+                        <i class="fas fa-heart"></i>
                         </button>
-                        <button class="text-gray-400 hover:text-blue-600 transition-colors p-2"
-                                onclick="shareProduct(${product.id})">
+
+                        <button class="text-gray-400 hover:text-blue-600 p-2"
+                                onclick="shareProduct(${product.id})" title="Compartir">
                             <i class="fas fa-share-alt"></i>
                         </button>
                     </div>
                 </div>
                 <div class="mb-2">
-                    <span class="text-xs text-gray-500">Stock: ${product.stock} disponibles</span>
+                    ${product.stock <= 0 ?
+                        `<span class="text-sm font-semibold text-red-600">Sin stock</span>` :
+                        product.stock <= 5 ?
+                            `<span class="text-sm font-semibold text-red-600">¡Solo quedan ${product.stock}!</span>` :
+                            `<span class="text-xs text-gray-500">Stock: ${product.stock} disponibles</span>`}
                 </div>
                 ${stockStatus}
             </div>
         </div>
     `;
 }
+
 
 function generateStarRating(rating) {
     const fullStars = Math.floor(rating);
@@ -623,7 +648,10 @@ function clearAllFilters() {
 // ====================================
 function addToCart(productId) {
     const product = products.find(p => p.id === productId);
-    if (!product || !product.inStock) return;
+    if (!product || !product.inStock || product.stock <= 0) {
+        showErrorMessage('Producto no disponible');
+        return;
+    }
 
     const existingItem = cart.find(item => item.id === productId);
 
@@ -715,6 +743,7 @@ function showAddToCartNotification(productName) {
     document.body.appendChild(notification);
     setTimeout(() => notification.remove(), 3000);
 }
+
 
 // ====================================
 // PAGINACIÓN
@@ -823,6 +852,7 @@ function showErrorMessage(message) {
     setTimeout(() => errorDiv.remove(), 5000);
 }
 
+
 // ====================================
 // MODAL DE DETALLES
 // ====================================
@@ -830,52 +860,98 @@ function viewProductDetails(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
 
+    const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+    const isInWishlist = wishlist.includes(productId);
+    const heartColorClass = isInWishlist ? 'text-red-600' : 'text-gray-400';
+
     const modalHTML = `
         <div id="productModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-lg max-w-4xl w-full max-h-screen overflow-y-auto">
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-4">
+            <div class="bg-white rounded-lg max-w-5xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="p-8">
+                    ${product.entrepreneur ? `
+                    <div class="mb-6 pb-6 border-b">
+                        <div class="flex items-center space-x-4 cursor-pointer hover:bg-gray-50 p-3 rounded-lg transition-all duration-300" 
+                             onclick="goToEntrepreneurProfile(${product.entrepreneur.id})">
+                            <img src="${product.entrepreneur.avatar}" 
+                                 alt="${product.entrepreneur.name}"
+                                 class="w-16 h-16 rounded-full object-cover border-2 border-red-500"
+                                 onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(product.entrepreneur.name)}&background=F77786&color=fff'">
+                            <div class="flex-1">
+                                <p class="text-sm text-gray-500">Vendido por</p>
+                                <h3 class="font-bold text-lg text-gray-800">${product.entrepreneur.business_name}</h3>
+                                <p class="text-sm text-gray-600">${product.entrepreneur.name}</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-400"></i>
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    <div class="flex justify-between items-start mb-6">
                         <h2 class="text-2xl font-bold text-gray-800">${product.name}</h2>
                         <button onclick="closeProductModal()" class="text-gray-500 hover:text-gray-700 text-2xl">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
-                            <img src="${product.image}" alt="${product.name}" class="w-full h-64 object-cover rounded-lg mb-4">
+                            <img id="mainProductImage" src="${product.image}" alt="${product.name}" class="w-full h-80 object-cover rounded-lg mb-4">
                             <div class="flex space-x-2 overflow-x-auto">
-                                <img src="${product.image}" alt="${product.name}" class="w-16 h-16 object-cover rounded cursor-pointer border-2 border-red-500">
-                                ${product.gallery.map(img => `<img src="${img}" alt="${product.name}" class="w-16 h-16 object-cover rounded cursor-pointer border-2 border-gray-200 hover:border-red-500">`).join('')}
+                                <img src="${product.image}" alt="${product.name}" class="w-16 h-16 object-cover rounded cursor-pointer border-2 border-red-500 gallery-thumb" onclick="changeMainImage(this.src)">
+                                ${product.gallery.length > 0 ?
+                                    product.gallery.map(img => `
+                                        <img src="${img}" alt="${product.name}"
+                                            class="w-16 h-16 object-cover rounded cursor-pointer border-2 border-gray-200 hover:border-red-500 gallery-thumb"
+                                            onclick="changeMainImage(this.src)"
+                                            onerror="this.src='https://via.placeholder.com/150/F77786/FFFFFF?text=Imagen+no+disponible'">
+                                    `).join('') : ''}
                             </div>
                         </div>
                         <div>
-                            <div class="category-tag inline-block mb-2">${getCategoryName(product.category.slug)}</div>
-                            ${product.brand ? `<div class="text-sm text-gray-600 mb-2">${product.brand}</div>` : ''}
-                            <div class="flex items-center mb-3">
-                                ${generateStarRating(product.rating)}
+                            <div class="category-tag inline-block mb-3">${getCategoryName(product.category.slug)}</div>
+                            ${product.brand ? `<div class="text-sm text-gray-600 mb-3">${product.brand}</div>` : ''}
+                            <div class="flex items-center mb-4">
+                                <div class="star-rating">${generateStarRating(product.rating)}</div>
                                 <span class="ml-2 text-sm text-gray-600">(${product.reviews} reseñas)</span>
                             </div>
-                            <div class="flex items-center space-x-3 mb-4">
-                                <span class="text-3xl font-bold text-red-600">${product.price.toFixed(2)}</span>
-                                ${product.originalPrice > product.price ? `<span class="text-lg text-gray-400 line-through">${product.originalPrice.toFixed(2)}</span>` : ''}
+                            <div class="flex items-center space-x-3 mb-6">
+                                <span class="text-3xl font-bold text-red-600">$${product.price.toFixed(2)}</span>
+                                ${product.originalPrice > product.price ? `<span class="text-lg text-gray-400 line-through">$${product.originalPrice.toFixed(2)}</span>` : ''}
                             </div>
-                            <p class="text-gray-700 mb-4">${product.description}</p>
-                            <div class="text-sm text-gray-600 mb-4">Stock: ${product.stock} disponibles</div>
-                            <button onclick="addToCartFromModal(${product.id});" class="btn-primary w-full py-3 rounded-lg font-semibold ${!product.inStock ? 'opacity-50 cursor-not-allowed' : ''}" ${!product.inStock ? 'disabled' : ''}>
-                                <i class="fas fa-cart-plus"></i> ${product.inStock ? 'Agregar al Carrito' : 'Sin Stock'}
-                            </button>
+                            <div class="mb-6 max-h-48 overflow-y-auto">
+                                <p class="text-gray-700 whitespace-normal break-words text-base">${product.description}</p>
+                            </div>
+                            <div class="text-sm text-gray-600 mb-6">Stock: ${product.stock} disponibles</div>
+                            <div class="flex justify-between items-center">
+                                <button onclick="addToCartFromModal(${product.id});" class="btn-primary w-[48%] py-3 rounded-lg font-semibold ${!product.inStock ? 'opacity-50 cursor-not-allowed' : ''}" ${!product.inStock ? 'disabled' : ''}>
+                                    <i class="fas fa-cart-plus"></i> ${product.inStock ? 'Agregar al Carrito' : 'Sin Stock'}
+                                </button>
+                                <div class="flex space-x-2">
+                                    <button id="wishlistButton_${product.id}" class="p-2" onclick="toggleWishlist(${product.id}, this)" title="Agregar a favoritos">
+                                        <i class="fas fa-heart ${heartColorClass}"></i>
+                                    </button>
+                                    <button class="text-gray-400 hover:text-blue-600 p-2" onclick="shareProduct(${product.id})" title="Compartir">
+                                        <i class="fas fa-share-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     `;
-
     document.body.insertAdjacentHTML('beforeend', modalHTML);
     document.getElementById('productModal').addEventListener('click', function(e) {
         if (e.target === this) closeProductModal();
     });
 }
+
+function goToEntrepreneurProfile(entrepreneurId) {
+    window.location.href = `/entrepreneur/${entrepreneurId}/profile`;
+}
+
+
+
 
 function closeProductModal() {
     const modal = document.getElementById('productModal');
@@ -887,10 +963,94 @@ function addToCartFromModal(productId) {
     closeProductModal();
 }
 
-function toggleWishlist(productId) {
-    showAddToCartNotification('Producto agregado a favoritos');
-    console.log('Toggle wishlist for product:', productId);
+function showAddToWishlistNotification(message) {
+    const notification = document.createElement('div');
+    notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300';
+    notification.innerHTML = `
+        <div class="flex items-center space-x-2">
+            <i class="fas fa-check-circle"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
 }
+
+function toggleWishlist(productId, buttonElement) {
+    let wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+    const index = wishlist.indexOf(productId);
+
+    // Obtener el ícono del corazón en el modal (si existe)
+    const modalIcon = document.querySelector(`#wishlistButton_${productId} i`);
+
+    // Obtener el ícono del corazón en la tarjeta
+    const cardSelector = document.querySelector(`[onclick="toggleWishlist(${productId})"] i`);
+
+    if (index === -1) {
+        wishlist.push(productId);
+        showAddToWishlistNotification('Producto agregado a favoritos');
+        if (modalIcon) {
+            modalIcon.classList.remove('text-gray-400');
+            modalIcon.classList.add('text-red-600');
+        }
+        if (cardSelector) {
+            cardSelector.classList.remove('text-gray-400');
+            cardSelector.classList.add('text-red-600');
+        }
+    } else {
+        wishlist.splice(index, 1);
+        showAddToWishlistNotification('Producto eliminado de favoritos');
+        if (modalIcon) {
+            modalIcon.classList.remove('text-red-600');
+            modalIcon.classList.add('text-gray-400');
+        }
+        if (cardSelector) {
+            cardSelector.classList.remove('text-red-600');
+            cardSelector.classList.add('text-gray-400');
+        }
+    }
+
+    localStorage.setItem('wishlist', JSON.stringify(wishlist));
+}
+
+
+function initializeWishlistIcons() {
+    const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+    document.querySelectorAll('[onclick^="toggleWishlist("]').forEach(button => {
+        const onclickAttr = button.getAttribute('onclick');
+        const productIdMatch = onclickAttr.match(/toggleWishlist\((\d+)\)/);
+        if (productIdMatch) {
+            const productId = parseInt(productIdMatch[1]);
+            const icon = button.querySelector('i');
+            if (wishlist.includes(productId)) {
+                icon.classList.remove('text-gray-400');
+                icon.classList.add('text-red-600');
+            } else {
+                icon.classList.remove('text-red-600');
+                icon.classList.add('text-gray-400');
+            }
+        }
+    });
+}
+
+
+function changeMainImage(newImageUrl) {
+    const mainImage = document.getElementById('mainProductImage');
+    if (mainImage) mainImage.src = newImageUrl;
+
+    // Remover clase 'border-red-500' de todas las miniaturas
+    document.querySelectorAll('.gallery-thumb').forEach(img => {
+        img.classList.remove('border-red-500');
+        img.classList.add('border-gray-200');
+    });
+
+    // Agregar clase 'border-red-500' a la miniatura clickeada
+    event.target.classList.remove('border-gray-200');
+    event.target.classList.add('border-red-500');
+}
+
+
+
 
 function shareProduct(productId) {
     const product = products.find(p => p.id === productId);
@@ -948,5 +1108,8 @@ window.addToCart = addToCart;
 window.toggleWishlist = toggleWishlist;
 window.shareProduct = shareProduct;
 window.addToCartFromModal = addToCartFromModal;
+window.changeMainImage = changeMainImage;
+window.goToEntrepreneurProfile = goToEntrepreneurProfile;
+
 
 console.log('Sistema de productos cargado correctamente');

@@ -109,6 +109,11 @@ Route::middleware(['auth:entrepreneur'])->group(function () {
     Route::post('/entrepreneur/password', [EntrepreneurProfileController::class, 'updatePassword']);
 });
 
+
+// Perfil público del emprendedor
+
+
+
 /**
  * ===================== API ROUTES =====================
  */
@@ -162,3 +167,11 @@ Route::get('/userHistory', function () {
 Route::get('/userSettings', function () {
     return view('modals.login-items.user.SettingsSection');
 })->name('settings');
+
+
+
+Route::get('/entrepreneur/{id}/profile', [EntrepreneurProfileController::class, 'publicProfile'])
+    ->name('entrepreneur.public.profile');
+
+
+

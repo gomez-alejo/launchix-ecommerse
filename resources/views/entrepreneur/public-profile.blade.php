@@ -1,22 +1,15 @@
 @extends('layouts.app')
-
-@section('title', 'Productos')
-
-@vite('resources/css/products.css')
-
-
+@section('title', $entrepreneur->business_name ?? ($entrepreneur->first_name . ' ' . $entrepreneur->last_name))
 @section('content')
 
-
-
+@vite('resources/css/products.css')
 
     <!-- Overlay para móvil -->
     <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
-    <!-- Layout principal con Tailwind -->
     <div class="container mx-auto px-4 py-8">
         <div class="flex flex-col lg:flex-row gap-8">
-            <!-- Sidebar de filtros con Tailwind -->
+            <!-- Sidebar de filtros -->
             <aside class="w-80 bg-white rounded-lg shadow-lg sticky-aside filter-sidebar p-6" id="filterSidebar">
                 <!-- Header del sidebar -->
                 <div class="flex items-center justify-between mb-6">
@@ -27,7 +20,6 @@
                         <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
-
                 <!-- Categorías -->
                 <div class="mb-6">
                     <h4 class="font-semibold mb-3 text-gray-700">Categorías</h4>
@@ -61,7 +53,6 @@
                         </button>
                     </div>
                 </div>
-
                 <!-- Rango de precios -->
                 <div class="mb-6">
                     <h4 class="font-semibold mb-3 text-gray-700">Precio</h4>
@@ -73,7 +64,6 @@
                         </div>
                     </div>
                 </div>
-
                 <!-- Calificación -->
                 <div class="mb-6">
                     <h4 class="font-semibold mb-3 text-gray-700">Calificación</h4>
@@ -101,7 +91,6 @@
                         </label>
                     </div>
                 </div>
-
                 <!-- Botón limpiar filtros -->
                 <button id="clearFilters" class="btn-secondary w-full py-2 rounded-lg">
                     <i class="fas fa-undo"></i> Limpiar Filtros
@@ -110,22 +99,37 @@
 
             <!-- Contenido principal -->
             <div class="flex-1 min-w-0">
+                <!-- Header del perfil -->
+                <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+                    <div class="flex flex-col md:flex-row items-center gap-6">
+                        <img src="{{ $avatarUrl }}"
+                             alt="{{ $entrepreneur->first_name }}"
+                             class="w-32 h-32 rounded-full border-4 border-red-500 object-cover">
+                        <div class="flex-1 text-center md:text-left">
+                            <h1 class="text-3xl font-bold mb-2">
+                                {{ $entrepreneur->business_name ?? ($entrepreneur->first_name . ' ' . $entrepreneur->last_name) }}
+                            </h1>
+                            <p class="text-gray-600 mb-4">{{ $entrepreneur->first_name }} {{ $entrepreneur->last_name }}</p>
+                            <div class="flex flex-wrap justify-center md:justify-start gap-4 text-sm text-gray-600">
+                                <div><i class="fas fa-box text-red-500"></i> {{ count($transformedProducts) }} Productos</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Header de productos -->
                 <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between">
                         <div>
                             <h1 class="text-3xl font-bold text-gray-800 mb-2">
-                                <i class="fas fa-box text-red-600"></i> Nuestros Productos
+                                <i class="fas fa-box text-red-600"></i> Productos
                             </h1>
-                            <p class="text-gray-600">Descubre nuestra amplia selección de productos premium</p>
+                            <p class="text-gray-600">Productos de {{ $entrepreneur->business_name ?? ($entrepreneur->first_name . ' ' . $entrepreneur->last_name) }}</p>
                         </div>
                         <div class="mt-4 md:mt-0 flex items-center space-x-4">
                             <button id="toggleFilters" class="lg:hidden btn-secondary px-4 py-2 rounded-lg">
                                 <i class="fas fa-filter"></i> Filtros
                             </button>
-                            
-                           
-                            
                             <select id="sortBy" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
                                 <option value="featured">Destacados</option>
                                 <option value="price-low">Precio: Menor a Mayor</option>
@@ -137,7 +141,6 @@
                             </select>
                         </div>
                     </div>
-                    
                     <!-- Contador de productos -->
                     <div class="mt-4 flex items-center justify-between">
                         <span id="productCount" class="text-sm text-gray-600">Cargando productos...</span>
@@ -151,7 +154,7 @@
                     </div>
                 </div>
 
-                <!-- Grid de productos con Tailwind -->
+                <!-- Grid de productos -->
                 <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 hidden">
                     <!-- Los productos se cargarán dinámicamente aquí -->
                 </div>
@@ -164,7 +167,7 @@
                 </div>
 
                 <!-- Paginación -->
-                {{-- <div id="pagination" class="flex justify-center items-center mt-8 space-x-2 hidden">
+                <div id="pagination" class="flex justify-center items-center mt-8 space-x-2 hidden">
                     <button id="prevPage" class="px-4 py-2 border rounded-lg bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
                         <i class="fas fa-chevron-left"></i>
                     </button>
@@ -174,33 +177,17 @@
                     <button id="nextPage" class="px-4 py-2 border rounded-lg bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
                         <i class="fas fa-chevron-right"></i>
                     </button>
-                </div> --}}
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- modalShoppingCart -->
-@include('modals.shopingcart-items.ModalShopingCart')
-    <!-- Button modalShoppingCart -->
-@include('modals.shopingcart-items.ButtonShopingCart')
+    <!-- Datos JSON para JavaScript -->
+    <script id="entrepreneurProductsData" type="application/json">
+        @json($transformedProducts)
+    </script>
+
+    <!-- Script del perfil -->
+@vite('resources/js/entrepreneur-profile.js')
 
 @endsection
-
-
-
-<script>
-    // Configurar CSRF token para peticiones AJAX
-    window.csrfToken = '{{ csrf_token() }}';
-    
-    // Configurar meta tag si no existe
-    document.addEventListener('DOMContentLoaded', function() {
-        if (!document.querySelector('meta[name="csrf-token"]')) {
-            const meta = document.createElement('meta');
-            meta.name = 'csrf-token';
-            meta.content = '{{ csrf_token() }}';
-            document.head.appendChild(meta);
-        }
-    });
-</script>
-
-@vite('resources/js/products.js')

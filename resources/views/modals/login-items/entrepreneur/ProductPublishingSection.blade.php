@@ -57,7 +57,7 @@
                         Seleccionar Imagen
                     </button>
                 </div>
-                <div id="product-main-preview" class="mt-4"></div>
+                <div id="product-main-preview" class="mt-4 grid grid-cols-1 gap-4 max-w-xs"></div>
             </div>
             
             
