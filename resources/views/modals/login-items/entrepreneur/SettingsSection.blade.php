@@ -16,10 +16,10 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Contraseña Actual <span class="text-red-600">*</span></label>
                         <input type="password" 
-                               name="current_password" 
-                               id="current_password"
-                               class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" 
-                               required>
+                            name="current_password" 
+                            id="current_password"
+                            class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" 
+                            required>
                         <span class="error-message text-xs text-red-600 mt-1 hidden"></span>
                     </div>
                     
@@ -27,10 +27,10 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Nueva Contraseña <span class="text-red-600">*</span></label>
                             <input type="password" 
-                                   name="new_password"
-                                   id="new_password"
-                                   class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" 
-                                   required>
+                                name="new_password"
+                                id="new_password"
+                                class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" 
+                                required>
                             <span class="error-message text-xs text-red-600 mt-1 hidden"></span>
                         </div>
                         
