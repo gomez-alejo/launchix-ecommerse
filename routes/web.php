@@ -21,7 +21,7 @@ Route::get('/home', [HomeController::class, 'index'])->name('home');
 // Bestsellers
 Route::get('/bestsellers', function () {
     return view('bestsellers');
-})->name('masvendidos'); 
+})->name('masvendidos');
 
 // Productos - Rutas públicas
 Route::get('/products', function () {
@@ -35,6 +35,7 @@ Route::get('/services', function () {
     return view('services');
 })->name('servicios');
 Route::get('/servicios', [ServicioController::class, 'index'])->name('servicios.index');
+Route::get('/servicios/details/{id}', [ServicioController::class, 'getServiceDetails'])->name('servicios.details');
 
 // Carrito de compras
 Route::get('/shoppingCart', function () {
@@ -135,7 +136,7 @@ use App\Http\Controllers\ProfileController;
 Route::middleware('auth')->group(function () {
     // Vista del perfil
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
-    
+
     // API endpoints para el perfil
     Route::get('/api/profile/data', [ProfileController::class, 'getUserData'])->name('profile.data');
     Route::post('/api/profile/update', [ProfileController::class, 'update'])->name('profile.update');

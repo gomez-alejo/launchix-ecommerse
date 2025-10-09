@@ -23,8 +23,9 @@ class EntrepreneurProfileController extends Controller
     public function getEntrepreneurData()
     {
         // Usar el guard 'entrepreneur' explícitamente
+        /** @var \App\Models\Entrepreneur $entrepreneur */
         $entrepreneur = Auth::guard('entrepreneur')->user();
-        
+
         // Verificación adicional por seguridad
         if (!$entrepreneur) {
             return response()->json([
@@ -32,7 +33,7 @@ class EntrepreneurProfileController extends Controller
                 'message' => 'Usuario no autenticado'
             ], 401);
         }
-        
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -61,6 +62,7 @@ class EntrepreneurProfileController extends Controller
     public function updateEntrepreneurProfile(Request $request)
     {
         try {
+            /** @var \App\Models\Entrepreneur $entrepreneur */
             $entrepreneur = Auth::guard('entrepreneur')->user();
 
             if (!$entrepreneur) {
@@ -138,6 +140,7 @@ class EntrepreneurProfileController extends Controller
             'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
+        /** @var \App\Models\Entrepreneur $entrepreneur */
         $entrepreneur = Auth::guard('entrepreneur')->user();
 
         if (!$entrepreneur) {
@@ -155,7 +158,7 @@ class EntrepreneurProfileController extends Controller
 
             // Guardar nueva foto
             $path = $request->file('avatar')->store('entrepreneur_photos', 'public');
-            
+
             $entrepreneur->profile_photo = $path;
             $entrepreneur->save();
 
@@ -177,6 +180,7 @@ class EntrepreneurProfileController extends Controller
      */
     public function deleteEntrepreneurAvatar()
     {
+        /** @var \App\Models\Entrepreneur $entrepreneur */
         $entrepreneur = Auth::guard('entrepreneur')->user();
 
         if (!$entrepreneur) {
@@ -190,7 +194,7 @@ class EntrepreneurProfileController extends Controller
             if (Storage::disk('public')->exists($entrepreneur->profile_photo)) {
                 Storage::disk('public')->delete($entrepreneur->profile_photo);
             }
-            
+
             $entrepreneur->profile_photo = null;
             $entrepreneur->save();
 
@@ -205,12 +209,13 @@ class EntrepreneurProfileController extends Controller
             'message' => 'No hay foto de perfil para eliminar'
         ], 400);
     }
-    
+
     /**
      * Cambiar contraseña del emprendedor
      */
     public function updatePassword(Request $request)
     {
+        /** @var \App\Models\Entrepreneur $entrepreneur */
         $entrepreneur = Auth::guard('entrepreneur')->user();
 
         if (!$entrepreneur) {
@@ -250,7 +255,7 @@ class EntrepreneurProfileController extends Controller
         ]);
     }
 
-    
+
 
     private function transformProductData($product)
     {
@@ -272,8 +277,8 @@ class EntrepreneurProfileController extends Controller
                 'id' => $product->entrepreneur->id,
                 'name' => $product->entrepreneur->name,
                 'business_name' => $product->entrepreneur->business_name ?? $product->entrepreneur->name,
-                'avatar' => $product->entrepreneur->avatar ? 
-                    asset('storage/' . $product->entrepreneur->avatar) : 
+                'avatar' => $product->entrepreneur->avatar ?
+                    asset('storage/' . $product->entrepreneur->avatar) :
                     'https://ui-avatars.com/api/?name=' . urlencode($product->entrepreneur->name) . '&background=F77786&color=fff'
             ],
             'created_at' => $product->created_at
@@ -287,8 +292,14 @@ class EntrepreneurProfileController extends Controller
     {
         try {
             $entrepreneur = \App\Models\Entrepreneur::findOrFail($id);
-            
+
+            // Obtener productos del emprendedor
             $products = \App\Models\Product::where('entrepreneur_id', $id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            // Obtener servicios del emprendedor
+            $services = \App\Models\Servicio::where('user_id', $id)
                 ->orderBy('created_at', 'desc')
                 ->get();
 
@@ -305,16 +316,43 @@ class EntrepreneurProfileController extends Controller
                 ];
             }
 
-            $avatarUrl = $entrepreneur->profile_photo ? 
-                asset('storage/' . $entrepreneur->profile_photo) : 
+            // Transformar servicios para la vista
+            $transformedServices = [];
+            foreach ($services as $service) {
+                $serviceImage = 'https://via.placeholder.com/300x300/F77786/FFFFFF?text=Servicio';
+                if ($service->imagen_principal) {
+                    if (str_starts_with($service->imagen_principal, 'images/')) {
+                        $serviceImage = asset($service->imagen_principal);
+                    } else {
+                        $serviceImage = asset('storage/' . $service->imagen_principal);
+                    }
+                }
+
+                $transformedServices[] = [
+                    'id' => $service->id,
+                    'nombre_servicio' => $service->nombre_servicio,
+                    'descripcion' => $service->descripcion ?? '',
+                    'precio_base' => (float) ($service->precio_base ?? 0),
+                    'categoria' => $service->categoria ?? 'General',
+                    'direccion' => $service->direccion ?? '',
+                    'telefono' => $service->telefono ?? '',
+                    'horario_atencion' => $service->horario_atencion ?? '',
+                    'imagen_principal' => $serviceImage,
+                    'created_at' => $service->created_at,
+                ];
+            }
+
+            $avatarUrl = $entrepreneur->profile_photo ?
+                asset('storage/' . $entrepreneur->profile_photo) :
                 'https://ui-avatars.com/api/?name=' . urlencode($entrepreneur->first_name . ' ' . $entrepreneur->last_name) . '&background=F77786&color=fff';
 
             return view('entrepreneur.public-profile', [
                 'entrepreneur' => $entrepreneur,
                 'transformedProducts' => $transformedProducts,
+                'transformedServices' => $transformedServices,
                 'avatarUrl' => $avatarUrl
             ]);
-            
+
         } catch (\Exception $e) {
             Log::error('Error en perfil público: ' . $e->getMessage());
             abort(500, $e->getMessage());

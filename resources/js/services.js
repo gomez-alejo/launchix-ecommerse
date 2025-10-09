@@ -372,10 +372,84 @@ function changeServicesPage(page) {
 }
 
 // ====================================
+// FUNCIONES AUXILIARES PARA EL MODAL
+// ====================================
+function generateEntrepreneurSection(service) {
+    if (!service.entrepreneur) {
+        return ''; // No mostrar nada si no hay información del emprendedor
+    }
+
+    const entrepreneur = service.entrepreneur;
+    const profileUrl = `/entrepreneur/${entrepreneur.id}/profile`;
+
+    return `
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 mb-6 border border-blue-100">
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <img src="${entrepreneur.profile_photo_url}"
+                         alt="${entrepreneur.full_name}"
+                         class="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md hover:scale-105 transition-transform duration-300 cursor-pointer"
+                         onclick="window.open('${profileUrl}', '_blank')"
+                         onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(entrepreneur.full_name)}&size=64&background=3B82F6&color=fff&bold=true'">
+                    <div class="absolute -bottom-1 -right-1 bg-green-500 w-5 h-5 rounded-full border-2 border-white"></div>
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center space-x-2">
+                        <h4 class="text-lg font-semibold text-gray-800 cursor-pointer hover:text-blue-600 transition-colors duration-300"
+                            onclick="window.open('${profileUrl}', '_blank')">
+                            ${entrepreneur.full_name}
+                        </h4>
+                        <i class="fas fa-external-link-alt text-gray-400 text-sm"></i>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-1">
+                        <i class="fas fa-store mr-1"></i>Emprendedor verificado
+                    </p>
+                    ${entrepreneur.city ? `
+                        <p class="text-xs text-gray-500">
+                            <i class="fas fa-map-marker-alt mr-1"></i>${entrepreneur.city}
+                        </p>
+                    ` : ''}
+                    ${entrepreneur.profile_description ? `
+                        <p class="text-xs text-gray-600 mt-2 line-clamp-2">
+                            ${entrepreneur.profile_description}
+                        </p>
+                    ` : ''}
+                </div>
+                <div class="text-right">
+                    <button onclick="window.open('${profileUrl}', '_blank')"
+                            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 shadow-md">
+                        <i class="fas fa-user mr-2"></i>Ver Perfil
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// ====================================
 // MODAL DE DETALLES DEL SERVICIO
 // ====================================
-function viewServiceDetails(serviceId) {
-    const service = services.find(s => s.id === serviceId);
+async function viewServiceDetails(serviceId) {
+    // Primero intentar obtener el servicio actualizado de la API
+    let service = services.find(s => s.id === serviceId);
+
+    // Para servicios reales (no estáticos), obtener datos actualizados del servidor
+    if (service && serviceId < 99000) {
+        try {
+            const response = await fetch(`/servicios/details/${serviceId}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    service = data.data;
+                }
+            }
+        } catch (error) {
+            console.log('Error al obtener detalles actualizados:', error);
+        }
+    }
+
     if (!service) return;
 
     let imgSrc = 'https://via.placeholder.com/300x300/F77786/FFFFFF?text=Servicio';
@@ -429,6 +503,7 @@ function viewServiceDetails(serviceId) {
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
+                    ${generateEntrepreneurSection(service)}
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <img src="${imgSrc}" alt="${service.nombre_servicio}" class="w-full h-64 object-cover rounded-lg mb-4">

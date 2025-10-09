@@ -112,38 +112,82 @@
                             <p class="text-gray-600 mb-4">{{ $entrepreneur->first_name }} {{ $entrepreneur->last_name }}</p>
                             <div class="flex flex-wrap justify-center md:justify-start gap-4 text-sm text-gray-600">
                                 <div><i class="fas fa-box text-red-500"></i> {{ count($transformedProducts) }} Productos</div>
+                                <div><i class="fas fa-concierge-bell text-blue-500"></i> {{ count($transformedServices) }} Servicios</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Header de productos -->
-                <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-                        <div>
-                            <h1 class="text-3xl font-bold text-gray-800 mb-2">
-                                <i class="fas fa-box text-red-600"></i> Productos
-                            </h1>
-                            <p class="text-gray-600">Productos de {{ $entrepreneur->business_name ?? ($entrepreneur->first_name . ' ' . $entrepreneur->last_name) }}</p>
-                        </div>
-                        <div class="mt-4 md:mt-0 flex items-center space-x-4">
-                            <button id="toggleFilters" class="lg:hidden btn-secondary px-4 py-2 rounded-lg">
-                                <i class="fas fa-filter"></i> Filtros
+                <!-- Header con pestañas -->
+                <div class="bg-white rounded-lg shadow-lg mb-8">
+                    <!-- Pestañas -->
+                    <div class="border-b border-gray-200">
+                        <nav class="flex space-x-8" aria-label="Tabs">
+                            <button id="productsTab"
+                                    class="tab-button active border-b-2 border-red-500 py-4 px-1 font-medium text-red-600"
+                                    onclick="switchTab('products')">
+                                <i class="fas fa-box mr-2"></i>
+                                Productos ({{ count($transformedProducts) }})
                             </button>
-                            <select id="sortBy" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
-                                <option value="featured">Destacados</option>
-                                <option value="price-low">Precio: Menor a Mayor</option>
-                                <option value="price-high">Precio: Mayor a Menor</option>
-                                <option value="rating">Mejor Calificados</option>
-                                <option value="newest">Más Recientes</option>
-                                <option value="name-asc">Nombre: A-Z</option>
-                                <option value="name-desc">Nombre: Z-A</option>
-                            </select>
-                        </div>
+                            <button id="servicesTab"
+                                    class="tab-button border-b-2 border-transparent py-4 px-1 font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                    onclick="switchTab('services')">
+                                <i class="fas fa-concierge-bell mr-2"></i>
+                                Servicios ({{ count($transformedServices) }})
+                            </button>
+                        </nav>
                     </div>
-                    <!-- Contador de productos -->
-                    <div class="mt-4 flex items-center justify-between">
-                        <span id="productCount" class="text-sm text-gray-600">Cargando productos...</span>
+
+                    <!-- Contenido de las pestañas -->
+                    <div class="p-6">
+                        <div id="productsHeader" class="tab-content">
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                                <div>
+                                    <h1 class="text-2xl font-bold text-gray-800 mb-2">Productos</h1>
+                                    <p class="text-gray-600">Productos de {{ $entrepreneur->business_name ?? ($entrepreneur->first_name . ' ' . $entrepreneur->last_name) }}</p>
+                                </div>
+                                <div class="mt-4 md:mt-0 flex items-center space-x-4">
+                                    <button id="toggleFilters" class="lg:hidden btn-secondary px-4 py-2 rounded-lg">
+                                        <i class="fas fa-filter"></i> Filtros
+                                    </button>
+                                    <select id="sortBy" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+                                        <option value="featured">Destacados</option>
+                                        <option value="price-low">Precio: Menor a Mayor</option>
+                                        <option value="price-high">Precio: Mayor a Menor</option>
+                                        <option value="rating">Mejor Calificados</option>
+                                        <option value="newest">Más Recientes</option>
+                                        <option value="name-asc">Nombre: A-Z</option>
+                                        <option value="name-desc">Nombre: Z-A</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- Contador de productos -->
+                            <div class="mt-4">
+                                <span id="productCount" class="text-sm text-gray-600">Cargando productos...</span>
+                            </div>
+                        </div>
+
+                        <div id="servicesHeader" class="tab-content hidden">
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                                <div>
+                                    <h1 class="text-2xl font-bold text-gray-800 mb-2">Servicios</h1>
+                                    <p class="text-gray-600">Servicios de {{ $entrepreneur->business_name ?? ($entrepreneur->first_name . ' ' . $entrepreneur->last_name) }}</p>
+                                </div>
+                                <div class="mt-4 md:mt-0 flex items-center space-x-4">
+                                    <select id="sortServicesBy" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="newest">Más Recientes</option>
+                                        <option value="price-low">Precio: Menor a Mayor</option>
+                                        <option value="price-high">Precio: Mayor a Menor</option>
+                                        <option value="name-asc">Nombre: A-Z</option>
+                                        <option value="name-desc">Nombre: Z-A</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- Contador de servicios -->
+                            <div class="mt-4">
+                                <span id="serviceCount" class="text-sm text-gray-600">{{ count($transformedServices) }} servicios encontrados</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -154,29 +198,123 @@
                     </div>
                 </div>
 
-                <!-- Grid de productos -->
-                <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 hidden">
-                    <!-- Los productos se cargarán dinámicamente aquí -->
-                </div>
-
-                <!-- Mensaje sin productos -->
-                <div id="noProducts" class="text-center py-12 hidden">
-                    <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
-                    <h3 class="text-xl font-semibold text-gray-600 mb-2">No se encontraron productos</h3>
-                    <p class="text-gray-500">Intenta ajustar tus filtros de búsqueda</p>
-                </div>
-
-                <!-- Paginación -->
-                <div id="pagination" class="flex justify-center items-center mt-8 space-x-2 hidden">
-                    <button id="prevPage" class="px-4 py-2 border rounded-lg bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <div id="pageNumbers" class="flex space-x-2">
-                        <!-- Números de página se generarán dinámicamente -->
+                <!-- Contenido de productos -->
+                <div id="productsContent" class="tab-content">
+                    <!-- Loading spinner para productos -->
+                    <div id="loadingSpinner" class="flex justify-center items-center py-12">
+                        <div class="loading-spinner">
+                            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+                        </div>
                     </div>
-                    <button id="nextPage" class="px-4 py-2 border rounded-lg bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
+
+                    <!-- Grid de productos -->
+                    <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 hidden">
+                        <!-- Los productos se cargarán dinámicamente aquí -->
+                    </div>
+
+                    <!-- Mensaje sin productos -->
+                    <div id="noProducts" class="text-center py-12 hidden">
+                        <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-600 mb-2">No se encontraron productos</h3>
+                        <p class="text-gray-500">Intenta ajustar tus filtros de búsqueda</p>
+                    </div>
+
+                    <!-- Paginación para productos -->
+                    <div id="pagination" class="flex justify-center items-center mt-8 space-x-2 hidden">
+                        <button id="prevPage" class="px-4 py-2 border rounded-lg bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div id="pageNumbers" class="flex space-x-2">
+                            <!-- Números de página se generarán dinámicamente -->
+                        </div>
+                        <button id="nextPage" class="px-4 py-2 border rounded-lg bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Contenido de servicios -->
+                <div id="servicesContent" class="tab-content hidden">
+                    @if(count($transformedServices) > 0)
+                        <!-- Grid de servicios -->
+                        <div id="servicesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                            @foreach($transformedServices as $service)
+                                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 service-card">
+                                    <div class="relative">
+                                        <img src="{{ $service['imagen_principal'] }}"
+                                             alt="{{ $service['nombre_servicio'] }}"
+                                             class="w-full h-48 object-cover"
+                                             onerror="this.src='https://via.placeholder.com/300x300/3B82F6/FFFFFF?text=Servicio'">
+                                        <div class="absolute top-2 right-2">
+                                            <span class="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                                                {{ $service['categoria'] }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="p-4">
+                                        <h3 class="text-lg font-semibold text-gray-800 mb-2">{{ $service['nombre_servicio'] }}</h3>
+                                        <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ $service['descripcion'] }}</p>
+
+                                        <div class="flex items-center justify-between mb-3">
+                                            <div class="text-xl font-bold text-blue-600">
+                                                @if($service['precio_base'] > 0)
+                                                    ${{ number_format($service['precio_base'], 0, ',', '.') }}
+                                                @else
+                                                    Consultar
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        <div class="space-y-2 text-sm text-gray-500 mb-4">
+                                            @if($service['direccion'])
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-map-marker-alt w-4 mr-2 text-blue-500"></i>
+                                                    <span class="truncate">{{ $service['direccion'] }}</span>
+                                                </div>
+                                            @endif
+                                            @if($service['telefono'])
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-phone w-4 mr-2 text-green-500"></i>
+                                                    <span>{{ $service['telefono'] }}</span>
+                                                </div>
+                                            @endif
+                                            @if($service['horario_atencion'])
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-clock w-4 mr-2 text-orange-500"></i>
+                                                    <span class="truncate">{{ $service['horario_atencion'] }}</span>
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        <div class="flex space-x-2">
+                                            @if($service['telefono'])
+                                                <a href="tel:{{ preg_replace('/\D/', '', $service['telefono']) }}"
+                                                   class="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-center py-2 px-3 rounded-lg text-sm font-medium transition-colors">
+                                                    <i class="fas fa-phone mr-1"></i> Llamar
+                                                </a>
+                                                <a href="https://wa.me/{{ preg_replace('/\D/', '', $service['telefono']) }}?text=Hola, estoy interesado en el servicio {{ urlencode($service['nombre_servicio']) }}"
+                                                   target="_blank"
+                                                   class="flex-1 bg-green-500 hover:bg-green-600 text-white text-center py-2 px-3 rounded-lg text-sm font-medium transition-colors service-contact-button">
+                                                    <i class="fab fa-whatsapp mr-1"></i> WhatsApp
+                                                </a>
+                                            @else
+                                                <button class="w-full bg-gray-400 text-white py-2 px-3 rounded-lg text-sm font-medium cursor-not-allowed">
+                                                    Sin contacto disponible
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <!-- Mensaje sin servicios -->
+                        <div class="text-center py-12">
+                            <i class="fas fa-concierge-bell text-6xl text-gray-300 mb-4"></i>
+                            <h3 class="text-xl font-semibold text-gray-600 mb-2">No hay servicios disponibles</h3>
+                            <p class="text-gray-500">Este emprendedor aún no ha publicado servicios</p>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -185,6 +323,9 @@
     <!-- Datos JSON para JavaScript -->
     <script id="entrepreneurProductsData" type="application/json">
         @json($transformedProducts)
+    </script>
+    <script id="entrepreneurServicesData" type="application/json">
+        @json($transformedServices)
     </script>
 
     <!-- Script del perfil -->

@@ -45,13 +45,84 @@ class ServicioController extends Controller
     public function index()
     {
         if (request()->ajax() || request()->wantsJson()) {
-            $servicios = Servicio::latest()->get();
+            $servicios = Servicio::with('entrepreneur')->latest()->get();
+
+            // Formatear los datos para incluir información del emprendedor
+            $serviciosFormateados = $servicios->map(function ($servicio) {
+                return [
+                    'id' => $servicio->id,
+                    'nombre_servicio' => $servicio->nombre_servicio,
+                    'categoria' => $servicio->categoria,
+                    'descripcion' => $servicio->descripcion,
+                    'direccion' => $servicio->direccion,
+                    'telefono' => $servicio->telefono,
+                    'precio_base' => $servicio->precio_base,
+                    'horario_atencion' => $servicio->horario_atencion,
+                    'imagen_principal' => $servicio->imagen_principal,
+                    'galeria_imagenes' => $servicio->galeria_imagenes ?: [],
+                    'created_at' => $servicio->created_at,
+                    'entrepreneur' => $servicio->entrepreneur ? [
+                        'id' => $servicio->entrepreneur->id,
+                        'full_name' => $servicio->entrepreneur->full_name,
+                        'first_name' => $servicio->entrepreneur->first_name,
+                        'last_name' => $servicio->entrepreneur->last_name,
+                        'profile_photo_url' => $servicio->entrepreneur->profile_photo_url,
+                        'city' => $servicio->entrepreneur->city,
+                        'profile_description' => $servicio->entrepreneur->profile_description,
+                    ] : null
+                ];
+            });
+
             return response()->json([
                 'success' => true,
-                'data' => $servicios
+                'data' => $serviciosFormateados
             ]);
         }
         return view('services');
+    }
+
+    /**
+     * Obtener un servicio específico con información del emprendedor (público)
+     */
+    public function getServiceDetails($id)
+    {
+        try {
+            $servicio = Servicio::with('entrepreneur')->findOrFail($id);
+
+            $servicioFormateado = [
+                'id' => $servicio->id,
+                'nombre_servicio' => $servicio->nombre_servicio,
+                'categoria' => $servicio->categoria,
+                'descripcion' => $servicio->descripcion,
+                'direccion' => $servicio->direccion,
+                'telefono' => $servicio->telefono,
+                'precio_base' => $servicio->precio_base,
+                'horario_atencion' => $servicio->horario_atencion,
+                'imagen_principal' => $servicio->imagen_principal,
+                'galeria_imagenes' => $servicio->galeria_imagenes ?: [],
+                'created_at' => $servicio->created_at,
+                'entrepreneur' => $servicio->entrepreneur ? [
+                    'id' => $servicio->entrepreneur->id,
+                    'full_name' => $servicio->entrepreneur->full_name,
+                    'first_name' => $servicio->entrepreneur->first_name,
+                    'last_name' => $servicio->entrepreneur->last_name,
+                    'profile_photo_url' => $servicio->entrepreneur->profile_photo_url,
+                    'city' => $servicio->entrepreneur->city,
+                    'profile_description' => $servicio->entrepreneur->profile_description,
+                ] : null
+            ];
+
+            return response()->json([
+                'success' => true,
+                'data' => $servicioFormateado
+            ]);
+        } catch (Exception $e) {
+            Log::error('Error al obtener detalles del servicio', ['id' => $id, 'error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Servicio no encontrado'
+            ], 404);
+        }
     }
 
     /**

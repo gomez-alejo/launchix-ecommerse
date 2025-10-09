@@ -39,10 +39,18 @@ class Servicio extends Model
     ];
 
     /**
+     * Relación con el emprendedor que creó el servicio
+     */
+    public function entrepreneur()
+    {
+        return $this->belongsTo(Entrepreneur::class, 'user_id');
+    }
+
+    /**
      * Relationship with User (if you use authentication)
      */
-    /* public function user()
+    public function user()
     {
         return $this->belongsTo(User::class);
-    } */
+    }
 }

@@ -1,18 +1,27 @@
 // Variables globales
 let entrepreneurProducts = [];
+let entrepreneurServices = [];
 let filteredProducts = [];
 let cart = [];
 let currentPage = 1;
 const productsPerPage = 12;
+let currentTab = 'products';
 
-// Cargar productos del emprendedor desde el HTML
+// Cargar productos y servicios del emprendedor desde el HTML
 document.addEventListener('DOMContentLoaded', function() {
     const productsData = document.getElementById('entrepreneurProductsData');
+    const servicesData = document.getElementById('entrepreneurServicesData');
+
     if (productsData) {
         entrepreneurProducts = JSON.parse(productsData.textContent);
         filteredProducts = [...entrepreneurProducts];
-        initializeApp();
     }
+
+    if (servicesData) {
+        entrepreneurServices = JSON.parse(servicesData.textContent);
+    }
+
+    initializeApp();
 });
 
 // Inicializar la aplicación
@@ -22,7 +31,7 @@ function initializeApp() {
     setupEventListeners();
     updateCartBadge();
     updateMiniCart();
-    hideLoading(); 
+    hideLoading();
     initializeWishlistIcons();
 }
 
@@ -659,6 +668,47 @@ function removeFromCart(productId) {
     updateCartBadge();
     updateMiniCart();
 }
+
+// ====================================
+// FUNCIONALIDAD DE PESTAÑAS
+// ====================================
+
+// Función global para cambiar pestañas
+window.switchTab = function(tabName) {
+    currentTab = tabName;
+
+    // Actualizar botones de pestañas
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active', 'border-red-500', 'text-red-600', 'border-blue-500', 'text-blue-600');
+        btn.classList.add('border-transparent', 'text-gray-500');
+    });
+
+    // Ocultar todo el contenido
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+
+    if (tabName === 'products') {
+        // Activar pestaña de productos
+        const productsTab = document.getElementById('productsTab');
+        productsTab.classList.remove('border-transparent', 'text-gray-500');
+        productsTab.classList.add('border-red-500', 'text-red-600', 'active');
+
+        // Mostrar contenido de productos
+        document.getElementById('productsHeader').classList.remove('hidden');
+        document.getElementById('productsContent').classList.remove('hidden');
+
+    } else if (tabName === 'services') {
+        // Activar pestaña de servicios
+        const servicesTab = document.getElementById('servicesTab');
+        servicesTab.classList.remove('border-transparent', 'text-gray-500');
+        servicesTab.classList.add('border-blue-500', 'text-blue-600', 'active');
+
+        // Mostrar contenido de servicios
+        document.getElementById('servicesHeader').classList.remove('hidden');
+        document.getElementById('servicesContent').classList.remove('hidden');
+    }
+};
 
 // Exportar funciones globales
 window.addToCart = addToCart;
