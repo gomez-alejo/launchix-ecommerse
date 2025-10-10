@@ -1,16 +1,16 @@
 <?php
 
-// database/factories/ProductFactory.php
+// database/factories/ServiceFactory.php
 namespace Database\Factories;
 
-use App\Models\Product;
+use App\Models\Service;
 use App\Models\Entrepreneur;
-use App\Models\ProductCategory;
+use App\Models\ServiceCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class ProductFactory extends Factory
+class ServiceFactory extends Factory
 {
-    protected $model = Product::class;
+    protected $model = Service::class;
 
     public function definition(): array
     {
@@ -18,13 +18,17 @@ class ProductFactory extends Factory
         
         return [
             'entrepreneur_id' => Entrepreneur::factory(),
-            'product_category_id' => ProductCategory::factory(),
+            'service_category_id' => ServiceCategory::factory(),
             'name' => fake()->words(fake()->numberBetween(2, 5), true),
             'description' => fake()->paragraphs(3, true),
-            'price' => fake()->randomFloat(2, 5000, 500000),
-            'stock' => fake()->numberBetween(0, 200),
-            'sales' => fake()->numberBetween(0, 1000),
+            'price_from' => fake()->randomFloat(2, 20000, 300000),
             'available' => fake()->boolean(90),
+            'business_hours' => fake()->randomElement([
+                'Lun-Vie: 8am-6pm',
+                'Lun-Sab: 9am-5pm',
+                '24/7',
+                'Lun-Vie: 7am-7pm, Sab: 8am-2pm'
+            ]),
             'average_rating' => fake()->randomFloat(2, 0, 5),
             'published_at' => $published ? fake()->dateTimeBetween('-1 year', 'now') : null,
         ];
@@ -37,20 +41,4 @@ class ProductFactory extends Factory
             'available' => true,
         ]);
     }
-
-    public function unpublished(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'published_at' => null,
-        ]);
-    }
-
-    public function outOfStock(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'stock' => 0,
-            'available' => false,
-        ]);
-    }
 }
-
