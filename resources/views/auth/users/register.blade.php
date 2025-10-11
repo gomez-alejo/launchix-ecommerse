@@ -43,23 +43,7 @@
             box-shadow: 0 0 0 3px rgba(235, 9, 36, 0.1);
         }
 
-        /* Simplified input styling with visible placeholders */
         .input-field::placeholder {
-            color: #6b7280;
-            opacity: 1;
-        }
-
-        .input-field::-webkit-input-placeholder {
-            color: #6b7280;
-            opacity: 1;
-        }
-
-        .input-field::-moz-placeholder {
-            color: #6b7280;
-            opacity: 1;
-        }
-
-        .input-field:-ms-input-placeholder {
             color: #6b7280;
             opacity: 1;
         }
@@ -93,19 +77,56 @@
             <p class="text-accent mt-2">Crea tu cuenta de usuario</p>
         </div>
 
+        <!-- Error Messages -->
+        @if ($errors->any())
+            <div class="glass-effect p-4 rounded-lg mb-6 border-l-4 border-red-500">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">Hay errores en el formulario:</h3>
+                        <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- Register Form -->
         <form method="POST" action="{{ route('register.user') }}" class="glass-effect p-8 rounded-2xl shadow-2xl">
             @csrf
             
-            <!-- Name Field -->
-            <div class="mb-6">
-                <input 
-                    type="text" 
-                    name="name" 
-                    placeholder="Ingresa tu nombre"
-                    required 
-                    class="input-field w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:outline-none input-focus transition-all duration-300 text-gray-800"
-                >
+            <!-- Name and Last Name Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <!-- Name Field -->
+                <div>
+                    <input 
+                        type="text" 
+                        name="name" 
+                        value="{{ old('name') }}"
+                        placeholder="Nombre"
+                        required 
+                        class="input-field w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:outline-none input-focus transition-all duration-300 text-gray-800 @error('name') border-red-500 @enderror"
+                    >
+                </div>
+
+                <!-- Last Name Field -->
+                <div>
+                    <input 
+                        type="text" 
+                        name="last_name" 
+                        value="{{ old('last_name') }}"
+                        placeholder="Apellido"
+                        required 
+                        class="input-field w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:outline-none input-focus transition-all duration-300 text-gray-800 @error('last_name') border-red-500 @enderror"
+                    >
+                </div>
             </div>
 
             <!-- Username Field -->
@@ -113,9 +134,10 @@
                 <input 
                     type="text" 
                     name="username" 
-                    placeholder="Elige tu nombre de usuario"
+                    value="{{ old('username') }}"
+                    placeholder="Nombre de usuario"
                     required 
-                    class="input-field w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:outline-none input-focus transition-all duration-300 text-gray-800"
+                    class="input-field w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:outline-none input-focus transition-all duration-300 text-gray-800 @error('username') border-red-500 @enderror"
                 >
             </div>
 
@@ -124,8 +146,20 @@
                 <input 
                     type="email" 
                     name="email" 
-                    placeholder="Ingresa tu correo electrónico"
+                    value="{{ old('email') }}"
+                    placeholder="Correo electrónico"
                     required 
+                    class="input-field w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:outline-none input-focus transition-all duration-300 text-gray-800 @error('email') border-red-500 @enderror"
+                >
+            </div>
+
+            <!-- Phone Field (Optional) -->
+            <div class="mb-6">
+                <input 
+                    type="tel" 
+                    name="phone" 
+                    value="{{ old('phone') }}"
+                    placeholder="Teléfono (opcional)"
                     class="input-field w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:outline-none input-focus transition-all duration-300 text-gray-800"
                 >
             </div>
@@ -135,9 +169,9 @@
                 <input 
                     type="password" 
                     name="password" 
-                    placeholder="Crea una contraseña"
+                    placeholder="Contraseña (mínimo 8 caracteres)"
                     required 
-                    class="input-field w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:outline-none input-focus transition-all duration-300 text-gray-800"
+                    class="input-field w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:outline-none input-focus transition-all duration-300 text-gray-800 @error('password') border-red-500 @enderror"
                 >
             </div>
 
@@ -146,7 +180,7 @@
                 <input 
                     type="password" 
                     name="password_confirmation" 
-                    placeholder="Confirma tu contraseña"
+                    placeholder="Confirmar contraseña"
                     required 
                     class="input-field w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:outline-none input-focus transition-all duration-300 text-gray-800"
                 >

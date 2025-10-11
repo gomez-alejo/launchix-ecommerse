@@ -6,18 +6,12 @@
  * ========================================
  */
 
-/**
- * Obtener token CSRF
- */
 function getCsrfToken() {
     const metaToken = document.querySelector('meta[name="csrf-token"]');
     const inputToken = document.querySelector('input[name="_token"]');
     return metaToken?.content || inputToken?.value || '';
 }
 
-/**
- * Mostrar notificación
- */
 function showProfileNotification(message, type = 'success') {
     const notification = document.getElementById('profileNotification');
     const notificationText = document.getElementById('profileNotificationText');
@@ -25,7 +19,6 @@ function showProfileNotification(message, type = 'success') {
     
     if (!notification || !notificationText || !notificationIcon) return;
     
-    // Iconos SVG según el tipo
     const icons = {
         success: '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>',
         error: '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>',
@@ -35,18 +28,12 @@ function showProfileNotification(message, type = 'success') {
     
     notificationIcon.innerHTML = icons[type] || icons.success;
     notificationText.textContent = message;
-    notification.className = `mb-4 ${type}`;
+    notification.className = `mb-4 rounded-lg p-4 flex items-start gap-3 ${type}`;
     notification.classList.remove('hidden');
     
-    // Auto-ocultar después de 5 segundos
-    setTimeout(() => {
-        notification.classList.add('hidden');
-    }, 5000);
+    setTimeout(() => notification.classList.add('hidden'), 5000);
 }
 
-/**
- * Obtener iniciales del nombre
- */
 function getInitials(name) {
     if (!name) return 'U';
     const parts = name.trim().split(' ');
@@ -56,9 +43,6 @@ function getInitials(name) {
     return name.substring(0, 2).toUpperCase();
 }
 
-/**
- * Formatear fecha para mostrar
- */
 function formatDate(dateString) {
     if (!dateString) return '-';
     const date = new Date(dateString);
@@ -69,27 +53,8 @@ function formatDate(dateString) {
     });
 }
 
-/**
- * Formatear fecha y hora
- */
-function formatDateTime(dateString) {
-    if (!dateString) return '-';
-    const date = new Date(dateString);
-    return date.toLocaleString('es-CO', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-}
-
-/**
- * Limpiar campos de contraseña
- */
 function clearPasswordFields() {
-    const fields = ['profileCurrentPassword', 'profileNewPassword', 'profileConfirmPassword'];
-    fields.forEach(id => {
+    ['profileCurrentPassword', 'profileNewPassword', 'profileConfirmPassword'].forEach(id => {
         const field = document.getElementById(id);
         if (field) field.value = '';
     });
@@ -101,9 +66,6 @@ function clearPasswordFields() {
  * ========================================
  */
 
-/**
- * Mostrar sección de vista de perfil
- */
 function showViewSection() {
     const viewSection = document.getElementById('viewProfileSection');
     const editSection = document.getElementById('editProfileSection');
@@ -118,9 +80,6 @@ function showViewSection() {
     }
 }
 
-/**
- * Mostrar sección de edición de perfil
- */
 function showEditSection() {
     const viewSection = document.getElementById('viewProfileSection');
     const editSection = document.getElementById('editProfileSection');
@@ -141,12 +100,9 @@ function showEditSection() {
  * ========================================
  */
 
-/**
- * Cargar datos del perfil desde el servidor
- */
 async function loadProfileData() {
     try {
-        const response = await fetch('/api/profile/data', {
+        const response = await fetch('/profile/data', {
             method: 'GET',
             headers: {
                 'X-CSRF-TOKEN': getCsrfToken(),
@@ -167,11 +123,7 @@ async function loadProfileData() {
         }
 
         const data = result.data;
-        
-        // Actualizar vista de información
         updateViewSection(data);
-        
-        // Actualizar formulario de edición
         updateEditForm(data);
 
         console.log('Datos del perfil cargados correctamente');
@@ -182,58 +134,52 @@ async function loadProfileData() {
     }
 }
 
-/**
- * Actualizar sección de vista con datos del usuario
- */
 function updateViewSection(data) {
-    // Header info - Iniciales y nombre en el avatar
+    // Header info
     const userInitials = document.getElementById('viewUserInitials');
     const userName = document.getElementById('viewUserName');
     const userEmail = document.getElementById('viewUserEmail');
     
-    if (userInitials) userInitials.textContent = getInitials(data.name);
-    if (userName) userName.textContent = data.name || 'Usuario';
+    if (userInitials) userInitials.textContent = getInitials(data.full_name);
+    if (userName) userName.textContent = data.full_name || 'Usuario';
     if (userEmail) userEmail.textContent = data.email || '-';
     
     // Información personal y dirección
     const viewFields = {
-        'viewName': data.name,
+        'viewName': data.full_name,
         'viewUsername': data.username,
         'viewEmail': data.email,
         'viewPhone': data.phone || '-',
         'viewBirthdate': formatDate(data.birthdate),
-        'viewAddress': data.main_address || '-',
+        'viewAddress': data.address || '-',
         'viewCity': data.city || '-',
         'viewPostalCode': data.postal_code || '-',
         'viewDepartment': data.department || '-',
-        'viewLastUpdate': formatDateTime(data.updated_at || data.last_updated)
+        'viewReference': data.reference || '-',
+        'viewLastUpdate': formatDate(data.last_updated)
     };
 
     Object.keys(viewFields).forEach(id => {
         const element = document.getElementById(id);
         if (element) {
-            const value = viewFields[id];
-            element.textContent = value || '-';
+            element.textContent = viewFields[id] || '-';
         }
     });
-    
-    console.log('Vista de perfil actualizada con datos:', data);
 }
 
-/**
- * Actualizar formulario de edición con datos del usuario
- */
 function updateEditForm(data) {
     const editFields = {
         'profileName': data.name,
+        'profileLastName': data.last_name,
         'profileUsername': data.username,
         'profileEmail': data.email,
         'profilePhone': data.phone,
         'profileBirthdate': data.birthdate,
-        'profileAddress': data.main_address,
+        'profileAddress': data.address,
         'profileCity': data.city,
         'profilePostalCode': data.postal_code,
-        'profileDepartment': data.department
+        'profileDepartment': data.department,
+        'profileReference': data.reference
     };
 
     Object.keys(editFields).forEach(id => {
@@ -243,10 +189,7 @@ function updateEditForm(data) {
         }
     });
     
-    // Limpiar campos de contraseña
     clearPasswordFields();
-    
-    console.log('Formulario de edición actualizado con datos:', data);
 }
 
 /**
@@ -255,9 +198,6 @@ function updateEditForm(data) {
  * ========================================
  */
 
-/**
- * Actualizar perfil del usuario
- */
 async function updateProfile(formData) {
     try {
         const data = {};
@@ -267,7 +207,7 @@ async function updateProfile(formData) {
             }
         }
 
-        const response = await fetch('/api/profile/update', {
+        const response = await fetch('/profile/update', {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': getCsrfToken(),
@@ -290,10 +230,7 @@ async function updateProfile(formData) {
 
         showProfileNotification(result.message || 'Perfil actualizado exitosamente', 'success');
         
-        // Recargar datos actualizados
-        setTimeout(() => {
-            loadProfileData();
-        }, 500);
+        setTimeout(() => loadProfileData(), 500);
         
         return true;
 
@@ -304,20 +241,15 @@ async function updateProfile(formData) {
     }
 }
 
-/**
- * Cambiar contraseña del usuario
- */
 async function changePassword() {
     const currentPassword = document.getElementById('profileCurrentPassword')?.value;
     const newPassword = document.getElementById('profileNewPassword')?.value;
     const confirmPassword = document.getElementById('profileConfirmPassword')?.value;
 
-    // Si los campos están vacíos, no hacer nada
     if (!currentPassword && !newPassword && !confirmPassword) {
         return true;
     }
 
-    // Validaciones
     if (!currentPassword || !newPassword || !confirmPassword) {
         showProfileNotification('Debes llenar todos los campos de contraseña', 'error');
         return false;
@@ -328,13 +260,13 @@ async function changePassword() {
         return false;
     }
 
-    if (newPassword.length < 6) {
-        showProfileNotification('La nueva contraseña debe tener al menos 6 caracteres', 'error');
+    if (newPassword.length < 8) {
+        showProfileNotification('La nueva contraseña debe tener al menos 8 caracteres', 'error');
         return false;
     }
 
     try {
-        const response = await fetch('/api/profile/change-password', {
+        const response = await fetch('/profile/change-password', {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': getCsrfToken(),
@@ -377,17 +309,13 @@ async function changePassword() {
  * ========================================
  */
 
-/**
- * Manejar el envío del formulario
- */
 async function handleProfileFormSubmit(event) {
     event.preventDefault();
     
     const form = event.target;
     const submitBtn = document.getElementById('profileSaveBtn');
-    const originalText = submitBtn?.textContent || 'Guardar Cambios';
+    const originalHTML = submitBtn?.innerHTML || '';
     
-    // Deshabilitar botón y mostrar loading
     if (submitBtn) {
         submitBtn.disabled = true;
         submitBtn.innerHTML = `
@@ -398,54 +326,31 @@ async function handleProfileFormSubmit(event) {
             Guardando...
         `;
     }
-    form.classList.add('loading');
 
     try {
         const formData = new FormData(form);
-        
-        // Actualizar perfil
         const profileUpdated = await updateProfile(formData);
         
-        // Cambiar contraseña si hay datos
         if (profileUpdated) {
             await changePassword();
         }
         
-        // Si todo salió bien, volver a la vista
         if (profileUpdated) {
-            setTimeout(() => {
-                showViewSection();
-            }, 1500);
+            setTimeout(() => showViewSection(), 1500);
         }
 
     } finally {
-        // Rehabilitar botón
         if (submitBtn) {
             submitBtn.disabled = false;
-            submitBtn.innerHTML = `
-                <svg class="inline-block w-5 h-5 mr-2 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                </svg>
-                ${originalText}
-            `;
+            submitBtn.innerHTML = originalHTML;
         }
-        form.classList.remove('loading');
     }
 }
 
-/**
- * Manejar botón cancelar
- */
 function handleProfileCancel() {
-    // Recargar datos originales
     loadProfileData();
-    
-    // Limpiar campos de contraseña
     clearPasswordFields();
-    
-    // Volver a la vista
     showViewSection();
-    
     showProfileNotification('Cambios cancelados', 'info');
 }
 
@@ -455,29 +360,22 @@ function handleProfileCancel() {
  * ========================================
  */
 
-/**
- * Inicializar el módulo de perfil
- */
 function initProfileForm() {
-    // Elementos del DOM
     const form = document.getElementById('profileForm');
     const cancelBtn = document.getElementById('profileCancelBtn');
     const tabView = document.getElementById('tabViewProfile');
     const tabEdit = document.getElementById('tabEditProfile');
     
-    // Event listeners para el formulario
     if (form) {
         form.removeEventListener('submit', handleProfileFormSubmit);
         form.addEventListener('submit', handleProfileFormSubmit);
     }
     
-    // Event listener para el botón cancelar
     if (cancelBtn) {
         cancelBtn.removeEventListener('click', handleProfileCancel);
         cancelBtn.addEventListener('click', handleProfileCancel);
     }
     
-    // Event listeners para los tabs
     if (tabView) {
         tabView.removeEventListener('click', showViewSection);
         tabView.addEventListener('click', showViewSection);
@@ -488,9 +386,7 @@ function initProfileForm() {
         tabEdit.addEventListener('click', showEditSection);
     }
     
-    // Cargar datos iniciales
     loadProfileData();
-    
     console.log('Módulo de perfil inicializado correctamente');
 }
 
@@ -500,7 +396,6 @@ function initProfileForm() {
  * ========================================
  */
 
-// Exponer funciones globalmente
 window.loadProfileData = loadProfileData;
 window.initProfileForm = initProfileForm;
 window.showViewSection = showViewSection;
@@ -512,7 +407,6 @@ window.showEditSection = showEditSection;
  * ========================================
  */
 
-// Inicializar cuando el DOM esté listo
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initProfileForm);
 } else {

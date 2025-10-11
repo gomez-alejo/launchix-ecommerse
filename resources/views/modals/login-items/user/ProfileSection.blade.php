@@ -139,12 +139,12 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                                     </svg>
                                 </div>
-                                <h3 class="text-lg font-semibold text-dark">Dirección de Envío</h3>
+                                <h3 class="text-lg font-semibold text-dark">Dirección Principal</h3>
                             </div>
 
                             <div class="space-y-4">
                                 <div class="info-item">
-                                    <label class="text-sm text-light font-medium">Dirección Principal</label>
+                                    <label class="text-sm text-light font-medium">Dirección</label>
                                     <p id="viewAddress" class="text-dark font-medium mt-1">-</p>
                                 </div>
 
@@ -162,6 +162,11 @@
                                 <div class="info-item">
                                     <label class="text-sm text-light font-medium">Departamento</label>
                                     <p id="viewDepartment" class="text-dark font-medium mt-1">-</p>
+                                </div>
+
+                                <div class="info-item">
+                                    <label class="text-sm text-light font-medium">Referencia</label>
+                                    <p id="viewReference" class="text-dark font-medium mt-1">-</p>
                                 </div>
                             </div>
 
@@ -189,7 +194,7 @@
                     <!-- Form Header -->
                     <div class="mb-6">
                         <h2 class="text-xl font-semibold text-dark mb-2">Actualizar Información</h2>
-                        <p class="text-medium">Modifica tus datos personales y preferencias de cuenta</p>
+                        <p class="text-medium">Modifica tus datos personales y dirección de envío</p>
                     </div>
 
                     <!-- Profile Form -->
@@ -211,13 +216,25 @@
                                 
                                 <div class="form-group">
                                     <label for="profileName" class="form-label">
-                                        Nombre Completo <span class="text-error">*</span>
+                                        Nombre <span class="text-error">*</span>
                                     </label>
                                     <input type="text" 
                                            id="profileName" 
                                            name="name" 
                                            class="form-input" 
-                                           placeholder="Ingresa tu nombre completo"
+                                           placeholder="Ingresa tu nombre"
+                                           required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="profileLastName" class="form-label">
+                                        Apellido <span class="text-error">*</span>
+                                    </label>
+                                    <input type="text" 
+                                           id="profileLastName" 
+                                           name="last_name" 
+                                           class="form-input" 
+                                           placeholder="Ingresa tu apellido"
                                            required>
                                 </div>
 
@@ -276,10 +293,10 @@
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label for="profileAddress" class="form-label">Dirección Principal</label>
+                                    <label for="profileAddress" class="form-label">Dirección</label>
                                     <input type="text" 
                                            id="profileAddress" 
-                                           name="main_address" 
+                                           name="address" 
                                            class="form-input" 
                                            placeholder="Calle, Carrera, Número">
                                 </div>
@@ -343,6 +360,16 @@
                                     </select>
                                 </div>
 
+                                <div class="form-group">
+                                    <label for="profileReference" class="form-label">Referencia (Opcional)</label>
+                                    <textarea 
+                                        id="profileReference" 
+                                        name="reference" 
+                                        class="form-input" 
+                                        rows="3"
+                                        placeholder="Ej: Casa de dos pisos, portón azul"></textarea>
+                                </div>
+
                                 <!-- Change Password Section -->
                                 <div class="mt-6 p-5 bg-lighter rounded-lg border border-accent">
                                     <div class="flex items-center gap-2 mb-4">
@@ -367,7 +394,7 @@
                                             <input type="password" 
                                                    id="profileNewPassword" 
                                                    class="form-input" 
-                                                   placeholder="Mínimo 6 caracteres">
+                                                   placeholder="Mínimo 8 caracteres">
                                         </div>
                                         
                                         <div class="form-group">
@@ -386,7 +413,7 @@
                         <div class="flex justify-end gap-3 pt-6 border-t border-gray-100">
                             <button type="button" 
                                     id="profileCancelBtn"
-                                    class="px-6 py-3 bg-bg-gray-100 text-medium rounded-lg font-medium hover:bg-gray-200 transition-all duration-200">
+                                    class="px-6 py-3 bg-gray-100 text-medium rounded-lg font-medium hover:bg-gray-200 transition-all duration-200">
                                 Cancelar
                             </button>
                             <button type="submit" 

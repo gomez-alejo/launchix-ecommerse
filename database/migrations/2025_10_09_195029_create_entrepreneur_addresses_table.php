@@ -4,7 +4,6 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-// 04_create_entrepreneur_addresses_table.php
 return new class extends Migration
 {
     public function up(): void
@@ -13,11 +12,12 @@ return new class extends Migration
             $table->id();
             $table->foreignId('entrepreneur_id')->constrained('entrepreneurs')->onDelete('cascade');
             $table->string('address');
-            $table->string('city');
-            $table->string('department');
+            $table->string('city', 100);
+            $table->string('department', 100);
             $table->string('postal_code', 20)->nullable();
             $table->decimal('latitude', 10, 8)->nullable();
             $table->decimal('longitude', 11, 8)->nullable();
+            $table->text('reference')->nullable();
             $table->boolean('is_main')->default(false);
             $table->timestamps();
         });
@@ -28,4 +28,3 @@ return new class extends Migration
         Schema::dropIfExists('entrepreneur_addresses');
     }
 };
-

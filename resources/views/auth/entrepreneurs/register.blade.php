@@ -126,57 +126,101 @@
             </div>
         </div>
 
+        <!-- Error Messages -->
+        @if ($errors->any())
+            <div class="glass-effect p-4 rounded-lg mb-6 border-l-4 border-red-500">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">Hay errores en el formulario:</h3>
+                        <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- Register Form -->
         <form method="POST" action="{{ route('register.entrepreneur') }}" class="glass-effect p-8 rounded-2xl shadow-2xl">
             @csrf
             
-            <!-- Form Fields Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <!-- First Name Field -->
-                <div>
-                    <input 
-                        type="text" 
-                        name="first_name" 
-                        placeholder="Ingresa tus nombres" 
-                        required 
-                        class="input-field w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:outline-none input-focus transition-all duration-300"
-                    >
-                </div>
-
-                <!-- Last Name Field -->
-                <div>
-                    <input 
-                        type="text" 
-                        name="last_name" 
-                        placeholder="Ingresa tus apellidos" 
-                        required 
-                        class="input-field w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:outline-none input-focus transition-all duration-300"
-                    >
-                </div>
+            <!-- Business Name Field -->
+            <div class="mb-6">
+                <label for="business_name" class="block text-sm font-medium text-gray-700 mb-2">
+                    Nombre del Negocio
+                </label>
+                <input 
+                    type="text" 
+                    id="business_name"
+                    name="business_name" 
+                    value="{{ old('business_name') }}"
+                    placeholder="Ej: Mi Tienda Online" 
+                    required 
+                    class="input-field w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:outline-none input-focus transition-all duration-300 @error('business_name') border-red-500 @enderror"
+                >
+                @error('business_name')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- Email Field -->
             <div class="mb-6">
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                    Correo Electrónico
+                </label>
                 <input 
                     type="email" 
+                    id="email"
                     name="email" 
-                    placeholder="Ingresa tu correo electrónico" 
+                    value="{{ old('email') }}"
+                    placeholder="negocio@ejemplo.com" 
                     required 
+                    class="input-field w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:outline-none input-focus transition-all duration-300 @error('email') border-red-500 @enderror"
+                >
+                @error('email')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <!-- Phone Field (Optional) -->
+            <div class="mb-6">
+                <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+                    Teléfono <span class="text-gray-400 text-xs">(Opcional)</span>
+                </label>
+                <input 
+                    type="tel" 
+                    id="phone"
+                    name="phone" 
+                    value="{{ old('phone') }}"
+                    placeholder="+57 300 123 4567" 
                     class="input-field w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:outline-none input-focus transition-all duration-300"
                 >
             </div>
 
             <!-- Password Field -->
             <div class="mb-3">
+                <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                    Contraseña
+                </label>
                 <input 
                     type="password" 
                     name="password" 
-                    placeholder="Crea una contraseña segura" 
+                    placeholder="Mínimo 8 caracteres" 
                     required 
                     id="password"
-                    class="input-field w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:outline-none input-focus transition-all duration-300"
+                    class="input-field w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:outline-none input-focus transition-all duration-300 @error('password') border-red-500 @enderror"
                     onkeyup="checkPasswordStrength(this.value)"
                 >
+                @error('password')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- Password Strength Indicator -->
@@ -191,10 +235,13 @@
 
             <!-- Confirm Password Field -->
             <div class="mb-6">
+                <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-2">
+                    Confirmar Contraseña
+                </label>
                 <input 
                     type="password" 
                     name="password_confirmation" 
-                    placeholder="Confirma tu contraseña" 
+                    placeholder="Repite tu contraseña" 
                     required 
                     id="confirm-password"
                     class="input-field w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg focus:outline-none input-focus transition-all duration-300"
