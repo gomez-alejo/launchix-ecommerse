@@ -1,777 +1,813 @@
-// entrepreneurProfile.js - CON LOGGING DETALLADO PARA DEBUGGING
-console.log('🟢 [INIT] Cargando entrepreneurProfile.js');
+// Configuración CSRF para Laravel
+const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🟢 [DOM] DOM Content Loaded - Inicializando perfil');
-    
-    // ============================================
-    // VARIABLES Y ELEMENTOS DEL DOM
-    // ============================================
-    
-    const profileForm = document.getElementById('profile-form');
-    const avatarInput = document.getElementById('avatar-input');
-    const avatarPreview = document.getElementById('avatar-preview');
-    const deleteAvatarBtn = document.getElementById('delete-avatar-btn');
-    const submitBtn = document.getElementById('submit-btn');
-    const cancelBtn = document.getElementById('cancel-btn');
-    const charCounter = document.getElementById('char-counter');
-    const descriptionTextarea = document.getElementById('description');
-    
-    // Verificar elementos
-    console.log('🔍 [DOM] Elementos encontrados:', {
-        profileForm: !!profileForm,
-        avatarInput: !!avatarInput,
-        avatarPreview: !!avatarPreview,
-        deleteAvatarBtn: !!deleteAvatarBtn,
-        submitBtn: !!submitBtn,
-        cancelBtn: !!cancelBtn,
-        charCounter: !!charCounter,
-        descriptionTextarea: !!descriptionTextarea
-    });
-    
-    // Datos originales del perfil
-    let originalData = {};
-    let currentAvatarUrl = '';
-    let hasCustomAvatar = false;
+// Función para crear el overlay del modal
+function createModalOverlay() {
+    const overlay = document.createElement('div');
+    overlay.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+    overlay.style.animation = 'fadeIn 0.3s ease-out';
+    return overlay;
+}
 
-    // ============================================
-    // CARGAR DATOS DEL PERFIL
-    // ============================================
+// Función para cerrar modal
+function closeModal(overlay) {
+    overlay.style.animation = 'fadeOut 0.3s ease-out';
+    setTimeout(() => overlay.remove(), 300);
+}
+
+// Editar descripción
+window.editDescription = function() {
+    const overlay = createModalOverlay();
+    const currentDesc = document.querySelector('.text-medium.leading-relaxed')?.textContent.trim() || '';
     
-    window.loadEntrepreneurProfile = function() {
-        console.log('🔵 [LOAD] Iniciando carga de datos del perfil');
-        loadProfileData();
-    };
+    overlay.innerHTML = `
+        <div class="bg-white rounded-2xl shadow-primary-lg max-w-2xl w-full p-6 transform" style="animation: slideUp 0.3s ease-out;">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-2xl font-bold text-dark">Editar Descripción</h3>
+                <button onclick="this.closest('.fixed').remove()" class="p-2 hover:bg-light rounded-lg transition-colors">
+                    <svg class="w-6 h-6 text-medium" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="descriptionForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-medium mb-2">Descripción del negocio</label>
+                    <textarea name="description" rows="6" maxlength="1000"
+                        class="w-full px-4 py-3 border-2 border-gray rounded-xl focus:border-primary focus:outline-none transition-colors"
+                        placeholder="Cuéntanos sobre tu negocio...">${currentDesc}</textarea>
+                    <p class="text-xs text-light mt-1">Máximo 1000 caracteres</p>
+                </div>
+                
+                <div class="flex gap-3 justify-end">
+                    <button type="button" onclick="this.closest('.fixed').remove()" 
+                        class="px-6 py-2.5 border-2 border-gray text-medium rounded-xl hover:bg-light transition-colors font-medium">
+                        Cancelar
+                    </button>
+                    <button type="submit" 
+                        class="px-6 py-2.5 bg-primary hover:bg-secondary text-dark rounded-xl transition-colors font-medium shadow-primary">
+                        Guardar cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    `;
     
-    function loadProfileData() {
-        console.log('🔵 [API] GET /entrepreneur/profile/data - Iniciando petición');
-        showLoading(true);
-        
-        const csrfToken = document.querySelector('meta[name="csrf-token"]');
-        console.log('🔍 [CSRF] Token encontrado:', !!csrfToken);
-        
-        if (!csrfToken) {
-            console.error('❌ [CSRF] No se encontró el meta tag csrf-token');
-            showAlert('Error: Token CSRF no encontrado', 'error');
-            showLoading(false);
-            return;
-        }
-        
-        fetch('/entrepreneur/profile/data', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken.content,
-                'Accept': 'application/json'
-            },
-            credentials: 'same-origin'
-        })
-        .then(response => {
-            console.log('📥 [API] Respuesta recibida:', {
-                status: response.status,
-                statusText: response.statusText,
-                ok: response.ok,
-                headers: Object.fromEntries(response.headers.entries())
-            });
-            
-            if (!response.ok) {
-                return response.text().then(text => {
-                    console.error('❌ [API] Error en respuesta:', text);
-                    throw new Error(`HTTP ${response.status}: ${text}`);
-                });
-            }
-            
-            return response.json();
-        })
-        .then(data => {
-            console.log('📦 [API] Datos recibidos:', data);
-            
-            if (data.success) {
-                console.log('✅ [DATA] Datos del perfil cargados correctamente');
-                populateProfileData(data.data);
-                originalData = { ...data.data };
-            } else {
-                console.error('❌ [DATA] La respuesta no contiene success:true:', data);
-                showAlert('Error al cargar los datos del perfil', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('❌ [API] Error en la petición:', {
-                message: error.message,
-                stack: error.stack
-            });
-            showAlert('Error de conexión: ' + error.message, 'error');
-        })
-        .finally(() => {
-            showLoading(false);
-            console.log('🔵 [LOAD] Carga de datos finalizada');
-        });
-    }
+    document.body.appendChild(overlay);
     
-    function populateProfileData(data) {
-        console.log('🔵 [POPULATE] Rellenando datos en el DOM:', data);
+    document.getElementById('descriptionForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btn = this.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.textContent = 'Guardando...';
         
         try {
-            // Header
-            const profileName = document.getElementById('profile-name');
-            const profileEmail = document.getElementById('profile-email');
-            const profileCity = document.getElementById('profile-city');
-            const profileRegistered = document.getElementById('profile-registered');
-            const emailVerifiedBadge = document.getElementById('email-verified-badge');
-            
-            if (profileName) profileName.textContent = data.full_name;
-            if (profileEmail) profileEmail.textContent = data.email;
-            if (profileCity) {
-                const citySpan = profileCity.querySelector('span');
-                if (citySpan) citySpan.textContent = data.city || 'No especificada';
-            }
-            if (profileRegistered) {
-                const regSpan = profileRegistered.querySelector('span');
-                if (regSpan) regSpan.textContent = `Miembro desde ${data.created_at}`;
-            }
-            
-            // Badge de email verificado
-            if (data.email_verified && emailVerifiedBadge) {
-                emailVerifiedBadge.classList.remove('hidden');
-            }
-            
-            // Avatar
-            currentAvatarUrl = data.avatar;
-            if (avatarPreview) {
-                avatarPreview.src = currentAvatarUrl;
-                console.log('🖼️ [AVATAR] URL del avatar:', currentAvatarUrl);
-            }
-            hasCustomAvatar = !currentAvatarUrl.includes('ui-avatars.com');
-            
-            // Mostrar botón de eliminar si tiene foto personalizada
-            if (hasCustomAvatar && deleteAvatarBtn) {
-                deleteAvatarBtn.classList.remove('hidden');
-            }
-            
-            // Sidebar
-            const sidebarEmail = document.getElementById('sidebar-email');
-            const sidebarPhone = document.getElementById('sidebar-phone');
-            const sidebarAddress = document.getElementById('sidebar-address');
-            const sidebarDescription = document.getElementById('sidebar-description');
-            
-            if (sidebarEmail) sidebarEmail.textContent = data.email;
-            if (sidebarPhone) sidebarPhone.textContent = data.phone || 'No especificado';
-            if (sidebarAddress) sidebarAddress.textContent = data.address || 'No especificada';
-            if (sidebarDescription) sidebarDescription.textContent = data.description || 'Sin descripción';
-            
-            // Formulario
-            const firstName = document.getElementById('first_name');
-            const lastName = document.getElementById('last_name');
-            const email = document.getElementById('email');
-            const phone = document.getElementById('phone');
-            const city = document.getElementById('city');
-            const address = document.getElementById('address');
-            const description = document.getElementById('description');
-            
-            if (firstName) firstName.value = data.first_name;
-            if (lastName) lastName.value = data.last_name;
-            if (email) email.value = data.email;
-            if (phone) phone.value = data.phone || '';
-            if (city) city.value = data.city || '';
-            if (address) address.value = data.address || '';
-            if (description) description.value = data.description || '';
-            
-            // Actualizar contador de caracteres
-            updateCharCounter();
-            
-            console.log('✅ [POPULATE] Datos poblados correctamente');
-        } catch (error) {
-            console.error('❌ [POPULATE] Error al poblar datos:', error);
-        }
-    }
-
-    // ============================================
-    // ACTUALIZAR PERFIL
-    // ============================================
-    
-    if (profileForm) {
-        profileForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            console.log('🔵 [FORM] Formulario enviado');
-            
-            // Limpiar errores previos
-            clearErrors();
-            
-            const formData = new FormData(profileForm);
-            
-            console.log('📤 [FORM] Datos del formulario:', {
-                first_name: formData.get('first_name'),
-                last_name: formData.get('last_name'),
-                email: formData.get('email'),
-                phone: formData.get('phone'),
-                city: formData.get('city'),
-                address: formData.get('address'),
-                description: formData.get('description')
-            });
-            
-            // Deshabilitar botón de submit
-            setSubmitButtonState(true);
-            
-            const csrfToken = document.querySelector('meta[name="csrf-token"]');
-            if (!csrfToken) {
-                console.error('❌ [CSRF] Token no encontrado');
-                showAlert('Error: Token CSRF no encontrado', 'error');
-                setSubmitButtonState(false);
-                return;
-            }
-            
-            console.log('🔵 [API] POST /entrepreneur/profile/update - Enviando actualización');
-            
-            fetch('/entrepreneur/profile/update', {
+            const response = await fetch('/entrepreneur/profile/update', {
                 method: 'POST',
                 headers: {
-                    'X-CSRF-TOKEN': csrfToken.content,
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
                     'Accept': 'application/json'
                 },
-                body: formData,
-                credentials: 'same-origin'
-            })
-            .then(response => {
-                console.log('📥 [API] Respuesta recibida:', {
-                    status: response.status,
-                    statusText: response.statusText,
-                    ok: response.ok
-                });
-                
-                if (!response.ok) {
-                    return response.text().then(text => {
-                        console.error('❌ [API] Error en respuesta:', text);
-                        throw new Error(`HTTP ${response.status}: ${text}`);
-                    });
-                }
-                
-                return response.json();
-            })
-            .then(data => {
-                console.log('📦 [API] Respuesta procesada:', data);
-                
-                if (data.success) {
-                    console.log('✅ [UPDATE] Perfil actualizado correctamente');
-                    showAlert('Perfil actualizado correctamente', 'success');
-                    populateProfileData(data.data);
-                    originalData = { ...data.data };
-                } else {
-                    console.error('❌ [UPDATE] Actualización fallida:', data);
-                    if (data.errors) {
-                        console.log('📋 [VALIDATION] Errores de validación:', data.errors);
-                        displayErrors(data.errors);
-                    } else {
-                        showAlert(data.message || 'Error al actualizar el perfil', 'error');
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('❌ [API] Error en la petición:', {
-                    message: error.message,
-                    stack: error.stack
-                });
-                showAlert('Error de conexión: ' + error.message, 'error');
-            })
-            .finally(() => {
-                setSubmitButtonState(false);
-                console.log('🔵 [UPDATE] Actualización finalizada');
-            });
-        });
-    } else {
-        console.error('❌ [DOM] No se encontró el formulario de perfil');
-    }
-
-    // ============================================
-    // SUBIR AVATAR
-    // ============================================
-    
-    if (avatarInput) {
-        avatarInput.addEventListener('change', function(e) {
-            console.log('🔵 [AVATAR] Archivo seleccionado');
-            const file = e.target.files[0];
-            
-            if (!file) {
-                console.log('⚠️ [AVATAR] No se seleccionó ningún archivo');
-                return;
-            }
-            
-            console.log('📄 [AVATAR] Detalles del archivo:', {
-                name: file.name,
-                type: file.type,
-                size: file.size,
-                sizeInMB: (file.size / (1024 * 1024)).toFixed(2) + ' MB'
+                body: JSON.stringify({
+                    description: this.description.value
+                })
             });
             
-            // Validar tipo de archivo
-            if (!file.type.match('image.*')) {
-                console.error('❌ [AVATAR] Tipo de archivo no válido:', file.type);
-                showAlert('Por favor selecciona una imagen válida', 'error');
-                return;
-            }
-            
-            // Validar tamaño (máximo 2MB)
-            if (file.size > 2048 * 1024) {
-                console.error('❌ [AVATAR] Archivo muy grande:', file.size);
-                showAlert('La imagen no debe superar los 2MB', 'error');
-                return;
-            }
-            
-            // Vista previa inmediata
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                if (avatarPreview) {
-                    avatarPreview.src = e.target.result;
-                    console.log('🖼️ [AVATAR] Vista previa cargada');
-                }
-            };
-            reader.readAsDataURL(file);
-            
-            // Subir imagen
-            uploadAvatar(file);
-        });
-    } else {
-        console.error('❌ [DOM] No se encontró el input de avatar');
-    }
-    
-    function uploadAvatar(file) {
-        console.log('🔵 [AVATAR] Iniciando subida de avatar');
-        const formData = new FormData();
-        formData.append('avatar', file);
-        
-        const csrfToken = document.querySelector('meta[name="csrf-token"]');
-        if (!csrfToken) {
-            console.error('❌ [CSRF] Token no encontrado');
-            showAlert('Error: Token CSRF no encontrado', 'error');
-            if (avatarPreview) avatarPreview.src = currentAvatarUrl;
-            return;
-        }
-        
-        showLoading(true);
-        
-        console.log('🔵 [API] POST /entrepreneur/profile/avatar - Subiendo imagen');
-        
-        fetch('/entrepreneur/profile/avatar', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': csrfToken.content,
-                'Accept': 'application/json'
-            },
-            body: formData,
-            credentials: 'same-origin'
-        })
-        .then(response => {
-            console.log('📥 [API] Respuesta recibida:', {
-                status: response.status,
-                statusText: response.statusText,
-                ok: response.ok
-            });
-            
-            if (!response.ok) {
-                return response.text().then(text => {
-                    console.error('❌ [API] Error en respuesta:', text);
-                    throw new Error(`HTTP ${response.status}: ${text}`);
-                });
-            }
-            
-            return response.json();
-        })
-        .then(data => {
-            console.log('📦 [API] Respuesta procesada:', data);
+            const data = await response.json();
             
             if (data.success) {
-                console.log('✅ [AVATAR] Avatar actualizado correctamente');
-                showAlert('Foto de perfil actualizada', 'success');
-                currentAvatarUrl = data.avatar_url;
-                if (avatarPreview) avatarPreview.src = data.avatar_url;
-                hasCustomAvatar = true;
-                if (deleteAvatarBtn) deleteAvatarBtn.classList.remove('hidden');
+                showNotification(data.message, 'success');
+                closeModal(overlay);
+                // Actualizar en la página
+                const descElement = document.querySelector('.text-medium.leading-relaxed');
+                if (descElement) {
+                    descElement.textContent = this.description.value || 'Este emprendedor aún no ha agregado una descripción.';
+                }
+                setTimeout(() => location.reload(), 1000);
             } else {
-                console.error('❌ [AVATAR] Error al subir:', data);
-                showAlert(data.message || 'Error al subir la imagen', 'error');
-                if (avatarPreview) avatarPreview.src = currentAvatarUrl;
+                showNotification(data.message || 'Error al actualizar', 'error');
+                btn.disabled = false;
+                btn.textContent = 'Guardar cambios';
             }
-        })
-        .catch(error => {
-            console.error('❌ [API] Error en la petición:', {
-                message: error.message,
-                stack: error.stack
-            });
-            showAlert('Error de conexión: ' + error.message, 'error');
-            if (avatarPreview) avatarPreview.src = currentAvatarUrl;
-        })
-        .finally(() => {
-            showLoading(false);
-            if (avatarInput) avatarInput.value = '';
-            console.log('🔵 [AVATAR] Subida finalizada');
-        });
-    }
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Error al conectar con el servidor', 'error');
+            btn.disabled = false;
+            btn.textContent = 'Guardar cambios';
+        }
+    });
+};
 
-    // ============================================
-    // ELIMINAR AVATAR
-    // ============================================
+// Editar información de contacto
+window.editContact = function() {
+    const overlay = createModalOverlay();
     
-    if (deleteAvatarBtn) {
-        deleteAvatarBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            console.log('🔵 [AVATAR] Intentando eliminar avatar');
+    // Obtener valores actuales
+    const businessName = document.querySelector('h1.text-3xl')?.textContent.trim() || '';
+    const email = document.querySelector('a[href^="mailto:"]')?.textContent.trim() || '';
+    const phone = document.querySelector('a[href^="tel:"]')?.textContent.trim() || '';
+    
+    overlay.innerHTML = `
+        <div class="bg-white rounded-2xl shadow-primary-lg max-w-2xl w-full p-6 transform" style="animation: slideUp 0.3s ease-out;">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-2xl font-bold text-dark">Editar Información de Contacto</h3>
+                <button onclick="this.closest('.fixed').remove()" class="p-2 hover:bg-light rounded-lg transition-colors">
+                    <svg class="w-6 h-6 text-medium" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
             
-            if (!confirm('¿Estás seguro de que deseas eliminar tu foto de perfil?')) {
-                console.log('⚠️ [AVATAR] Eliminación cancelada por el usuario');
-                return;
-            }
-            
-            const csrfToken = document.querySelector('meta[name="csrf-token"]');
-            if (!csrfToken) {
-                console.error('❌ [CSRF] Token no encontrado');
-                showAlert('Error: Token CSRF no encontrado', 'error');
-                return;
-            }
-            
-            showLoading(true);
-            
-            console.log('🔵 [API] DELETE /entrepreneur/profile/avatar - Eliminando imagen');
-            
-            fetch('/entrepreneur/profile/avatar', {
-                method: 'DELETE',
+            <form id="contactForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-medium mb-2">Nombre del Negocio *</label>
+                    <input type="text" name="business_name" required value="${businessName}"
+                        class="w-full px-4 py-3 border-2 border-gray rounded-xl focus:border-primary focus:outline-none transition-colors"
+                        placeholder="Nombre de tu negocio">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-medium mb-2">Email *</label>
+                    <input type="email" name="email" required value="${email}"
+                        class="w-full px-4 py-3 border-2 border-gray rounded-xl focus:border-primary focus:outline-none transition-colors"
+                        placeholder="correo@ejemplo.com">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-medium mb-2">Teléfono</label>
+                    <input type="tel" name="phone" value="${phone}"
+                        class="w-full px-4 py-3 border-2 border-gray rounded-xl focus:border-primary focus:outline-none transition-colors"
+                        placeholder="+57 300 123 4567">
+                </div>
+                
+                <div class="flex gap-3 justify-end">
+                    <button type="button" onclick="this.closest('.fixed').remove()" 
+                        class="px-6 py-2.5 border-2 border-gray text-medium rounded-xl hover:bg-light transition-colors font-medium">
+                        Cancelar
+                    </button>
+                    <button type="submit" 
+                        class="px-6 py-2.5 bg-primary hover:bg-secondary text-dark rounded-xl transition-colors font-medium shadow-primary">
+                        Guardar cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    document.getElementById('contactForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btn = this.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.textContent = 'Guardando...';
+        
+        try {
+            const response = await fetch('/entrepreneur/profile/update', {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken.content,
+                    'X-CSRF-TOKEN': csrfToken,
                     'Accept': 'application/json'
                 },
-                credentials: 'same-origin'
-            })
-            .then(response => {
-                console.log('📥 [API] Respuesta recibida:', {
-                    status: response.status,
-                    statusText: response.statusText,
-                    ok: response.ok
-                });
-                
-                if (!response.ok) {
-                    return response.text().then(text => {
-                        console.error('❌ [API] Error en respuesta:', text);
-                        throw new Error(`HTTP ${response.status}: ${text}`);
-                    });
-                }
-                
-                return response.json();
-            })
-            .then(data => {
-                console.log('📦 [API] Respuesta procesada:', data);
-                
-                if (data.success) {
-                    console.log('✅ [AVATAR] Avatar eliminado correctamente');
-                    showAlert('Foto de perfil eliminada', 'success');
-                    loadProfileData(); // Recargar para obtener el avatar por defecto
-                    if (deleteAvatarBtn) deleteAvatarBtn.classList.add('hidden');
-                    hasCustomAvatar = false;
-                } else {
-                    console.error('❌ [AVATAR] Error al eliminar:', data);
-                    showAlert(data.message || 'Error al eliminar la foto', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('❌ [API] Error en la petición:', {
-                    message: error.message,
-                    stack: error.stack
-                });
-                showAlert('Error de conexión: ' + error.message, 'error');
-            })
-            .finally(() => {
-                showLoading(false);
-                console.log('🔵 [AVATAR] Eliminación finalizada');
+                body: JSON.stringify({
+                    business_name: this.business_name.value,
+                    email: this.email.value,
+                    phone: this.phone.value
+                })
             });
-        });
-    } else {
-        console.error('❌ [DOM] No se encontró el botón de eliminar avatar');
-    }
-
-    // ============================================
-    // CANCELAR CAMBIOS
-    // ============================================
-    
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', function() {
-            console.log('🔵 [CANCEL] Botón cancelar clickeado');
-            if (hasFormChanged()) {
-                if (confirm('¿Deseas descartar los cambios realizados?')) {
-                    console.log('✅ [CANCEL] Cambios descartados');
-                    resetForm();
-                } else {
-                    console.log('⚠️ [CANCEL] Cancelación cancelada');
-                }
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showNotification(data.message, 'success');
+                closeModal(overlay);
+                setTimeout(() => location.reload(), 1000);
             } else {
-                console.log('⚠️ [CANCEL] No hay cambios para descartar');
+                if (data.errors) {
+                    const errorMsg = Object.values(data.errors).flat().join('<br>');
+                    showNotification(errorMsg, 'error');
+                } else {
+                    showNotification(data.message || 'Error al actualizar', 'error');
+                }
+                btn.disabled = false;
+                btn.textContent = 'Guardar cambios';
             }
-        });
-    } else {
-        console.error('❌ [DOM] No se encontró el botón cancelar');
-    }
-    
-    function resetForm() {
-        console.log('🔵 [RESET] Reseteando formulario');
-        populateProfileData(originalData);
-        clearErrors();
-    }
-    
-    function hasFormChanged() {
-        const currentData = {
-            first_name: document.getElementById('first_name')?.value || '',
-            last_name: document.getElementById('last_name')?.value || '',
-            email: document.getElementById('email')?.value || '',
-            phone: document.getElementById('phone')?.value || '',
-            city: document.getElementById('city')?.value || '',
-            address: document.getElementById('address')?.value || '',
-            description: document.getElementById('description')?.value || ''
-        };
-        
-        const originalFormData = {
-            first_name: originalData.first_name || '',
-            last_name: originalData.last_name || '',
-            email: originalData.email || '',
-            phone: originalData.phone || '',
-            city: originalData.city || '',
-            address: originalData.address || '',
-            description: originalData.description || ''
-        };
-        
-        const changed = JSON.stringify(currentData) !== JSON.stringify(originalFormData);
-        console.log('🔍 [CHANGED] Formulario modificado:', changed);
-        return changed;
-    }
-    
-    // Exponer función globalmente
-    window.hasEntrepreneurFormChanged = hasFormChanged;
-
-    // ============================================
-    // CONTADOR DE CARACTERES
-    // ============================================
-    
-    if (descriptionTextarea) {
-        descriptionTextarea.addEventListener('input', updateCharCounter);
-    }
-    
-    function updateCharCounter() {
-        if (!descriptionTextarea || !charCounter) return;
-        
-        const length = descriptionTextarea.value.length;
-        charCounter.textContent = `${length} / 500`;
-        
-        if (length >= 450) {
-            charCounter.classList.add('text-warning');
-        } else {
-            charCounter.classList.remove('text-warning');
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Error al conectar con el servidor', 'error');
+            btn.disabled = false;
+            btn.textContent = 'Guardar cambios';
         }
-    }
+    });
+};
 
-    // ============================================
-    // UTILIDADES UI
-    // ============================================
+// Editar logo
+window.editLogo = function() {
+    const overlay = createModalOverlay();
     
-    function showAlert(message, type = 'info') {
-        console.log(`🔔 [ALERT] ${type.toUpperCase()}: ${message}`);
-        const alertContainer = document.getElementById('alert-container');
+    overlay.innerHTML = `
+        <div class="bg-white rounded-2xl shadow-primary-lg max-w-lg w-full p-6 transform" style="animation: slideUp 0.3s ease-out;">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-2xl font-bold text-dark">Cambiar Logo</h3>
+                <button onclick="this.closest('.fixed').remove()" class="p-2 hover:bg-light rounded-lg transition-colors">
+                    <svg class="w-6 h-6 text-medium" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="logoForm" class="space-y-4">
+                <div class="border-2 border-dashed border-gray rounded-xl p-8 text-center hover:border-primary transition-colors cursor-pointer" id="dropZone">
+                    <input type="file" id="logoInput" name="logo" accept="image/jpeg,image/png,image/jpg" class="hidden">
+                    <label for="logoInput" class="cursor-pointer">
+                        <svg class="w-16 h-16 mx-auto text-gray mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <p class="text-medium mb-1">Haz clic para seleccionar una imagen</p>
+                        <p class="text-xs text-light">PNG, JPG hasta 2MB</p>
+                    </label>
+                </div>
+                
+                <div id="imagePreview" class="hidden">
+                    <p class="text-sm font-medium text-medium mb-2">Vista previa:</p>
+                    <img src="" alt="Preview" class="max-h-48 mx-auto rounded-xl">
+                </div>
+                
+                <div class="flex gap-3 justify-end">
+                    <button type="button" onclick="this.closest('.fixed').remove()" 
+                        class="px-6 py-2.5 border-2 border-gray text-medium rounded-xl hover:bg-light transition-colors font-medium">
+                        Cancelar
+                    </button>
+                    <button type="submit" id="uploadBtn" disabled
+                        class="px-6 py-2.5 bg-primary hover:bg-secondary text-dark rounded-xl transition-colors font-medium shadow-primary disabled:opacity-50 disabled:cursor-not-allowed">
+                        Subir Logo
+                    </button>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    const logoInput = document.getElementById('logoInput');
+    const imagePreview = document.getElementById('imagePreview');
+    const uploadBtn = document.getElementById('uploadBtn');
+    
+    logoInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // Validar tamaño
+            if (file.size > 2048000) {
+                showNotification('La imagen no puede superar los 2MB', 'error');
+                this.value = '';
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.querySelector('img').src = e.target.result;
+                imagePreview.classList.remove('hidden');
+                uploadBtn.disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    document.getElementById('logoForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btn = this.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.textContent = 'Subiendo...';
         
-        if (!alertContainer) {
-            console.error('❌ [ALERT] No se encontró el contenedor de alertas');
+        const formData = new FormData();
+        formData.append('logo', logoInput.files[0]);
+        
+        try {
+            const response = await fetch('/entrepreneur/profile/logo', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showNotification(data.message, 'success');
+                closeModal(overlay);
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                if (data.errors) {
+                    const errorMsg = Object.values(data.errors).flat().join('<br>');
+                    showNotification(errorMsg, 'error');
+                } else {
+                    showNotification(data.message || 'Error al subir logo', 'error');
+                }
+                btn.disabled = false;
+                btn.textContent = 'Subir Logo';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Error al conectar con el servidor', 'error');
+            btn.disabled = false;
+            btn.textContent = 'Subir Logo';
+        }
+    });
+};
+
+// Agregar dirección
+window.addAddress = function() {
+    const overlay = createModalOverlay();
+    
+    overlay.innerHTML = `
+        <div class="bg-white rounded-2xl shadow-primary-lg max-w-3xl w-full p-6 max-h-[90vh] overflow-y-auto transform" style="animation: slideUp 0.3s ease-out;">
+            <div class="flex items-center justify-between mb-4 sticky top-0 bg-white pb-2 border-b border-gray z-10">
+                <h3 class="text-2xl font-bold text-dark">Agregar Nueva Dirección</h3>
+                <button onclick="this.closest('.fixed').remove()" class="p-2 hover:bg-light rounded-lg transition-colors">
+                    <svg class="w-6 h-6 text-medium" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="addAddressForm" class="space-y-4 mt-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-medium mb-2">Dirección *</label>
+                        <input type="text" name="address" required
+                            class="w-full px-4 py-3 border-2 border-gray rounded-xl focus:border-primary focus:outline-none transition-colors"
+                            placeholder="Calle 123 #45-67">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-medium mb-2">Ciudad *</label>
+                        <input type="text" name="city" required
+                            class="w-full px-4 py-3 border-2 border-gray rounded-xl focus:border-primary focus:outline-none transition-colors"
+                            placeholder="Popayán">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-medium mb-2">Departamento *</label>
+                        <input type="text" name="department" required
+                            class="w-full px-4 py-3 border-2 border-gray rounded-xl focus:border-primary focus:outline-none transition-colors"
+                            placeholder="Cauca">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-medium mb-2">Código Postal</label>
+                        <input type="text" name="postal_code"
+                            class="w-full px-4 py-3 border-2 border-gray rounded-xl focus:border-primary focus:outline-none transition-colors"
+                            placeholder="190001">
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="is_main" class="w-5 h-5 text-primary border-gray rounded focus:ring-primary">
+                            <span class="text-sm font-medium text-medium">Dirección principal</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-medium mb-2">Referencia</label>
+                    <textarea name="reference" rows="3" maxlength="500"
+                        class="w-full px-4 py-3 border-2 border-gray rounded-xl focus:border-primary focus:outline-none transition-colors"
+                        placeholder="Ej: Frente al parque principal, edificio azul"></textarea>
+                </div>
+                
+                <div class="border-t border-gray pt-4">
+                    <h4 class="font-medium text-dark mb-3 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        Coordenadas GPS (Opcional)
+                    </h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-medium mb-2">Latitud</label>
+                            <input type="text" name="latitude" step="any"
+                                class="w-full px-4 py-3 border-2 border-gray rounded-xl focus:border-primary focus:outline-none transition-colors"
+                                placeholder="2.444100">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-medium mb-2">Longitud</label>
+                            <input type="text" name="longitude" step="any"
+                                class="w-full px-4 py-3 border-2 border-gray rounded-xl focus:border-primary focus:outline-none transition-colors"
+                                placeholder="-76.605900">
+                        </div>
+                    </div>
+                    
+                    <button type="button" onclick="getLocation(this.form)" 
+                        class="mt-3 px-4 py-2 bg-accent hover:bg-primary text-dark rounded-lg transition-colors text-sm font-medium flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        Usar mi ubicación actual
+                    </button>
+                </div>
+                
+                <div class="flex gap-3 justify-end pt-4 border-t border-gray">
+                    <button type="button" onclick="this.closest('.fixed').remove()" 
+                        class="px-6 py-2.5 border-2 border-gray text-medium rounded-xl hover:bg-light transition-colors font-medium">
+                        Cancelar
+                    </button>
+                    <button type="submit" 
+                        class="px-6 py-2.5 bg-primary hover:bg-secondary text-dark rounded-xl transition-colors font-medium shadow-primary">
+                        Agregar Dirección
+                    </button>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    document.getElementById('addAddressForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btn = this.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.textContent = 'Guardando...';
+        
+        const formData = {
+            address: this.address.value,
+            city: this.city.value,
+            department: this.department.value,
+            postal_code: this.postal_code.value || null,
+            latitude: this.latitude.value || null,
+            longitude: this.longitude.value || null,
+            reference: this.reference.value || null,
+            is_main: this.is_main.checked
+        };
+        
+        try {
+            const response = await fetch('/entrepreneur/addresses', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showNotification(data.message, 'success');
+                closeModal(overlay);
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                if (data.errors) {
+                    const errorMsg = Object.values(data.errors).flat().join('<br>');
+                    showNotification(errorMsg, 'error');
+                } else {
+                    showNotification(data.message || 'Error al agregar dirección', 'error');
+                }
+                btn.disabled = false;
+                btn.textContent = 'Agregar Dirección';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Error al conectar con el servidor', 'error');
+            btn.disabled = false;
+            btn.textContent = 'Agregar Dirección';
+        }
+    });
+};
+
+// Editar dirección
+window.editAddress = async function(addressId) {
+    // Cargar datos de la dirección
+    try {
+        const response = await fetch('/entrepreneur/addresses');
+        const result = await response.json();
+        
+        if (!result.success) {
+            showNotification('Error al cargar direcciones', 'error');
             return;
         }
         
-        const colors = {
-            success: 'bg-green-light text-green border-green',
-            error: 'bg-red-50 text-error border-error',
-            warning: 'bg-orange-light text-orange border-orange',
-            info: 'bg-blue-50 text-info border-info'
-        };
+        const address = result.data.find(a => a.id === addressId);
+        if (!address) {
+            showNotification('Dirección no encontrada', 'error');
+            return;
+        }
         
-        const icons = {
-            success: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>',
-            error: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>',
-            warning: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>',
-            info: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>'
-        };
+        const overlay = createModalOverlay();
         
-        const alert = document.createElement('div');
-        alert.className = `${colors[type]} border-l-4 p-4 rounded-lg flex items-start animate-fade-in`;
-        alert.innerHTML = `
-            <svg class="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                ${icons[type]}
-            </svg>
-            <div class="flex-1">
-                <p class="text-sm font-medium">${message}</p>
+        overlay.innerHTML = `
+            <div class="bg-white rounded-2xl shadow-primary-lg max-w-3xl w-full p-6 max-h-[90vh] overflow-y-auto transform" style="animation: slideUp 0.3s ease-out;">
+                <div class="flex items-center justify-between mb-4 sticky top-0 bg-white pb-2 border-b border-gray z-10">
+                    <h3 class="text-2xl font-bold text-dark">Editar Dirección</h3>
+                    <button onclick="this.closest('.fixed').remove()" class="p-2 hover:bg-light rounded-lg transition-colors">
+                        <svg class="w-6 h-6 text-medium" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <form id="editAddressForm" class="space-y-4 mt-4">
+                    <input type="hidden" name="address_id" value="${addressId}">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-medium mb-2">Dirección *</label>
+                            <input type="text" name="address" required value="${address.address}"
+                                class="w-full px-4 py-3 border-2 border-gray rounded-xl focus:border-primary focus:outline-none transition-colors"
+                                placeholder="Calle 123 #45-67">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-medium mb-2">Ciudad *</label>
+                            <input type="text" name="city" required value="${address.city}"
+                                class="w-full px-4 py-3 border-2 border-gray rounded-xl focus:border-primary focus:outline-none transition-colors"
+                                placeholder="Popayán">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-medium mb-2">Departamento *</label>
+                            <input type="text" name="department" required value="${address.department}"
+                                class="w-full px-4 py-3 border-2 border-gray rounded-xl focus:border-primary focus:outline-none transition-colors"
+                                placeholder="Cauca">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-medium mb-2">Código Postal</label>
+                            <input type="text" name="postal_code" value="${address.postal_code || ''}"
+                                class="w-full px-4 py-3 border-2 border-gray rounded-xl focus:border-primary focus:outline-none transition-colors"
+                                placeholder="190001">
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" name="is_main" ${address.is_main ? 'checked' : ''} class="w-5 h-5 text-primary border-gray rounded focus:ring-primary">
+                                <span class="text-sm font-medium text-medium">Dirección principal</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-medium mb-2">Referencia</label>
+                        <textarea name="reference" rows="3" maxlength="500"
+                            class="w-full px-4 py-3 border-2 border-gray rounded-xl focus:border-primary focus:outline-none transition-colors"
+                            placeholder="Ej: Frente al parque principal, edificio azul">${address.reference || ''}</textarea>
+                    </div>
+                    
+                    <div class="border-t border-gray pt-4">
+                        <h4 class="font-medium text-dark mb-3 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            Coordenadas GPS (Opcional)
+                        </h4>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-medium mb-2">Latitud</label>
+                                <input type="text" name="latitude" step="any" value="${address.latitude || ''}"
+                                    class="w-full px-4 py-3 border-2 border-gray rounded-xl focus:border-primary focus:outline-none transition-colors"
+                                    placeholder="2.444100">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-medium mb-2">Longitud</label>
+                                <input type="text" name="longitude" step="any" value="${address.longitude || ''}"
+                                    class="w-full px-4 py-3 border-2 border-gray rounded-xl focus:border-primary focus:outline-none transition-colors"
+                                    placeholder="-76.605900">
+                            </div>
+                        </div>
+                        
+                        <button type="button" onclick="getLocation(this.form)" 
+                            class="mt-3 px-4 py-2 bg-accent hover:bg-primary text-dark rounded-lg transition-colors text-sm font-medium flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            Usar mi ubicación actual
+                        </button>
+                    </div>
+                    
+                    <div class="flex gap-3 justify-end pt-4 border-t border-gray">
+                        <button type="button" onclick="deleteAddress(${addressId})" 
+                            class="px-6 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-colors font-medium mr-auto">
+                            Eliminar
+                        </button>
+                        <button type="button" onclick="this.closest('.fixed').remove()" 
+                            class="px-6 py-2.5 border-2 border-gray text-medium rounded-xl hover:bg-light transition-colors font-medium">
+                            Cancelar
+                        </button>
+                        <button type="submit" 
+                            class="px-6 py-2.5 bg-primary hover:bg-secondary text-dark rounded-xl transition-colors font-medium shadow-primary">
+                            Guardar Cambios
+                        </button>
+                    </div>
+                </form>
             </div>
-            <button onclick="this.parentElement.remove()" class="ml-3 flex-shrink-0">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
         `;
         
-        alertContainer.innerHTML = '';
-        alertContainer.appendChild(alert);
+        document.body.appendChild(overlay);
         
-        // Auto remover después de 5 segundos
-        setTimeout(() => {
-            alert.style.opacity = '0';
-            alert.style.transition = 'opacity 0.3s ease';
-            setTimeout(() => alert.remove(), 300);
-        }, 5000);
-    }
-    
-    function showLoading(show) {
-        if (show) {
-            if (!document.getElementById('loading-overlay')) {
-                console.log('🔄 [LOADING] Mostrando overlay de carga');
-                const overlay = document.createElement('div');
-                overlay.id = 'loading-overlay';
-                overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-                overlay.innerHTML = `
-                    <div class="bg-white rounded-lg p-6 flex flex-col items-center">
-                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-                        <p class="mt-4 text-dark font-medium">Cargando...</p>
-                    </div>
-                `;
-                document.body.appendChild(overlay);
-            }
-        } else {
-            console.log('✅ [LOADING] Ocultando overlay de carga');
-            const overlay = document.getElementById('loading-overlay');
-            if (overlay) {
-                overlay.remove();
-            }
-        }
-    }
-    
-    function setSubmitButtonState(loading) {
-        if (!submitBtn) return;
-        
-        const submitIcon = document.getElementById('submit-icon');
-        const submitText = document.getElementById('submit-text');
-        
-        if (loading) {
-            console.log('🔄 [SUBMIT] Deshabilitando botón');
-            submitBtn.disabled = true;
-            submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
-            if (submitIcon) {
-                submitIcon.innerHTML = '<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>';
-                submitIcon.classList.add('animate-spin');
-            }
-            if (submitText) submitText.textContent = 'Actualizando...';
-        } else {
-            console.log('✅ [SUBMIT] Habilitando botón');
-            submitBtn.disabled = false;
-            submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
-            if (submitIcon) {
-                submitIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>';
-                submitIcon.classList.remove('animate-spin');
-            }
-            if (submitText) submitText.textContent = 'Actualizar Perfil';
-        }
-    }
-    
-    function clearErrors() {
-        console.log('🧹 [ERRORS] Limpiando errores');
-        document.querySelectorAll('.error-message').forEach(el => {
-            el.textContent = '';
-            el.classList.add('hidden');
-        });
-        
-        document.querySelectorAll('input, textarea').forEach(el => {
-            el.classList.remove('border-error', 'focus:ring-error');
-        });
-    }
-    
-    function displayErrors(errors) {
-        console.log('❌ [ERRORS] Mostrando errores de validación:', errors);
-        Object.keys(errors).forEach(field => {
-            const input = document.getElementById(field);
-            if (input) {
-                input.classList.add('border-error', 'focus:ring-error');
-                const errorSpan = input.parentElement.querySelector('.error-message');
-                if (errorSpan) {
-                    errorSpan.textContent = errors[field][0];
-                    errorSpan.classList.remove('hidden');
-                }
-                console.log(`  - ${field}: ${errors[field][0]}`);
-            }
-        });
-        
-        // Scroll al primer error
-        const firstError = document.querySelector('.border-error');
-        if (firstError) {
-            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-    }
-
-    // ============================================
-    // VALIDACIÓN EN TIEMPO REAL
-    // ============================================
-    
-    const emailInput = document.getElementById('email');
-    if (emailInput) {
-        emailInput.addEventListener('blur', function() {
-            const email = this.value;
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            
-            if (email && !emailRegex.test(email)) {
-                console.log('⚠️ [VALIDATION] Email no válido:', email);
-                this.classList.add('border-warning');
-                const errorSpan = this.parentElement.querySelector('.error-message');
-                if (errorSpan) {
-                    errorSpan.textContent = 'Formato de email no válido';
-                    errorSpan.classList.remove('hidden');
-                    errorSpan.classList.add('text-warning');
-                }
-            } else {
-                this.classList.remove('border-warning');
-                const errorSpan = this.parentElement.querySelector('.error-message');
-                if (errorSpan) {
-                    errorSpan.textContent = '';
-                    errorSpan.classList.add('hidden');
-                    errorSpan.classList.remove('text-warning');
-                }
-            }
-        });
-    }
-
-    const phoneInput = document.getElementById('phone');
-    if (phoneInput) {
-        phoneInput.addEventListener('input', function() {
-            this.value = this.value.replace(/[^0-9\s\(\)\-\+]/g, '');
-        });
-    }
-
-    // ============================================
-    // ATAJOS DE TECLADO
-    // ============================================
-    
-    document.addEventListener('keydown', function(e) {
-        const modal = document.getElementById('entrepreneur-profile-modal');
-        if (!modal || modal.classList.contains('hidden')) return;
-        
-        // Ctrl/Cmd + S para guardar
-        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        document.getElementById('editAddressForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            console.log('⌨️ [SHORTCUT] Ctrl+S presionado - Guardando');
-            if (profileForm) profileForm.dispatchEvent(new Event('submit'));
-        }
-    });
+            const btn = this.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.textContent = 'Guardando...';
+            
+            const formData = {
+                address: this.address.value,
+                city: this.city.value,
+                department: this.department.value,
+                postal_code: this.postal_code.value || null,
+                latitude: this.latitude.value || null,
+                longitude: this.longitude.value || null,
+                reference: this.reference.value || null,
+                is_main: this.is_main.checked
+            };
+            
+            try {
+                const response = await fetch(`/entrepreneur/addresses/${addressId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    closeModal(overlay);
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    if (data.errors) {
+                        const errorMsg = Object.values(data.errors).flat().join('<br>');
+                        showNotification(errorMsg, 'error');
+                    } else {
+                        showNotification(data.message || 'Error al actualizar dirección', 'error');
+                    }
+                    btn.disabled = false;
+                    btn.textContent = 'Guardar Cambios';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Error al conectar con el servidor', 'error');
+                btn.disabled = false;
+                btn.textContent = 'Guardar Cambios';
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Error al cargar la dirección', 'error');
+    }
+};
 
-    // ============================================
-    // INICIALIZACIÓN COMPLETA
-    // ============================================
+// Eliminar dirección
+window.deleteAddress = async function(addressId) {
+    if (!confirm('¿Estás seguro de que deseas eliminar esta dirección?')) {
+        return;
+    }
     
-    console.log('✅ [INIT] Perfil de emprendedor inicializado correctamente');
-    console.log('📊 [STATUS] Estado del módulo:', {
-        moduloCargado: true,
-        elementosEncontrados: {
-            form: !!profileForm,
-            avatar: !!avatarInput,
-            submit: !!submitBtn
-        },
-        funcionesGlobales: {
-            loadProfile: typeof window.loadEntrepreneurProfile === 'function',
-            hasChanged: typeof window.hasEntrepreneurFormChanged === 'function'
+    try {
+        const response = await fetch(`/entrepreneur/addresses/${addressId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification(data.message, 'success');
+            document.querySelector('.fixed')?.remove();
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showNotification(data.message || 'Error al eliminar dirección', 'error');
         }
-    });
-});
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Error al conectar con el servidor', 'error');
+    }
+};
+
+// Obtener ubicación actual
+window.getLocation = function(form) {
+    if (navigator.geolocation) {
+        showNotification('Obteniendo ubicación...', 'info');
+        
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                form.querySelector('[name="latitude"]').value = position.coords.latitude.toFixed(8);
+                form.querySelector('[name="longitude"]').value = position.coords.longitude.toFixed(8);
+                showNotification('Ubicación obtenida correctamente', 'success');
+            },
+            function(error) {
+                let errorMsg = 'No se pudo obtener la ubicación.';
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMsg = 'Debes permitir el acceso a tu ubicación.';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMsg = 'Información de ubicación no disponible.';
+                        break;
+                    case error.TIMEOUT:
+                        errorMsg = 'Tiempo de espera agotado.';
+                        break;
+                }
+                showNotification(errorMsg, 'error');
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }
+        );
+    } else {
+        showNotification('Tu navegador no soporta geolocalización', 'error');
+    }
+};
+
+// Mostrar notificaciones
+function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    let bgColor = 'bg-green';
+    let icon = `<svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+    </svg>`;
+    
+    if (type === 'error') {
+        bgColor = 'bg-red-500';
+        icon = `<svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+        </svg>`;
+    } else if (type === 'info') {
+        bgColor = 'bg-blue-500';
+        icon = `<svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+        </svg>`;
+    }
+    
+    notification.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-xl shadow-lg z-[60] flex items-center gap-3 max-w-md`;
+    notification.style.animation = 'slideInRight 0.3s ease-out';
+    notification.innerHTML = `
+        ${icon}
+        <span class="flex-1">${message}</span>
+        <button onclick="this.parentElement.remove()" class="hover:bg-white/20 rounded p-1 transition-colors">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+            </svg>
+        </button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOutRight 0.3s ease-out';
+        setTimeout(() => notification.remove(), 300);
+    }, 5000);
+}
+
+// Agregar estilos de animación
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+    
+    @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    
+    @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes slideOutRight {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(style);

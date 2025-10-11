@@ -7,8 +7,6 @@ use App\Http\Controllers\EntrepreneurController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\EntrepreneurProfileController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserAddressController;
 
@@ -219,7 +217,7 @@ Route::get('/userSettings', function () {
     return view('modals.login-items.user.SettingsSection');
 })->name('settings');
 
-use App\Http\Controllers\Entrepreneur\EntrepreneurAddressController;
+use App\Http\Controllers\EntrepreneurAddressController;
 
 /*
 |--------------------------------------------------------------------------
@@ -230,53 +228,24 @@ use App\Http\Controllers\Entrepreneur\EntrepreneurAddressController;
 | Todas las rutas están protegidas con el middleware 'auth:entrepreneur'
 |
 */
-
-Route::middleware(['auth:entrepreneur'])->prefix('entrepreneur')->name('entrepreneur.')->group(function () {
+// Rutas de autenticación de emprendedores
+Route::prefix('entrepreneur')->name('entrepreneur.')->group(function () {
     
-    // ============================================
-    // RUTAS DEL PERFIL DEL NEGOCIO
-    // ============================================
-    
-    // Obtener datos completos del perfil (negocio + dirección)
-    Route::get('/profile/data', [EntrepreneurController::class, 'getData'])
-        ->name('profile.data');
-    
-    // Actualizar información del negocio
-    Route::post('/profile/update', [EntrepreneurController::class, 'update'])
-        ->name('profile.update');
-    
-    // Gestión del logo del negocio
-    Route::post('/profile/logo', [EntrepreneurController::class, 'uploadLogo'])
-        ->name('profile.logo.upload');
-    
-    Route::delete('/profile/logo', [EntrepreneurController::class, 'deleteLogo'])
-        ->name('profile.logo.delete');
-    
-    // ============================================
-    // RUTAS DE DIRECCIONES
-    // ============================================
-    
-    // Obtener dirección principal
-    Route::get('/addresses/main', [EntrepreneurAddressController::class, 'getMain'])
-        ->name('addresses.main');
-    
-    // Listar todas las direcciones
-    Route::get('/addresses', [EntrepreneurAddressController::class, 'index'])
-        ->name('addresses.index');
-    
-    // Crear o actualizar dirección principal
-    Route::post('/addresses', [EntrepreneurAddressController::class, 'store'])
-        ->name('addresses.store');
-    
-    // Actualizar dirección específica
-    Route::put('/addresses/{id}', [EntrepreneurAddressController::class, 'update'])
-        ->name('addresses.update');
-    
-    // Eliminar dirección
-    Route::delete('/addresses/{id}', [EntrepreneurAddressController::class, 'destroy'])
-        ->name('addresses.destroy');
-    
-    // Establecer dirección como principal
-    Route::post('/addresses/{id}/set-main', [EntrepreneurAddressController::class, 'setAsMain'])
-        ->name('addresses.set-main');
+    // Rutas protegidas (requieren autenticación)
+    Route::middleware('auth:entrepreneur')->group(function () {
+        
+        // API para actualizar perfil (AJAX)
+        Route::post('profile/update', [EntrepreneurController::class, 'updateProfile'])->name('profile.update');
+        Route::post('profile/logo', [EntrepreneurController::class, 'updateLogo'])->name('profile.logo');
+        Route::delete('profile/logo', [EntrepreneurController::class, 'deleteLogo'])->name('profile.logo.delete');
+        
+        // API para direcciones (AJAX)
+        Route::prefix('addresses')->name('addresses.')->group(function () {
+            Route::get('/', [EntrepreneurAddressController::class, 'index'])->name('index');
+            Route::post('/', [EntrepreneurAddressController::class, 'store'])->name('store');
+            Route::put('{id}', [EntrepreneurAddressController::class, 'update'])->name('update');
+            Route::delete('{id}', [EntrepreneurAddressController::class, 'destroy'])->name('destroy');
+            Route::post('{id}/set-main', [EntrepreneurAddressController::class, 'setAsMain'])->name('setMain');
+        });
+    });
 });

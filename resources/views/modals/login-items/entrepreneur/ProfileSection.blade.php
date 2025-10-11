@@ -1,530 +1,295 @@
 <!-- Sección de Perfil del Emprendedor -->
 <div id="perfil" class="section-content">
-    <!-- Alertas -->
-    <div id="alert-container" class="mb-6"></div>
+@vite(['resources/js/entrepreneurProfile.js'])
 
-    <!-- Header con Logo y Datos del Negocio -->
-    <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
-        <div class="gradient-primary h-32"></div>
-        <div class="px-6 pb-6 -mt-16">
-            <div class="flex flex-col md:flex-row items-center md:items-end gap-6">
-                <!-- Logo del Negocio -->
-                <div class="relative">
-                    <div class="w-32 h-32 rounded-lg border-4 border-white shadow-lg overflow-hidden bg-white group">
-                        <img id="logo-preview" 
-                             src="" 
-                             alt="Logo del negocio" 
-                             class="w-full h-full object-cover">
-                        
-                        <!-- Overlay hover -->
-                        <label for="logo-input" class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+<!-- Hero Section con Logo -->
+<div class="relative bg-gradient-warm h-64 overflow-hidden mb-8">
+    <div class="absolute inset-0 opacity-10">
+        <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+            <path fill="currentColor" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,101.3C1248,85,1344,75,1392,69.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        </svg>
+    </div>
+    
+    <div class="container mx-auto px-4 h-full flex items-end pb-8 relative z-10">
+        <div class="flex items-end gap-6 w-full">
+            <!-- Logo del Emprendedor -->
+            <div class="relative flex-shrink-0">
+                <div class="w-32 h-32 md:w-40 md:h-40 rounded-2xl bg-white shadow-primary-lg overflow-hidden border-4 border-white">
+                    @if($entrepreneur->logo)
+                        <img src="{{ asset('storage/' . $entrepreneur->logo) }}" alt="{{ $entrepreneur->business_name }}" class="w-full h-full object-cover">
+                    @else
+                        <div class="w-full h-full bg-accent flex items-center justify-center">
+                            <svg class="w-16 h-16 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                             </svg>
-                        </label>
-                    </div>
-                    <input type="file" id="logo-input" class="hidden" accept="image/jpeg,image/png,image/jpg">
-                    
-                    <!-- Botón eliminar logo -->
-                    <button id="delete-logo-btn" 
-                            type="button"
-                            class="absolute -top-1 -right-1 bg-error text-white rounded-full p-2 shadow-lg hover:bg-red-600 transition-colors hidden"
-                            title="Eliminar logo">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </div>
+                    @endif
+                </div>
+                
+                @if($entrepreneur->verified)
+                    <div class="absolute -bottom-2 -right-2 bg-green text-white rounded-full p-2 shadow-lg">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                         </svg>
-                    </button>
-                </div>
-
-                <!-- Info del Negocio -->
-                <div class="flex-1 text-center md:text-left">
-                    <h1 id="business-name" class="text-3xl font-bold text-dark mb-1">Cargando...</h1>
-                    <p id="business-email" class="text-medium mb-3">correo@ejemplo.com</p>
-                    <div class="flex flex-wrap items-center justify-center md:justify-start gap-3">
-                        <span id="rating-display" class="inline-flex items-center text-sm">
-                            <svg class="w-5 h-5 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
-                            </svg>
-                            <span class="font-semibold text-dark">0.0</span>
-                        </span>
-                        <span id="registered-date" class="inline-flex items-center text-sm text-light">
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                            <span>Miembro desde -</span>
-                        </span>
-                        <span id="verified-badge" class="hidden inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-600">
-                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                            </svg>
-                            Verificado
-                        </span>
-                        <span id="active-badge" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-light text-green">
-                            <svg class="w-2 h-2 mr-1" fill="currentColor" viewBox="0 0 8 8">
-                                <circle cx="4" cy="4" r="3"></circle>
-                            </svg>
-                            Activo
-                        </span>
+                    </div>
+                @endif
+            </div>
+            
+            <!-- Info Básica -->
+            <div class="flex-1 text-white pb-4 min-w-0">
+                <h1 class="text-3xl md:text-4xl font-bold mb-2 truncate">{{ $entrepreneur->business_name }}</h1>
+                <div class="flex items-center gap-4 flex-wrap">
+                    <!-- Rating -->
+                    <div class="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-lg">
+                        <svg class="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <span class="font-semibold">{{ number_format($entrepreneur->average_rating, 1) }}</span>
+                    </div>
+                    
+                    <!-- Fecha de registro -->
+                    <div class="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <span class="text-sm">Desde {{ \Carbon\Carbon::parse($entrepreneur->registered_at)->format('M Y') }}</span>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Pestañas de Navegación -->
-    <div class="bg-white rounded-lg shadow-lg mb-6">
-        <div class="border-b border-gray-200">
-            <nav class="flex -mb-px">
-                <button id="tab-business" class="tab-button active flex-1 py-4 px-6 text-center border-b-2 font-semibold text-sm transition-colors">
-                    <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                    </svg>
-                    Información del Negocio
-                </button>
-                <button id="tab-personal" class="tab-button flex-1 py-4 px-6 text-center border-b-2 font-semibold text-sm transition-colors">
-                    <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    </svg>
-                    Dirección de Envío
-                </button>
-            </nav>
-        </div>
-    </div>
-
-    <!-- Contenido de las Pestañas -->
-    <div id="tab-content">
-        
-        <!-- PESTAÑA: INFORMACIÓN DEL NEGOCIO -->
-        <div id="content-business" class="tab-content active">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
-                <!-- Sidebar - Vista Previa -->
-                <div class="lg:col-span-1">
-                    <div class="bg-white rounded-lg shadow-lg p-6 sticky top-6">
-                        <h3 class="text-lg font-bold text-dark mb-4 flex items-center">
-                            <svg class="w-5 h-5 text-primary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                            </svg>
-                            Vista Previa
-                        </h3>
-                        
-                        <div class="space-y-4">
-                            <div>
-                                <p class="text-xs text-gray uppercase font-semibold mb-2">Nombre del Negocio</p>
-                                <p id="preview-business-name" class="text-sm text-dark font-medium">-</p>
-                            </div>
-                            
-                            <div>
-                                <p class="text-xs text-gray uppercase font-semibold mb-2">Email</p>
-                                <p id="preview-email" class="text-sm text-dark break-all">-</p>
-                            </div>
-                            
-                            <div>
-                                <p class="text-xs text-gray uppercase font-semibold mb-2">Teléfono</p>
-                                <p id="preview-phone" class="text-sm text-dark">-</p>
-                            </div>
-                            
-                            <div>
-                                <p class="text-xs text-gray uppercase font-semibold mb-2">Descripción</p>
-                                <p id="preview-description" class="text-sm text-medium leading-relaxed">Sin descripción</p>
-                            </div>
-                            
-                            <div>
-                                <p class="text-xs text-gray uppercase font-semibold mb-2">Calificación</p>
-                                <div class="flex items-center">
-                                    <svg class="w-4 h-4 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
-                                    </svg>
-                                    <span id="preview-rating" class="text-sm font-semibold text-dark">0.0</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Formulario del Negocio -->
-                <div class="lg:col-span-2">
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <div class="flex items-center justify-between mb-6">
-                            <h2 class="text-xl font-bold text-dark flex items-center">
-                                <svg class="w-6 h-6 text-primary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                </svg>
-                                Editar Información del Negocio
-                            </h2>
-                            <span class="text-xs text-gray bg-gray-100 px-3 py-1 rounded-full">* Campos obligatorios</span>
-                        </div>
-
-                        <form id="business-form" class="space-y-6">
-                            @csrf
-                            
-                            <!-- Nombre del Negocio -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Nombre del Negocio <span class="text-error">*</span>
-                                </label>
-                                <input type="text" 
-                                       name="business_name" 
-                                       id="business_name" 
-                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" 
-                                       placeholder="Ej: Café del Centro"
-                                       required>
-                                <span class="error-message text-xs text-error mt-1 hidden block"></span>
-                            </div>
-
-                            <!-- Email del Negocio -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Correo Electrónico <span class="text-error">*</span>
-                                </label>
-                                <input type="email" 
-                                       name="email" 
-                                       id="business_email_input" 
-                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" 
-                                       required>
-                                <span class="error-message text-xs text-error mt-1 hidden block"></span>
-                                <p class="text-xs text-gray-500 mt-2">Este correo será usado para notificaciones y contacto de clientes</p>
-                            </div>
-
-                            <!-- Teléfono -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Teléfono de Contacto
-                                </label>
-                                <input type="tel" 
-                                       name="phone" 
-                                       id="business_phone" 
-                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                                       placeholder="+57 300 123 4567">
-                                <span class="error-message text-xs text-error mt-1 hidden block"></span>
-                            </div>
-                            
-                            <!-- Descripción del Negocio -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Descripción del Negocio
-                                    <span class="text-xs text-gray-500 font-normal ml-1">(máximo 1000 caracteres)</span>
-                                </label>
-                                <textarea name="description" 
-                                          id="business_description" 
-                                          class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none" 
-                                          rows="5" 
-                                          maxlength="1000"
-                                          placeholder="Describe tu negocio, productos o servicios que ofreces..."></textarea>
-                                <div class="flex justify-between items-center mt-2">
-                                    <span class="error-message text-xs text-error hidden block"></span>
-                                    <span id="char-counter-business" class="text-xs text-gray-500 font-medium">0 / 1000</span>
-                                </div>
-                            </div>
-                            
-                            <!-- Botones -->
-                            <div class="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-200">
-                                <button type="button" 
-                                        id="cancel-business-btn"
-                                        class="btn-outline-primary px-6 py-3 rounded-lg font-medium hover:bg-accent transition-all">
-                                    Cancelar Cambios
-                                </button>
-                                <button type="submit" 
-                                        id="submit-business-btn"
-                                        class="btn-primary px-6 py-3 text-white rounded-lg font-medium flex items-center justify-center shadow-primary hover:shadow-primary-lg transition-all">
-                                    <svg id="submit-business-icon" class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                    </svg>
-                                    <span id="submit-business-text">Actualizar Negocio</span>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- PESTAÑA: DIRECCIÓN DE ENVÍO -->
-        <div id="content-personal" class="tab-content hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
-                <!-- Sidebar - Dirección Actual -->
-                <div class="lg:col-span-1">
-                    <div class="bg-white rounded-lg shadow-lg p-6 sticky top-6">
-                        <h3 class="text-lg font-bold text-dark mb-4 flex items-center">
-                            <svg class="w-5 h-5 text-primary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            </svg>
-                            Dirección Actual
-                        </h3>
-                        
-                        <div id="current-address-display" class="space-y-4">
-                            <div>
-                                <p class="text-xs text-gray uppercase font-semibold mb-2">Dirección</p>
-                                <p id="preview-address" class="text-sm text-dark">No especificada</p>
-                            </div>
-                            
-                            <div>
-                                <p class="text-xs text-gray uppercase font-semibold mb-2">Ciudad</p>
-                                <p id="preview-city" class="text-sm text-dark">-</p>
-                            </div>
-                            
-                            <div>
-                                <p class="text-xs text-gray uppercase font-semibold mb-2">Departamento</p>
-                                <p id="preview-department" class="text-sm text-dark">-</p>
-                            </div>
-                            
-                            <div>
-                                <p class="text-xs text-gray uppercase font-semibold mb-2">Código Postal</p>
-                                <p id="preview-postal-code" class="text-sm text-dark">-</p>
-                            </div>
-                            
-                            <div>
-                                <p class="text-xs text-gray uppercase font-semibold mb-2">Referencias</p>
-                                <p id="preview-reference" class="text-sm text-medium leading-relaxed">-</p>
-                            </div>
-                        </div>
-
-                        <div id="no-address-display" class="hidden">
-                            <div class="bg-gray-50 rounded-lg p-4 text-center">
-                                <svg class="w-12 h-12 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                </svg>
-                                <p class="text-sm text-gray-600">No has registrado ninguna dirección de envío</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Formulario de Dirección -->
-                <div class="lg:col-span-2">
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <div class="flex items-center justify-between mb-6">
-                            <h2 class="text-xl font-bold text-dark flex items-center">
-                                <svg class="w-6 h-6 text-primary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                </svg>
-                                Dirección de Envío
-                            </h2>
-                            <span class="text-xs text-gray bg-gray-100 px-3 py-1 rounded-full">* Campos obligatorios</span>
-                        </div>
-
-                        <form id="address-form" class="space-y-6">
-                            @csrf
-                            <input type="hidden" name="user_id" id="user_id">
-                            <input type="hidden" name="address_id" id="address_id">
-                            
-                            <!-- Dirección Completa -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Dirección Completa <span class="text-error">*</span>
-                                </label>
-                                <input type="text" 
-                                       name="address" 
-                                       id="address" 
-                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" 
-                                       placeholder="Ej: Calle 5 #12-34"
-                                       required>
-                                <span class="error-message text-xs text-error mt-1 hidden block"></span>
-                            </div>
-
-                            <!-- Ciudad y Departamento -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                        Ciudad <span class="text-error">*</span>
-                                    </label>
-                                    <input type="text" 
-                                           name="city" 
-                                           id="city" 
-                                           class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                                           placeholder="Ej: Popayán"
-                                           required>
-                                    <span class="error-message text-xs text-error mt-1 hidden block"></span>
-                                </div>
-                                
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                        Departamento <span class="text-error">*</span>
-                                    </label>
-                                    <input type="text" 
-                                           name="department" 
-                                           id="department" 
-                                           class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                                           placeholder="Ej: Cauca"
-                                           required>
-                                    <span class="error-message text-xs text-error mt-1 hidden block"></span>
-                                </div>
-                            </div>
-
-                            <!-- Código Postal -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Código Postal
-                                </label>
-                                <input type="text" 
-                                       name="postal_code" 
-                                       id="postal_code" 
-                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                                       placeholder="Ej: 190001"
-                                       maxlength="20">
-                                <span class="error-message text-xs text-error mt-1 hidden block"></span>
-                            </div>
-                            
-                            <!-- Referencias Adicionales -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Referencias Adicionales
-                                    <span class="text-xs text-gray-500 font-normal ml-1">(opcional)</span>
-                                </label>
-                                <textarea name="reference" 
-                                          id="reference" 
-                                          class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none" 
-                                          rows="3" 
-                                          maxlength="500"
-                                          placeholder="Ej: Casa de dos pisos, portón verde, al lado de la panadería"></textarea>
-                                <div class="flex justify-between items-center mt-2">
-                                    <span class="error-message text-xs text-error hidden block"></span>
-                                    <span id="char-counter-reference" class="text-xs text-gray-500 font-medium">0 / 500</span>
-                                </div>
-                            </div>
-
-                            <!-- Dirección Principal -->
-                            <div class="flex items-center">
-                                <input type="checkbox" 
-                                       name="is_main" 
-                                       id="is_main" 
-                                       class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
-                                       checked>
-                                <label for="is_main" class="ml-2 text-sm text-gray-700">
-                                    Establecer como dirección principal
-                                </label>
-                            </div>
-                            
-                            <!-- Botones -->
-                            <div class="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-200">
-                                <button type="button" 
-                                        id="cancel-address-btn"
-                                        class="btn-outline-primary px-6 py-3 rounded-lg font-medium hover:bg-accent transition-all">
-                                    Cancelar Cambios
-                                </button>
-                                <button type="submit" 
-                                        id="submit-address-btn"
-                                        class="btn-primary px-6 py-3 text-white rounded-lg font-medium flex items-center justify-center shadow-primary hover:shadow-primary-lg transition-all">
-                                    <svg id="submit-address-icon" class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                    </svg>
-                                    <span id="submit-address-text">Guardar Dirección</span>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
 </div>
 
-<script>
-// Auto-cargar datos cuando se muestra la sección
-document.addEventListener('DOMContentLoaded', function() {
-    const perfilSection = document.getElementById('perfil');
-    
-    if (perfilSection) {
-        // Observar cambios de visibilidad
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                const isVisible = !perfilSection.classList.contains('hidden') && 
-                                perfilSection.style.display !== 'none' &&
-                                perfilSection.offsetParent !== null;
+<div class="container mx-auto px-4 pb-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Columna Principal -->
+        <div class="lg:col-span-2 space-y-6">
+            
+            <!-- Descripción -->
+            <div class="bg-white rounded-2xl shadow-soft p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-2xl font-bold text-dark flex items-center gap-2">
+                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Sobre Nosotros
+                    </h2>
+                    <button onclick="editDescription()" class="px-4 py-2 bg-accent hover:bg-primary text-dark rounded-lg transition-colors duration-300 text-sm font-medium flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        Editar
+                    </button>
+                </div>
                 
-                if (isVisible && typeof window.loadEntrepreneurProfile === 'function') {
-                    console.log('🔵 [AUTO] Sección de perfil visible, cargando datos...');
-                    window.loadEntrepreneurProfile();
-                    observer.disconnect(); // Solo cargar una vez
-                }
-            });
-        });
-        
-        observer.observe(perfilSection, { 
-            attributes: true, 
-            attributeFilter: ['class', 'style'],
-            childList: false,
-            subtree: false
-        });
-        
-        // Si ya está visible, cargar inmediatamente
-        setTimeout(() => {
-            if (perfilSection.offsetParent !== null && typeof window.loadEntrepreneurProfile === 'function') {
-                console.log('🔵 [AUTO] Sección ya visible, cargando datos inmediatamente...');
-                window.loadEntrepreneurProfile();
-            }
-        }, 500);
-    }
+                @if($entrepreneur->description)
+                    <p class="text-medium leading-relaxed">{{ $entrepreneur->description }}</p>
+                @else
+                    <p class="text-light italic">Este emprendedor aún no ha agregado una descripción.</p>
+                @endif
+            </div>
 
-    // Manejo de pestañas
-    const tabButtons = document.querySelectorAll('.tab-button');
-    const tabContents = document.querySelectorAll('.tab-content');
-    
-    tabButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const tabId = this.id.replace('tab-', 'content-');
+            <!-- Ubicaciones -->
+            <div class="bg-white rounded-2xl shadow-soft p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-2xl font-bold text-dark flex items-center gap-2">
+                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        Nuestras Ubicaciones
+                    </h2>
+                    <button onclick="addAddress()" class="px-4 py-2 bg-primary hover:bg-secondary text-dark rounded-lg transition-colors duration-300 text-sm font-medium flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Agregar
+                    </button>
+                </div>
+
+                @forelse($entrepreneur->addresses as $address)
+                    <div class="mb-4 last:mb-0 p-4 bg-light rounded-xl hover:shadow-primary transition-all duration-300">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1 min-w-0">
+                                @if($address->is_main)
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary text-dark mb-2">
+                                        Principal
+                                    </span>
+                                @endif
+                                
+                                <div class="flex items-start gap-2 mb-2">
+                                    <svg class="w-5 h-5 text-orange mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-medium text-dark break-words">{{ $address->address }}</p>
+                                        <p class="text-sm text-medium">{{ $address->city }}, {{ $address->department }}</p>
+                                        @if($address->postal_code)
+                                            <p class="text-sm text-light">CP: {{ $address->postal_code }}</p>
+                                        @endif
+                                        @if($address->reference)
+                                            <p class="text-sm text-medium mt-1">
+                                                <span class="font-medium">Referencia:</span> {{ $address->reference }}
+                                            </p>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center gap-2 ml-4 flex-shrink-0">
+                                @if($address->latitude && $address->longitude)
+                                    <a href="https://www.google.com/maps?q={{ $address->latitude }},{{ $address->longitude }}" 
+                                       target="_blank"
+                                       class="p-2 bg-accent hover:bg-primary text-dark rounded-lg transition-colors duration-300">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                                        </svg>
+                                    </a>
+                                @endif
+                                <button onclick="editAddress({{ $address->id }})" class="p-2 bg-accent hover:bg-primary text-dark rounded-lg transition-colors duration-300">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="text-center py-8 text-medium">
+                        <svg class="w-16 h-16 mx-auto mb-3 text-gray" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        <p>No hay ubicaciones registradas</p>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1 space-y-6">
             
-            // Remover clase active de todos los botones y contenidos
-            tabButtons.forEach(btn => {
-                btn.classList.remove('active', 'border-primary', 'text-primary');
-                btn.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
-            });
-            
-            tabContents.forEach(content => {
-                content.classList.add('hidden');
-                content.classList.remove('active');
-            });
-            
-            // Activar pestaña seleccionada
-            this.classList.add('active', 'border-primary', 'text-primary');
-            this.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
-            
-            const selectedContent = document.getElementById(tabId);
-            if (selectedContent) {
-                selectedContent.classList.remove('hidden');
-                selectedContent.classList.add('active');
-            }
-        });
-    });
-});
-</script>
+            <!-- Información de Contacto -->
+            <div class="bg-white rounded-2xl shadow-soft p-6 lg:sticky lg:top-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-dark flex items-center gap-2">
+                        <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        Contacto
+                    </h3>
+                    <button onclick="editContact()" class="p-2 hover:bg-accent rounded-lg transition-colors duration-300">
+                        <svg class="w-4 h-4 text-medium" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <!-- Email -->
+                    <div class="flex items-center gap-3 p-3 bg-light rounded-lg hover:bg-accent transition-colors duration-300">
+                        <div class="flex-shrink-0 w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs text-light mb-0.5">Email</p>
+                            <a href="mailto:{{ $entrepreneur->email }}" class="text-sm font-medium text-dark hover:text-orange truncate block">
+                                {{ $entrepreneur->email }}
+                            </a>
+                        </div>
+                    </div>
 
-<style>
-.tab-button {
-    border-color: transparent;
-    color: #6b7280;
-}
+                    <!-- Teléfono -->
+                    @if($entrepreneur->phone)
+                        <div class="flex items-center gap-3 p-3 bg-light rounded-lg hover:bg-accent transition-colors duration-300">
+                            <div class="flex-shrink-0 w-10 h-10 bg-green rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs text-light mb-0.5">Teléfono</p>
+                                <a href="tel:{{ $entrepreneur->phone }}" class="text-sm font-medium text-dark hover:text-green truncate block">
+                                    {{ $entrepreneur->phone }}
+                                </a>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
 
-.tab-button:hover {
-    color: #374151;
-    border-color: #d1d5db;
-}
+            <!-- Logo -->
+            <div class="bg-white rounded-2xl shadow-soft p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-dark flex items-center gap-2">
+                        <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        Logo
+                    </h3>
+                    <button onclick="editLogo()" class="p-2 hover:bg-accent rounded-lg transition-colors duration-300">
+                        <svg class="w-4 h-4 text-medium" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="flex items-center justify-center p-6 bg-light rounded-xl">
+                    @if($entrepreneur->logo)
+                        <img src="{{ asset('storage/' . $entrepreneur->logo) }}" alt="{{ $entrepreneur->business_name }}" class="max-w-full max-h-32 object-contain">
+                    @else
+                        <div class="text-center">
+                            <svg class="w-16 h-16 mx-auto text-gray mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <p class="text-sm text-medium">Sin logo</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
 
-.tab-button.active {
-    border-color: var(--primary-color, #4F46E5);
-    color: var(--primary-color, #4F46E5);
-}
+            <!-- Estado del Emprendedor -->
+            <div class="bg-gradient-sunshine rounded-2xl shadow-soft p-6">
+                <h3 class="text-lg font-bold text-dark mb-3">Estado</h3>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm rounded-lg">
+                        <span class="text-sm text-medium">Estado</span>
+                        @if($entrepreneur->active)
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green text-white">
+                                <span class="w-2 h-2 bg-white rounded-full mr-1.5"></span>
+                                Activo
+                            </span>
+                        @else
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-400 text-white">
+                                Inactivo
+                            </span>
+                        @endif
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm rounded-lg">
+                        <span class="text-sm text-medium">Verificado</span>
+                        @if($entrepreneur->verified)
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green text-white">
+                                <svg class="w-3 h-3 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                                Verificado
+                            </span>
+                        @else
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-light text-orange">
+                                Pendiente
+                            </span>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-.tab-content {
-    animation: fadeIn 0.3s ease-in;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-</style>
+</div>
 
 @vite(['resources/js/entrepreneurProfile.js'])
