@@ -220,4 +220,3 @@ class OrderController extends Controller
         return redirect()->back()->with('info', 'Función de descarga de factura en desarrollo.');
     }
 }
-
