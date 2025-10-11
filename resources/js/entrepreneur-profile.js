@@ -10,10 +10,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const productsData = document.getElementById('entrepreneurProductsData');
     if (productsData) {
         entrepreneurProducts = JSON.parse(productsData.textContent);
+        // Asegúrate de que cada producto tenga un campo `rating` y `reviews` definido
+        entrepreneurProducts = entrepreneurProducts.map(product => ({
+            ...product,
+            main_image: product.main_image || 'https://via.placeholder.com/300x300/F77786/FFFFFF?text=Producto',
+            gallery_images: product.gallery_images || [],
+            rating: product.rating || 4.0, // Si no tiene `rating`, asigna 4.0
+            reviews: product.reviews || 0  // Si no tiene `reviews`, asigna 0
+        }));
         filteredProducts = [...entrepreneurProducts];
         initializeApp();
     }
 });
+
+
 
 // Inicializar la aplicación
 function initializeApp() {
@@ -150,7 +160,7 @@ function createProductCard(product) {
                 <p class="text-gray-600 text-sm mb-3 line-clamp-2 truncate">${product.description}</p>
                 <div class="flex items-center mb-3">
                     <div class="star-rating mr-2">${stars}</div>
-                    <span class="text-sm text-gray-600">(${product.reviews} reseñas)</span>
+                    <span class="text-sm text-gray-600">(${product.reviews || 0} reseñas)</span>
                 </div>
                 <div class="flex items-center mb-2">
                     <span class="text-2xl font-bold text-red-600 truncate">$${product.price.toFixed(2)}</span>
@@ -323,6 +333,10 @@ function viewProductDetails(productId) {
     const isInWishlist = wishlist.includes(productId);
     const heartColorClass = isInWishlist ? 'text-red-600' : 'text-gray-400';
 
+    // Usar main_image como imagen principal y gallery_images como galería
+    const mainImage = product.main_image || 'https://via.placeholder.com/300x300/F77786/FFFFFF?text=Producto';
+    const galleryImages = product.gallery_images || [];
+
     const modalHTML = `
         <div id="productModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
             <div class="bg-white rounded-lg max-w-5xl w-full max-h-[90vh] overflow-y-auto">
@@ -335,8 +349,24 @@ function viewProductDetails(productId) {
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
-                            <img id="mainProductImage" src="${product.main_image}" alt="${product.name}" class="w-full h-80 object-cover rounded-lg mb-4">
+                            <!-- Imagen principal -->
+                            <img id="mainProductImage" src="${mainImage}" alt="${product.name}" class="w-full h-80 object-cover rounded-lg mb-4">
+                            <!-- Galería de miniaturas -->
+                            <div class="flex space-x-2 overflow-x-auto">
+                                <!-- Miniatura de la imagen principal -->
+                                <img src="${mainImage}" alt="${product.name}"
+                                     class="w-16 h-16 object-cover rounded cursor-pointer border-2 border-red-500 gallery-thumb"
+                                     onclick="changeMainImage(this.src)">
+                                <!-- Miniaturas de la galería -->
+                                ${galleryImages.map(img => `
+                                    <img src="${img}" alt="${product.name}"
+                                         class="w-16 h-16 object-cover rounded cursor-pointer border-2 border-gray-200 hover:border-red-500 gallery-thumb"
+                                         onclick="changeMainImage(this.src)"
+                                         onerror="this.src='https://via.placeholder.com/150/F77786/FFFFFF?text=Imagen+no+disponible'">
+                                `).join('')}
+                            </div>
                         </div>
+                        <!-- Resto del modal -->
                         <div>
                             <div class="category-tag inline-block mb-3">${getCategoryName(product.category)}</div>
                             <div class="flex items-center mb-4">
@@ -376,6 +406,7 @@ function viewProductDetails(productId) {
         if (e.target === this) closeProductModal();
     });
 }
+
 
 // Cerrar modal de detalles
 function closeProductModal() {
@@ -660,9 +691,26 @@ function removeFromCart(productId) {
     updateMiniCart();
 }
 
+function changeMainImage(newImageUrl) {
+    const mainImage = document.getElementById('mainProductImage');
+    if (mainImage) mainImage.src = newImageUrl;
+    // Cambiar el borde de la miniatura seleccionada
+    document.querySelectorAll('.gallery-thumb').forEach(img => {
+        img.classList.remove('border-red-500');
+        img.classList.add('border-gray-200');
+    });
+    event.target.classList.remove('border-gray-200');
+    event.target.classList.add('border-red-500');
+}
+
+
+
+
 // Exportar funciones globales
 window.addToCart = addToCart;
 window.toggleWishlist = toggleWishlist;
 window.shareProduct = shareProduct;
 window.addToCartFromModal = addToCartFromModal;
 window.closeProductModal = closeProductModal;
+window.changeMainImage = changeMainImage;
+

@@ -284,40 +284,48 @@ class EntrepreneurProfileController extends Controller
  * Perfil público del emprendedor (sin autenticación)
  */
     public function publicProfile($id)
-    {
-        try {
-            $entrepreneur = \App\Models\Entrepreneur::findOrFail($id);
-            
-            $products = \App\Models\Product::where('entrepreneur_id', $id)
-                ->orderBy('created_at', 'desc')
-                ->get();
+{
+    try {
+        $entrepreneur = \App\Models\Entrepreneur::findOrFail($id);
+        
+        $products = \App\Models\Product::where('entrepreneur_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-            $transformedProducts = [];
-            foreach ($products as $product) {
-                $transformedProducts[] = [
-                    'id' => $product->id,
-                    'name' => $product->name,
-                    'description' => $product->description ?? '',
-                    'price' => (float) $product->price,
-                    'stock' => (int) $product->stock,
-                    'main_image' => $product->main_image ? asset('storage/' . $product->main_image) : 'https://via.placeholder.com/300x300/F77786/FFFFFF?text=Producto',
-                    'category' => is_string($product->category) ? $product->category : 'General',
-                ];
-            }
-
-            $avatarUrl = $entrepreneur->profile_photo ? 
-                asset('storage/' . $entrepreneur->profile_photo) : 
-                'https://ui-avatars.com/api/?name=' . urlencode($entrepreneur->first_name . ' ' . $entrepreneur->last_name) . '&background=F77786&color=fff';
-
-            return view('entrepreneur.public-profile', [
-                'entrepreneur' => $entrepreneur,
-                'transformedProducts' => $transformedProducts,
-                'avatarUrl' => $avatarUrl
-            ]);
-            
-        } catch (\Exception $e) {
-            Log::error('Error en perfil público: ' . $e->getMessage());
-            abort(500, $e->getMessage());
+        $transformedProducts = [];
+        foreach ($products as $product) {
+            $transformedProducts[] = [
+                'id' => $product->id,
+                'name' => $product->name,
+                'description' => $product->description ?? '',
+                'price' => (float) $product->price,
+                'stock' => (int) $product->stock,
+                'main_image' => $product->main_image ? asset('storage/' . $product->main_image) : 'https://via.placeholder.com/300x300/F77786/FFFFFF?text=Producto',
+                'gallery_images' => $product->gallery_images ? array_map(function($image) {
+                    return asset('storage/' . $image);
+                }, $product->gallery_images) : [], // AGREGADO
+                'category' => is_string($product->category) ? $product->category : 'General',
+                'rating' => 4.0,  // AGREGADO
+                'reviews' => 0,   // AGREGADO
+                'brand' => '',    // AGREGADO
+                'discount' => 0,  // AGREGADO
+                'isNew' => false, // AGREGADO
+            ];
         }
+
+        $avatarUrl = $entrepreneur->profile_photo ? 
+            asset('storage/' . $entrepreneur->profile_photo) : 
+            'https://ui-avatars.com/api/?name=' . urlencode($entrepreneur->first_name . ' ' . $entrepreneur->last_name) . '&background=F77786&color=fff';
+
+        return view('entrepreneur.public-profile', [
+            'entrepreneur' => $entrepreneur,
+            'transformedProducts' => $transformedProducts,
+            'avatarUrl' => $avatarUrl
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Error en perfil público: ' . $e->getMessage());
+        abort(500, $e->getMessage());
     }
+}
 }
