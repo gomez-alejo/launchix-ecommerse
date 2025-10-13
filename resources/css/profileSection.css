@@ -213,15 +213,15 @@ button:disabled:hover {
         padding: 0.75rem 1rem;
         font-size: 0.875rem;
     }
-    
+
     .tab-button svg {
         display: none;
     }
-    
+
     .info-item {
         padding: 0.5rem 0;
     }
-    
+
     .form-input {
         padding: 0.625rem 0.875rem;
         font-size: 0.875rem;
@@ -235,7 +235,7 @@ button:disabled:hover {
     button {
         display: none !important;
     }
-    
+
     #viewProfileSection {
         display: block !important;
         box-shadow: none !important;

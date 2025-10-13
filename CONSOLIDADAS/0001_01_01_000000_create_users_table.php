@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -7,6 +8,9 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
+     *
+     * ⭐ MIGRACIÓN CONSOLIDADA - Incluye todas las optimizaciones
+     * Consolida contenido de: optimize_users_table.php
      */
     public function up(): void
     {
@@ -17,25 +21,27 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+
+            // Campos adicionales del usuario
             $table->string('phone', 20)->nullable();
             $table->date('birthdate')->nullable();
             $table->string('main_address')->nullable();
             $table->string('city')->nullable();
             $table->string('postal_code', 10)->nullable();
             $table->string('department')->nullable();
+            $table->timestamp('registered_at')->useCurrent();
 
-            // ⭐ CAMPOS PARA API
+            // ⭐ CONSOLIDADO: Campos agregados por optimize_users_table
             $table->string('avatar')->nullable();
             $table->timestamp('phone_verified_at')->nullable();
 
-            $table->timestamp('registered_at')->useCurrent();
             $table->rememberToken();
             $table->timestamps();
 
-            // ⭐ SOFT DELETES PARA API
+            // ⭐ CONSOLIDADO: Soft deletes agregado por optimize_users_table
             $table->softDeletes();
 
-            // ⭐ ÍNDICES PARA OPTIMIZACIÓN
+            // ⭐ CONSOLIDADO: Índices agregados por optimize_users_table
             $table->index('city');
             $table->index('department');
             $table->index('username');
@@ -62,8 +68,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('users');
     }
 };

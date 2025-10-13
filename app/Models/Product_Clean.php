@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Product extends Model
 {
@@ -109,6 +110,6 @@ class Product extends Model
      */
     public function getSlugAttribute()
     {
-        return \Illuminate\Support\Str::slug($this->name);
+        return Str::slug($this->name);
     }
 }

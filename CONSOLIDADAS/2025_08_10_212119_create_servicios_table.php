@@ -8,6 +8,9 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
+     *
+     * ⭐ MIGRACIÓN CONSOLIDADA - Incluye FK activada y optimizaciones
+     * Consolida contenido de: improve_servicios_table.php
      */
     public function up(): void
     {
@@ -24,18 +27,18 @@ return new class extends Migration
             $table->json('galeria_imagenes')->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
 
-            // ⭐ CAMPO PARA API
+            // ⭐ CONSOLIDADO: Campo agregado por improve_servicios_table
             $table->enum('status', ['active', 'inactive', 'draft'])->default('active');
 
             $table->timestamps();
 
-            // ⭐ SOFT DELETES PARA API
+            // ⭐ CONSOLIDADO: Soft deletes agregado por improve_servicios_table
             $table->softDeletes();
 
-            // ⭐ FOREIGN KEY ACTIVADA (era comentario)
+            // ⭐ CONSOLIDADO: Foreign key activada (estaba comentada en original)
             $table->foreign('user_id')->references('id')->on('entrepreneurs')->onDelete('cascade');
 
-            // ⭐ ÍNDICES PARA OPTIMIZACIÓN
+            // ⭐ CONSOLIDADO: Índices agregados por improve_servicios_table
             $table->index('categoria');
             $table->index('precio_base');
             $table->index('status');

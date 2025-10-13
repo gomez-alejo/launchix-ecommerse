@@ -8,6 +8,9 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
+     *
+     * ⭐ MIGRACIÓN CONSOLIDADA - Incluye todas las mejoras para API
+     * Consolida contenido de: improve_products_table.php
      */
     public function up(): void
     {
@@ -21,22 +24,22 @@ return new class extends Migration
             $table->string('main_image')->nullable();
             $table->json('gallery_images')->nullable();
 
-            // ⭐ CAMPOS PARA API
+            // ⭐ CONSOLIDADO: Campos agregados por improve_products_table
             $table->enum('status', ['active', 'inactive', 'draft', 'out_of_stock'])->default('active');
             $table->boolean('featured')->default(false);
             $table->decimal('discount_percentage', 5, 2)->nullable();
             $table->unsignedBigInteger('views')->default(0);
 
-            // Foreign Keys
+            // Foreign keys
             $table->foreignId('entrepreneur_id')->constrained('entrepreneurs')->onDelete('cascade');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
 
             $table->timestamps();
 
-            // ⭐ SOFT DELETES PARA API
+            // ⭐ CONSOLIDADO: Soft deletes agregado por improve_products_table
             $table->softDeletes();
 
-            // ⭐ ÍNDICES PARA OPTIMIZACIÓN
+            // ⭐ CONSOLIDADO: Índices agregados por improve_products_table
             $table->index('category');
             $table->index('price');
             $table->index('stock');
