@@ -360,7 +360,7 @@
     </div>
 
     {{-- Llamado a la acción final mejorado --}}
-    <div class="relative bg-gradient-to-r from-primary via-secondary to-accent text-white rounded-3xl p-12 text-center shadow-2xl overflow-hidden">
+    <div class="relative bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-3xl p-12 text-center shadow-2xl overflow-hidden">
         {{-- Patrón decorativo --}}
         <div class="absolute inset-0 opacity-10">
             <div class="absolute top-10 left-10 w-32 h-32 bg-white rounded-full blur-3xl"></div>
@@ -369,13 +369,13 @@
         </div>
         
         <div class="relative z-10">
-            <h2 class="text-4xl font-black mb-4">¡Descubre todo lo que tenemos para ti!</h2>
-            <p class="text-xl mb-8 opacity-90">Explora productos, servicios y promociones exclusivas para ti y tu familia.</p>
+            <h2 class="text-4xl font-black mb-4 drop-shadow-lg">¡Descubre todo lo que tenemos para ti!</h2>
+            <p class="text-xl mb-8 drop-shadow-md font-medium">Explora productos, servicios y promociones exclusivas para ti y tu familia.</p>
             <div class="flex flex-wrap justify-center gap-4">
-                <a href="{{ route('productos') }}" class="bg-white text-primary hover:bg-gray-100 px-8 py-4 rounded-xl text-lg font-bold shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+                <a href="{{ route('productos') }}" class="bg-white text-red-600 hover:bg-gray-100 px-8 py-4 rounded-xl text-lg font-bold shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
                     <i class="fas fa-shopping-bag mr-2"></i>Ver Productos
                 </a>
-                <a href="{{ route('servicios') }}" class="bg-accent hover:bg-accent/80 text-white px-8 py-4 rounded-xl text-lg font-bold shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+                <a href="{{ route('servicios') }}" class="bg-yellow-400 hover:bg-yellow-300 text-gray-900 px-8 py-4 rounded-xl text-lg font-bold shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
                     <i class="fas fa-concierge-bell mr-2"></i>Ver Servicios
                 </a>
             </div>

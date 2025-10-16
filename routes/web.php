@@ -181,3 +181,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
     Route::get('/orders/{order}/invoice', [OrderController::class, 'downloadInvoice'])->name('orders.invoice');
 });
+
+
+Route::get('/entrepreneur/{id}/profile', [EntrepreneurProfileController::class, 'publicProfile'])
+    ->name('entrepreneur.public.profile');
