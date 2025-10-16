@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;  // ← AGREGAR ESTA LÍNEA
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use App\Models\Entrepreneur;
+use Illuminate\Support\Facades\Log;
 
 class EntrepreneurProfileController extends Controller
 {
@@ -54,59 +55,79 @@ class EntrepreneurProfileController extends Controller
     /**
      * Actualizar perfil del emprendedor
      */
+    /**
+ * Actualizar perfil del emprendedor
+ */
     public function updateEntrepreneurProfile(Request $request)
     {
-        $entrepreneur = Auth::guard('entrepreneur')->user();
+        try {
+            $entrepreneur = Auth::guard('entrepreneur')->user();
 
-        if (!$entrepreneur) {
+            if (!$entrepreneur) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Usuario no autenticado'
+                ], 401);
+            }
+
+            $validated = $request->validate([
+                'first_name' => 'required|string|max:255',
+                'last_name' => 'required|string|max:255',
+                'email' => [
+                    'required',
+                    'email',
+                    Rule::unique('entrepreneurs')->ignore($entrepreneur->id)
+                ],
+                'phone' => 'nullable|string|max:20',
+                'city' => 'nullable|string|max:100',
+                'address' => 'nullable|string|max:255',
+                'description' => 'nullable|string|max:500',
+            ]);
+
+            $entrepreneur->first_name = $validated['first_name'];
+            $entrepreneur->last_name = $validated['last_name'];
+            $entrepreneur->email = $validated['email'];
+            $entrepreneur->phone = $validated['phone'];
+            $entrepreneur->city = $validated['city'];
+            $entrepreneur->address = $validated['address'];
+            $entrepreneur->profile_description = $validated['description'];
+
+            $entrepreneur->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Perfil actualizado correctamente',
+                'data' => [
+                    'id' => $entrepreneur->id,
+                    'first_name' => $entrepreneur->first_name,
+                    'last_name' => $entrepreneur->last_name,
+                    'full_name' => $entrepreneur->full_name,
+                    'email' => $entrepreneur->email,
+                    'phone' => $entrepreneur->phone,
+                    'city' => $entrepreneur->city,
+                    'address' => $entrepreneur->address,
+                    'description' => $entrepreneur->profile_description,
+                    'avatar' => $entrepreneur->profile_photo_url,
+                ]
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Usuario no autenticado'
-            ], 401);
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
+            Log::error('Error en updateEntrepreneurProfile: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error en el servidor: ' . $e->getMessage()
+            ], 500);
         }
-
-        $validated = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => [
-                'required',
-                'email',
-                Rule::unique('entrepreneurs')->ignore($entrepreneur->id)
-            ],
-            'phone' => 'nullable|string|max:20',
-            'city' => 'nullable|string|max:100',
-            'address' => 'nullable|string|max:255',
-            'description' => 'nullable|string|max:500',
-        ]);
-
-        // Actualizar campos
-        $entrepreneur->first_name = $validated['first_name'];
-        $entrepreneur->last_name = $validated['last_name'];
-        $entrepreneur->email = $validated['email'];
-        $entrepreneur->phone = $validated['phone'];
-        $entrepreneur->city = $validated['city'];
-        $entrepreneur->address = $validated['address'];
-        $entrepreneur->profile_description = $validated['description'];
-        
-        $entrepreneur->save();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Perfil actualizado correctamente',
-            'data' => [
-                'id' => $entrepreneur->id,
-                'first_name' => $entrepreneur->first_name,
-                'last_name' => $entrepreneur->last_name,
-                'full_name' => $entrepreneur->full_name,
-                'email' => $entrepreneur->email,
-                'phone' => $entrepreneur->phone,
-                'city' => $entrepreneur->city,
-                'address' => $entrepreneur->address,
-                'description' => $entrepreneur->profile_description,
-                'avatar' => $entrepreneur->profile_photo_url,
-            ]
-        ]);
     }
+
+
 
     /**
      * Actualizar foto de perfil del emprendedor
@@ -228,4 +249,83 @@ class EntrepreneurProfileController extends Controller
             'message' => 'Contraseña actualizada correctamente'
         ]);
     }
+
+    
+
+    private function transformProductData($product)
+    {
+        return [
+            'id' => $product->id,
+            'name' => $product->name,
+            'description' => $product->description,
+            'price' => (float) $product->price,
+            'stock' => (int) $product->stock,
+            'main_image' => $product->main_image ? asset('storage/' . $product->main_image) : null,
+            'gallery_images' => $product->gallery_images ? array_map(fn($image) => asset('storage/' . $image), $product->gallery_images) : [],
+            'category' => [
+                'name' => is_string($product->category) ? $product->category : 'General',
+                'slug' => is_string($product->category) ?
+                    strtolower(str_replace([' ', 'ó', 'é', 'í', 'ú', 'ñ'], ['', 'o', 'e', 'i', 'u', 'n'], $product->category)) :
+                    'general'
+            ],
+            'entrepreneur' => [
+                'id' => $product->entrepreneur->id,
+                'name' => $product->entrepreneur->name,
+                'business_name' => $product->entrepreneur->business_name ?? $product->entrepreneur->name,
+                'avatar' => $product->entrepreneur->avatar ? 
+                    asset('storage/' . $product->entrepreneur->avatar) : 
+                    'https://ui-avatars.com/api/?name=' . urlencode($product->entrepreneur->name) . '&background=F77786&color=fff'
+            ],
+            'created_at' => $product->created_at
+        ];
+    }
+
+    /**
+ * Perfil público del emprendedor (sin autenticación)
+ */
+    public function publicProfile($id)
+{
+    try {
+        $entrepreneur = \App\Models\Entrepreneur::findOrFail($id);
+        
+        $products = \App\Models\Product::where('entrepreneur_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $transformedProducts = [];
+        foreach ($products as $product) {
+            $transformedProducts[] = [
+                'id' => $product->id,
+                'name' => $product->name,
+                'description' => $product->description ?? '',
+                'price' => (float) $product->price,
+                'stock' => (int) $product->stock,
+                'main_image' => $product->main_image ? asset('storage/' . $product->main_image) : 'https://via.placeholder.com/300x300/F77786/FFFFFF?text=Producto',
+                'gallery_images' => $product->gallery_images ? array_map(function($image) {
+                    return asset('storage/' . $image);
+                }, $product->gallery_images) : [], // AGREGADO
+                'category' => is_string($product->category) ? $product->category : 'General',
+                'rating' => 4.0,  // AGREGADO
+                'reviews' => 0,   // AGREGADO
+                'brand' => '',    // AGREGADO
+                'discount' => 0,  // AGREGADO
+                'isNew' => false, // AGREGADO
+            ];
+        }
+
+        $avatarUrl = $entrepreneur->profile_photo ? 
+            asset('storage/' . $entrepreneur->profile_photo) : 
+            'https://ui-avatars.com/api/?name=' . urlencode($entrepreneur->first_name . ' ' . $entrepreneur->last_name) . '&background=F77786&color=fff';
+
+        return view('entrepreneur.public-profile', [
+            'entrepreneur' => $entrepreneur,
+            'transformedProducts' => $transformedProducts,
+            'avatarUrl' => $avatarUrl
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Error en perfil público: ' . $e->getMessage());
+        abort(500, $e->getMessage());
+    }
+}
 }

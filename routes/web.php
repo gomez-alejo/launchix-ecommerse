@@ -110,6 +110,11 @@ Route::middleware(['auth:entrepreneur'])->group(function () {
     Route::post('/entrepreneur/password', [EntrepreneurProfileController::class, 'updatePassword']);
 });
 
+
+// Perfil público del emprendedor
+
+
+
 /**
  * ===================== API ROUTES =====================
  */
