@@ -21,6 +21,111 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
+## Frontend externo (Laravel) consumiendo este backend
+
+Este proyecto, en la rama `Guillermo-Gomez`, está preparado para funcionar como backend y ser consumido por un frontend independiente (otro proyecto Laravel o SPA).
+
+### 1) Variables de entorno (backend)
+
+Configura el archivo `.env` de este backend con los orígenes permitidos y URLs:
+
+```
+APP_URL=http://localhost:8001
+FRONTEND_URL=http://localhost:8000
+CORS_ALLOWED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000
+
+# Si alguna vez usas cookies (Sanctum SPA), configura también:
+SANCTUM_STATEFUL_DOMAINS=localhost,127.0.0.1,localhost:8000,127.0.0.1:8000
+SESSION_DOMAIN=localhost
+```
+
+En local puedes levantar este backend en `php artisan serve --host=127.0.0.1 --port=8001` para mantener separado del frontend.
+
+### 2) CORS en backend
+
+El archivo `config/cors.php` permite configurar orígenes vía `CORS_ALLOWED_ORIGINS` y `FRONTEND_URL`. Si el frontend corre en un puerto distinto (por ejemplo 5173 para Vite), agrégalo a `CORS_ALLOWED_ORIGINS`.
+
+### 3) Autenticación recomendada
+
+Este backend usa Laravel Sanctum con tokens personales (Bearer). Flujo básico:
+
+1. El frontend hace `POST /api/v1/login` con email y password.
+2. La respuesta incluye `access_token` y `token_type` = `Bearer`.
+3. El frontend almacena el token (por sesión) y lo envía en el header `Authorization: Bearer {token}` en cada request protegido.
+
+Endpoints clave:
+
+- `POST /api/v1/register`
+- `POST /api/v1/login`
+- `GET /api/v1/me` (requiere Bearer)
+- `POST /api/v1/logout` (requiere Bearer)
+
+Productos (públicos):
+
+- `GET /api/v1/products`
+- `GET /api/v1/products/{id}`
+- `GET /api/v1/products/featured`
+- `GET /api/v1/products/popular`
+
+Productos (protegidos, requieren Bearer):
+
+- `POST /api/v1/products`
+- `PUT /api/v1/products/{id}`
+- `DELETE /api/v1/products/{id}`
+
+### 4) Ejemplos desde frontend Laravel
+
+En el frontend, define las variables en `.env`:
+
+```
+API_BASE_URL=http://127.0.0.1:8001
+```
+
+Ejemplo usando el cliente HTTP de Laravel (facade `Http`):
+
+```php
+use Illuminate\Support\Facades\Http;
+
+// Login
+$response = Http::post(env('API_BASE_URL').'/api/v1/login', [
+	'email' => $request->email,
+	'password' => $request->password,
+]);
+
+if ($response->successful()) {
+	$token = $response['access_token'];
+	// Guardar en sesión
+	session(['api_token' => $token]);
+}
+
+// Request autenticado
+$token = session('api_token');
+$products = Http::withToken($token)
+	->get(env('API_BASE_URL').'/api/v1/products')
+	->json();
+```
+
+Si utilizas Axios/Fetch en el frontend, solo agrega el header `Authorization: Bearer <token>`.
+
+### 5) Puesta en marcha local
+
+1. Backend
+   - `composer install`
+   - Configura `.env` (DB, APP_URL, CORS_ALLOWED_ORIGINS)
+   - `php artisan migrate --seed` (si aplica)
+   - `php artisan serve --host=127.0.0.1 --port=8001`
+
+2. Frontend (otro Laravel)
+   - Configura `.env` con `API_BASE_URL=http://127.0.0.1:8001`
+   - Usa el cliente HTTP para consumir endpoints
+
+Problemas comunes:
+
+- 401 sin token: asegúrate de enviar `Authorization: Bearer ...` en rutas protegidas.
+- CORS bloqueado: agrega el origen del frontend a `CORS_ALLOWED_ORIGINS` y limpia cache (`php artisan config:clear`).
+- Cookie/Sanctum SPA: si decides usar cookies en lugar de Bearer, habilita `supports_credentials=true` en `config/cors.php`, configura `SANCTUM_STATEFUL_DOMAINS` y usa `sanctum/csrf-cookie` en el frontend.
+
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.

@@ -6,10 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\Product\CreateProductRequest;
 use App\Http\Requests\Api\V1\Product\UpdateProductRequest;
 use App\Http\Resources\Api\V1\ProductResource;
+use App\Models\Entrepreneur;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class ProductController extends Controller
 {
@@ -18,7 +22,12 @@ class ProductController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = Product::with(['entrepreneur', 'user', 'categories', 'images', 'reviews']);
+        try {
+            $query = Product::with(['entrepreneur', 'user', 'categories', 'images', 'reviews']);
+
+            if ($entrepreneurId = $this->resolveEntrepreneurId($request)) {
+                $query->where('entrepreneur_id', $entrepreneurId);
+            }
 
         // Aplicar scopes del modelo
         if ($request->boolean('in_stock')) {
@@ -71,9 +80,19 @@ class ProductController extends Controller
             $query->orderBy($sortBy, $sortOrder);
         }
 
-        $products = $query->paginate($request->get('per_page', 15));
-
-        return ProductResource::collection($products);
+            $products = $query->paginate($request->get('per_page', 15));
+            return ProductResource::collection($products);
+        } catch (\Throwable $e) {
+            // Log del error para debugging
+            Log::error('Error en ProductController@index', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return ProductResource::collection(collect([]))->additional([
+                'error' => 'Error al cargar productos',
+                'detail' => app()->environment('local') ? $e->getMessage() : 'Contacte soporte',
+            ]);
+        }
     }
 
     /**
@@ -81,14 +100,43 @@ class ProductController extends Controller
      */
     public function store(CreateProductRequest $request): JsonResponse
     {
-        $product = Product::create([
-            'name' => $request->name,
-            'description' => $request->description,
-            'price' => $request->price,
-            'stock' => $request->stock,
-            'entrepreneur_id' => $request->entrepreneur_id,
-            'user_id' => $request->user()->id,
-        ]);
+        // Determinar emprendedor autenticado
+        $entrepreneurId = $this->resolveEntrepreneurId($request);
+        if (!$entrepreneurId) {
+            return response()->json([
+                'message' => 'No se pudo identificar al emprendedor autenticado'
+            ], 401);
+        }
+
+        // Datos validados (incluye 'category' tras prepareForValidation)
+        $data = $request->validated();
+        $user = $request->user();
+
+        // Merge de user_id y limpieza de archivos antes de persistir
+        $data['user_id'] = $user instanceof Entrepreneur ? null : ($user->id ?? null);
+        $data['entrepreneur_id'] = $entrepreneurId;
+        unset($data['main_image'], $data['gallery_images']);
+
+        // Procesar imagen principal si viene adjunta
+        if ($request->hasFile('main_image')) {
+            $data['main_image'] = $request->file('main_image')->store('products/main', 'public');
+        }
+
+        // Procesar galería si viene adjunta
+        if ($request->hasFile('gallery_images')) {
+            $galleryPaths = [];
+            foreach ($request->file('gallery_images') as $image) {
+                if ($image->isValid()) {
+                    $galleryPaths[] = $image->store('products/gallery', 'public');
+                }
+            }
+
+            if (!empty($galleryPaths)) {
+                $data['gallery_images'] = $galleryPaths;
+            }
+        }
+
+    $product = Product::create($data);
 
         // Cargar relaciones para la respuesta
         $product->load(['entrepreneur', 'user']);
@@ -117,8 +165,10 @@ class ProductController extends Controller
      */
     public function update(UpdateProductRequest $request, Product $product): JsonResponse
     {
+        $user = $request->user();
+
         // Verificar que el usuario puede actualizar este producto
-        if ($product->user_id !== $request->user()->id && !$request->user()->hasRole('admin')) {
+        if (!$this->userOwnsProduct($user, $product) && !$this->userIsAdmin($user)) {
             return response()->json([
                 'message' => 'No tienes permisos para actualizar este producto'
             ], 403);
@@ -141,7 +191,10 @@ class ProductController extends Controller
     public function destroy(Product $product, Request $request): JsonResponse
     {
         // Verificar que el usuario puede eliminar este producto
-        if ($product->user_id !== $request->user()->id && !$request->user()->hasRole('admin')) {
+            $user = $request->user();
+
+            // Verificar que el usuario puede eliminar este producto
+            if (!$this->userOwnsProduct($user, $product) && !$this->userIsAdmin($user)) {
             return response()->json([
                 'message' => 'No tienes permisos para eliminar este producto'
             ], 403);
@@ -160,7 +213,10 @@ class ProductController extends Controller
     public function toggleStatus(Product $product, Request $request): JsonResponse
     {
         // Verificar permisos
-        if ($product->user_id !== $request->user()->id && !$request->user()->hasRole('admin')) {
+            $user = $request->user();
+
+            // Verificar permisos
+            if (!$this->userOwnsProduct($user, $product) && !$this->userIsAdmin($user)) {
             return response()->json([
                 'message' => 'No tienes permisos para cambiar el estado de este producto'
             ], 403);
@@ -183,7 +239,7 @@ class ProductController extends Controller
     public function toggleFeatured(Product $product, Request $request): JsonResponse
     {
         // Solo administradores pueden destacar productos
-        if (!$request->user()->hasRole('admin')) {
+        if (!$this->userIsAdmin($request->user())) {
             return response()->json([
                 'message' => 'Solo los administradores pueden destacar productos'
             ], 403);
@@ -238,5 +294,72 @@ class ProductController extends Controller
             ->get();
 
         return ProductResource::collection($products);
+    }
+
+    /**
+     * Determina si el usuario autenticado es propietario del producto
+     */
+    private function userOwnsProduct($user, Product $product): bool
+    {
+        if (!$user) {
+            return false;
+        }
+
+        if ($user instanceof Entrepreneur) {
+            return (int) $product->entrepreneur_id === (int) $user->id;
+        }
+
+        return (int) $product->user_id === (int) $user->id;
+    }
+
+    /**
+     * Determina si el usuario autenticado tiene rol de administrador
+     */
+    private function userIsAdmin($user): bool
+    {
+        if (!$user) {
+            return false;
+        }
+
+        if (method_exists($user, 'hasRole')) {
+            return $user->hasRole('admin');
+        }
+
+        if (method_exists($user, 'roles')) {
+            return $user->roles()->where('name', 'admin')->exists();
+        }
+
+        return false;
+    }
+
+    /**
+     * Obtiene el ID del emprendedor asociado al usuario autenticado
+     */
+    private function resolveEntrepreneurId(Request $request): ?int
+    {
+        $user = $request->user();
+        if ($user instanceof Entrepreneur) {
+            return (int) $user->id;
+        }
+
+        if ($user && method_exists($user, 'entrepreneur')) {
+            $entrepreneur = $user->entrepreneur;
+            if ($entrepreneur instanceof Entrepreneur) {
+                return (int) $entrepreneur->id;
+            }
+        }
+
+        if ($user && property_exists($user, 'entrepreneur_id') && $user->entrepreneur_id) {
+            return (int) $user->entrepreneur_id;
+        }
+
+        if (!$user && $token = $request->bearerToken()) {
+            $accessToken = PersonalAccessToken::findToken($token);
+            if ($accessToken && $accessToken->tokenable instanceof Entrepreneur) {
+                return (int) $accessToken->tokenable_id;
+            }
+        }
+
+        return null;
     }
 }

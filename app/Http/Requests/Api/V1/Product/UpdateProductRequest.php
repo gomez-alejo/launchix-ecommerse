@@ -23,10 +23,11 @@ class UpdateProductRequest extends FormRequest
     {
         return [
             'name' => ['sometimes', 'string', 'max:150'],
+            'category' => ['sometimes', 'string', 'max:150'],
             'description' => ['sometimes', 'string', 'max:5000'],
             'price' => ['sometimes', 'numeric', 'min:0', 'max:999999.99'],
             'stock' => ['sometimes', 'integer', 'min:0'],
-            'entrepreneur_id' => ['sometimes', 'integer', 'exists:entrepreneurs,id']
+            'entrepreneur_id' => ['prohibited']
         ];
     }
 
@@ -37,13 +38,15 @@ class UpdateProductRequest extends FormRequest
     {
         return [
             'name.max' => 'El nombre no puede exceder 255 caracteres',
+            'category.string' => 'La categoría debe ser texto',
+            'category.max' => 'La categoría no puede exceder 150 caracteres',
             'description.max' => 'La descripción no puede exceder 5000 caracteres',
             'price.numeric' => 'El precio debe ser un número válido',
             'price.min' => 'El precio no puede ser negativo',
             'price.max' => 'El precio no puede exceder $999,999.99',
             'stock.integer' => 'El stock debe ser un número entero',
             'stock.min' => 'El stock no puede ser negativo',
-            'entrepreneur_id.exists' => 'El emprendedor seleccionado no existe',
+            'entrepreneur_id.prohibited' => 'El ID del emprendedor no puede modificarse',
             'status.in' => 'El estado debe ser: active, inactive o pending',
             'discount_percentage.numeric' => 'El descuento debe ser un número válido',
             'discount_percentage.min' => 'El descuento no puede ser negativo',
@@ -51,6 +54,25 @@ class UpdateProductRequest extends FormRequest
             'gallery_images.array' => 'Las imágenes de galería deben ser un array',
             'gallery_images.max' => 'No se pueden subir más de 10 imágenes'
         ];
+    }
+
+    /**
+     * Normaliza entradas antes de validar (mapear 'categoria' -> 'category').
+     */
+    protected function prepareForValidation(): void
+    {
+        $category = $this->input('category');
+        if ($category === null) {
+            $category = $this->input('categoria');
+        }
+        if (is_string($category)) {
+            $category = trim($category);
+        }
+        if ($category !== null && $category !== '') {
+            $this->merge([
+                'category' => $category,
+            ]);
+        }
     }
 
     /**

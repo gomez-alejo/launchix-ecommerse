@@ -53,6 +53,16 @@ class UserResource extends JsonResource
             'services_count' => $this->when(isset($this->services_count), $this->services_count),
             'orders_count' => $this->when(isset($this->orders_count), $this->orders_count),
             'reviews_count' => $this->when(isset($this->reviews_count), $this->reviews_count)
+            ,
+            'favorites' => $this->whenLoaded('favorites', function() {
+                return $this->favorites->map(function($fav) {
+                    return [
+                        'id' => $fav->id,
+                        'type' => class_basename($fav->favoritable_type),
+                        'favoritable_id' => $fav->favoritable_id,
+                    ];
+                });
+            })
         ];
     }
 

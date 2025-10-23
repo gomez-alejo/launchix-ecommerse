@@ -84,6 +84,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Verifica si el usuario posee un rol específico
+     */
+    public function hasRole(string $roleName): bool
+    {
+        return $this->roles()->where('name', $roleName)->exists();
+    }
+
+    /**
      * Un usuario puede crear productos (si es emprendedor)
      */
     public function products()

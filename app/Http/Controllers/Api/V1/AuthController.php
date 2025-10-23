@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -74,12 +75,51 @@ class AuthController extends Controller
     {
         $user = $request->user();
 
-        // Cargar relaciones útiles
-        $user->load(['cart', 'favorites.favoritable']);
+        // Manejo de include dinámico: ?include=favorites,cart,roles,entrepreneur
+        $allowedIncludes = [
+            'favorites.favoritable',
+            'cart',
+            'roles',
+            'entrepreneur',
+            'products',
+            'services',
+        ];
+
+        $requestedIncludes = collect(explode(',', (string) $request->query('include')))
+            ->map(fn($i) => trim($i))
+            ->filter()
+            ->map(function($i) {
+                // Normalizar nombres simples a relaciones reales
+                return match($i) {
+                    'favorites' => 'favorites.favoritable',
+                    'cart' => 'cart',
+                    'roles' => 'roles',
+                    'entrepreneur' => 'entrepreneur',
+                    'products' => 'products',
+                    'services' => 'servicios', // en el modelo es servicios()
+                    default => $i,
+                };
+            })
+            ->filter(fn($i) => in_array($i, $allowedIncludes))
+            ->values();
+
+        if ($requestedIncludes->isNotEmpty()) {
+            // Intentar cargar relaciones válidas, ignorando errores silenciosamente
+            try {
+                $user->load($requestedIncludes->all());
+            } catch (\Throwable $e) {
+                // Registrar pero no romper la respuesta
+                Log::warning('Error cargando includes en /me', [
+                    'requested' => $requestedIncludes,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
 
         return response()->json([
             'message' => 'Usuario autenticado',
-            'data' => new UserResource($user)
+            'data' => new UserResource($user),
+            'included' => $requestedIncludes,
         ]);
     }
 

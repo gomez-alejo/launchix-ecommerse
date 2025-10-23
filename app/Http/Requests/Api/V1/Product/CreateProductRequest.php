@@ -23,10 +23,14 @@ class CreateProductRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:150'],
-            'description' => ['nullable', 'string', 'max:5000'],
+            'category' => ['required', 'string', 'max:150'],
+            'description' => ['required', 'string', 'max:5000'],
             'price' => ['required', 'numeric', 'min:0', 'max:999999.99'],
             'stock' => ['required', 'integer', 'min:0'],
-            'entrepreneur_id' => ['required', 'integer', 'exists:entrepreneurs,id']
+            'entrepreneur_id' => ['prohibited'],
+            'main_image' => ['nullable', 'image', 'max:2048'],
+            'gallery_images' => ['nullable', 'array', 'max:10'],
+            'gallery_images.*' => ['image', 'max:2048'],
         ];
     }
 
@@ -39,6 +43,8 @@ class CreateProductRequest extends FormRequest
             'name.required' => 'El nombre del producto es obligatorio',
             'name.max' => 'El nombre no puede exceder 255 caracteres',
             'category.required' => 'La categoría es obligatoria',
+            'category.string' => 'La categoría debe ser texto',
+            'category.max' => 'La categoría no puede exceder 150 caracteres',
             'description.required' => 'La descripción es obligatoria',
             'description.max' => 'La descripción no puede exceder 5000 caracteres',
             'price.required' => 'El precio es obligatorio',
@@ -48,15 +54,37 @@ class CreateProductRequest extends FormRequest
             'stock.required' => 'La cantidad en stock es obligatoria',
             'stock.integer' => 'El stock debe ser un número entero',
             'stock.min' => 'El stock no puede ser negativo',
-            'entrepreneur_id.required' => 'El ID del emprendedor es obligatorio',
-            'entrepreneur_id.exists' => 'El emprendedor seleccionado no existe',
+            'entrepreneur_id.prohibited' => 'El ID del emprendedor se asigna automáticamente y no debe enviarse',
+            'main_image.image' => 'El archivo principal debe ser una imagen',
+            'main_image.max' => 'La imagen principal no debe superar los 2MB',
             'status.in' => 'El estado debe ser: active, inactive o pending',
             'discount_percentage.numeric' => 'El descuento debe ser un número válido',
             'discount_percentage.min' => 'El descuento no puede ser negativo',
             'discount_percentage.max' => 'El descuento no puede exceder 100%',
             'gallery_images.array' => 'Las imágenes de galería deben ser un array',
-            'gallery_images.max' => 'No se pueden subir más de 10 imágenes'
+            'gallery_images.max' => 'No se pueden subir más de 10 imágenes',
+            'gallery_images.*.image' => 'Cada elemento de la galería debe ser una imagen',
+            'gallery_images.*.max' => 'Cada imagen de la galería no debe superar los 2MB'
         ];
+    }
+
+    /**
+     * Normaliza entradas antes de validar (mapear 'categoria' -> 'category').
+     */
+    protected function prepareForValidation(): void
+    {
+        $category = $this->input('category');
+        if ($category === null) {
+            $category = $this->input('categoria');
+        }
+        if (is_string($category)) {
+            $category = trim($category);
+        }
+        if ($category !== null && $category !== '') {
+            $this->merge([
+                'category' => $category,
+            ]);
+        }
     }
 
     /**

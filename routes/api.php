@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\ProductController;
+use App\Http\Controllers\Api\V1\EntrepreneurAuthController as ApiEntrepreneurAuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,10 +16,24 @@ use App\Http\Controllers\Api\V1\ProductController;
 // API V1 Routes
 Route::prefix('v1')->name('api.v1.')->group(function () {
 
+    // Health check
+    Route::get('/health', function() {
+        return response()->json([
+            'status' => 'ok',
+            'timestamp' => now()->toISOString(),
+        ]);
+    })->name('health');
+
     // Authentication Routes (Public)
     Route::controller(AuthController::class)->group(function () {
         Route::post('/register', 'register')->name('auth.register');
         Route::post('/login', 'login')->name('auth.login');
+    });
+
+    // Entrepreneur Authentication (Public)
+    Route::controller(ApiEntrepreneurAuthController::class)->group(function () {
+        Route::post('/entrepreneur/register', 'register')->name('auth.entrepreneur.register');
+        Route::post('/entrepreneur/login', 'login')->name('auth.entrepreneur.login');
     });
 
     // Public Product Routes (no authentication required)
@@ -38,6 +53,13 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             Route::get('/me', 'me')->name('auth.me');
             Route::post('/logout', 'logout')->name('auth.logout');
             Route::post('/logout-all', 'revokeAll')->name('auth.logout-all');
+        });
+
+        // Entrepreneur Protected
+        Route::controller(ApiEntrepreneurAuthController::class)->group(function () {
+            Route::get('/entrepreneur/me', 'me')->name('auth.entrepreneur.me');
+            Route::post('/entrepreneur/logout', 'logout')->name('auth.entrepreneur.logout');
+            Route::post('/entrepreneur/logout-all', 'logoutAll')->name('auth.entrepreneur.logout-all');
         });
 
         // Products API Routes (Authenticated only)

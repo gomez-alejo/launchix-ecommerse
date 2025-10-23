@@ -11,10 +11,13 @@ class Product extends Model
 
     protected $fillable = [
         'name',
+        'category',
         'description',
         'price',
         'stock',
         'sales',
+        'main_image',      
+        'gallery_images',
         'entrepreneur_id',
         'user_id'
     ];
@@ -22,7 +25,8 @@ class Product extends Model
     protected $casts = [
         'price' => 'decimal:2',
         'stock' => 'integer',
-        'sales' => 'integer'
+        'sales' => 'integer',
+        'gallery_images' => 'array'
     ];
 
     // ====================================
@@ -43,6 +47,31 @@ class Product extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Un producto puede pertenecer a muchas categorías (many-to-many)
+     */
+    public function categories()
+    {
+        // Tabla pivote: product_categories, FKs por convención: product_id, category_id
+        return $this->belongsToMany(Category::class, 'product_categories');
+    }
+
+    /**
+     * Un producto puede tener muchas imágenes
+     */
+    public function images()
+    {
+        return $this->hasMany(Product_image::class);
+    }
+
+    /**
+     * Un producto puede tener muchas reseñas
+     */
+    public function reviews()
+    {
+        return $this->hasMany(reviews::class);
     }
 
     // ====================================

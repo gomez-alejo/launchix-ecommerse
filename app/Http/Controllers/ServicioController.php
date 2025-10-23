@@ -3,38 +3,86 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Entrepreneur;
 use App\Models\Servicio;
 use Exception;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class ServicioController extends Controller
 {
+    /**
+     * Resuelve el ID del emprendedor dueño a partir del usuario autenticado
+     * (soporta tokens emitidos por Entrepreneur o por User con relación entrepreneur)
+     */
+    private function resolveOwnerId(Request $request): ?int
+    {
+        $user = $request->user();
+
+        Log::info('resolveOwnerId', [
+            'request_user_type' => $user ? get_class($user) : null,
+            'request_user_id' => $user->id ?? null,
+            'guard_web' => Auth::id(),
+            'guard_entrepreneur' => Auth::guard('entrepreneur')->id(),
+            'entrepreneur_id_param' => $request->input('entrepreneur_id'),
+        ]);
+        if (!$user) {
+            if ($token = $request->bearerToken()) {
+                $accessToken = PersonalAccessToken::findToken($token);
+                if ($accessToken && $accessToken->tokenable instanceof Entrepreneur) {
+                    return (int) $accessToken->tokenable_id;
+                }
+            }
+
+            return null;
+        }
+
+        if ($user instanceof Entrepreneur) {
+            return $user->id;
+        }
+
+        if (method_exists($user, 'entrepreneur')) {
+            $entrepreneur = $user->entrepreneur;
+            if ($entrepreneur) {
+                return $entrepreneur->id;
+            }
+        }
+
+        if (property_exists($user, 'entrepreneur_id') && $user->entrepreneur_id) {
+            return $user->entrepreneur_id;
+        }
+
+        return null;
+    }
     /**
      * Obtener solo los servicios del usuario autenticado (emprendedor)
      * Retorna JSON para AJAX o la vista para uso tradicional.
      */
     public function misServicios(Request $request)
     {
-        $user = auth('entrepreneur')->user();
-        if (!$user) {
+        $ownerId = $this->resolveOwnerId($request);
+        if (!$ownerId) {
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json(['success' => false, 'message' => 'No autenticado'], 401);
             } else {
                 return redirect()->route('login.entrepreneur');
             }
         }
-        $servicios = Servicio::where('user_id', $user->id)->latest()->get();
+
+        $servicios = Servicio::where('user_id', $ownerId)->latest()->get();
+        $entrepreneur = Entrepreneur::find($ownerId);
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'data' => $servicios
+                'data' => $servicios->map(fn(Servicio $servicio) => $this->formatService($servicio))
             ]);
         } else {
             return view('modals.login-items.entrepreneur.ServicesSection', [
                 'servicios' => $servicios,
-                'entrepreneur' => $user
+                'entrepreneur' => $entrepreneur
             ]);
         }
     }
@@ -42,42 +90,30 @@ class ServicioController extends Controller
     /**
      * Obtener todos los servicios
      */
-    public function index()
+    public function index(Request $request)
     {
-        if (request()->ajax() || request()->wantsJson()) {
-            $servicios = Servicio::with('entrepreneur')->latest()->get();
+        $ownerId = $this->resolveOwnerId($request);
 
-            // Formatear los datos para incluir información del emprendedor
-            $serviciosFormateados = $servicios->map(function ($servicio) {
-                return [
-                    'id' => $servicio->id,
-                    'nombre_servicio' => $servicio->nombre_servicio,
-                    'categoria' => $servicio->categoria,
-                    'descripcion' => $servicio->descripcion,
-                    'direccion' => $servicio->direccion,
-                    'telefono' => $servicio->telefono,
-                    'precio_base' => $servicio->precio_base,
-                    'horario_atencion' => $servicio->horario_atencion,
-                    'imagen_principal' => $servicio->imagen_principal,
-                    'galeria_imagenes' => $servicio->galeria_imagenes ?: [],
-                    'created_at' => $servicio->created_at,
-                    'entrepreneur' => $servicio->entrepreneur ? [
-                        'id' => $servicio->entrepreneur->id,
-                        'full_name' => $servicio->entrepreneur->full_name,
-                        'first_name' => $servicio->entrepreneur->first_name,
-                        'last_name' => $servicio->entrepreneur->last_name,
-                        'profile_photo_url' => $servicio->entrepreneur->profile_photo_url,
-                        'city' => $servicio->entrepreneur->city,
-                        'profile_description' => $servicio->entrepreneur->profile_description,
-                    ] : null
-                ];
-            });
+        if ($request->ajax() || $request->wantsJson()) {
+            if (!$ownerId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No autenticado'
+                ], 401);
+            }
+
+            $servicios = Servicio::with('entrepreneur')
+                ->where('user_id', $ownerId)
+                ->latest()
+                ->get()
+                ->map(fn(Servicio $servicio) => $this->formatService($servicio));
 
             return response()->json([
                 'success' => true,
-                'data' => $serviciosFormateados
+                'data' => $servicios
             ]);
         }
+
         return view('services');
     }
 
@@ -89,32 +125,9 @@ class ServicioController extends Controller
         try {
             $servicio = Servicio::with('entrepreneur')->findOrFail($id);
 
-            $servicioFormateado = [
-                'id' => $servicio->id,
-                'nombre_servicio' => $servicio->nombre_servicio,
-                'categoria' => $servicio->categoria,
-                'descripcion' => $servicio->descripcion,
-                'direccion' => $servicio->direccion,
-                'telefono' => $servicio->telefono,
-                'precio_base' => $servicio->precio_base,
-                'horario_atencion' => $servicio->horario_atencion,
-                'imagen_principal' => $servicio->imagen_principal,
-                'galeria_imagenes' => $servicio->galeria_imagenes ?: [],
-                'created_at' => $servicio->created_at,
-                'entrepreneur' => $servicio->entrepreneur ? [
-                    'id' => $servicio->entrepreneur->id,
-                    'full_name' => $servicio->entrepreneur->full_name,
-                    'first_name' => $servicio->entrepreneur->first_name,
-                    'last_name' => $servicio->entrepreneur->last_name,
-                    'profile_photo_url' => $servicio->entrepreneur->profile_photo_url,
-                    'city' => $servicio->entrepreneur->city,
-                    'profile_description' => $servicio->entrepreneur->profile_description,
-                ] : null
-            ];
-
             return response()->json([
                 'success' => true,
-                'data' => $servicioFormateado
+                'data' => $this->formatService($servicio)
             ]);
         } catch (Exception $e) {
             Log::error('Error al obtener detalles del servicio', ['id' => $id, 'error' => $e->getMessage()]);
@@ -128,32 +141,20 @@ class ServicioController extends Controller
     /**
      * Obtener un servicio específico (formato compatible para JS)
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
         try {
-            $servicio = Servicio::findOrFail($id);
-            if ($servicio->user_id !== auth('entrepreneur')->id()) {
+            $servicio = Servicio::with('entrepreneur')->findOrFail($id);
+            $ownerId = $this->resolveOwnerId($request);
+            if (!$ownerId || $servicio->user_id !== $ownerId) {
                 return response()->json([
                     'success' => false,
                     'message' => 'No autorizado'
                 ], 403);
             }
-            // Formato consistente para JS
-            $servicioFormateado = [
-                'id' => $servicio->id,
-                'nombre_servicio' => $servicio->nombre_servicio,
-                'categoria' => $servicio->categoria,
-                'descripcion' => $servicio->descripcion,
-                'direccion' => $servicio->direccion,
-                'telefono' => $servicio->telefono,
-                'precio_base' => $servicio->precio_base,
-                'horario_atencion' => $servicio->horario_atencion,
-                'imagen_principal' => $servicio->imagen_principal,
-                'galeria_imagenes' => $servicio->galeria_imagenes ?: [],
-            ];
             return response()->json([
                 'success' => true,
-                'data' => $servicioFormateado
+                'data' => $this->formatService($servicio)
             ]);
         } catch (Exception $e) {
             Log::error('Error al obtener servicio', ['id' => $id, 'error' => $e->getMessage()]);
@@ -191,6 +192,22 @@ class ServicioController extends Controller
                 ], 422);
             }
 
+            $ownerId = $this->resolveOwnerId($request);
+            if (!$ownerId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No autenticado'
+                ], 401);
+            }
+
+            if (!Entrepreneur::whereKey($ownerId)->exists()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El emprendedor especificado no existe',
+                    'errors' => ['entrepreneur_id' => ['El emprendedor especificado no existe']]
+                ], 422);
+            }
+
             // Procesar imágenes
             $imagenPrincipal = null;
             if ($request->hasFile('imagen_principal')) {
@@ -203,7 +220,6 @@ class ServicioController extends Controller
                 }
             }
 
-            $userId = auth('entrepreneur')->id();
             $servicio = Servicio::create([
                 'nombre_servicio' => $request->nombre_servicio,
                 'categoria' => $request->categoria,
@@ -214,12 +230,12 @@ class ServicioController extends Controller
                 'horario_atencion' => $request->horario_atencion,
                 'imagen_principal' => $imagenPrincipal,
                 'galeria_imagenes' => empty($galeriaImagenes) ? null : $galeriaImagenes,
-                'user_id' => $userId,
+                'user_id' => $ownerId,
             ]);
             return response()->json([
                 'success' => true,
                 'message' => 'Servicio guardado exitosamente',
-                'data' => $servicio
+                'data' => $this->formatService($servicio->fresh('entrepreneur'))
             ], 201);
         } catch (Exception $e) {
             Log::error('Error al crear servicio', ['error' => $e->getMessage()]);
@@ -237,8 +253,9 @@ class ServicioController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $servicio = Servicio::findOrFail($id);
-            if ($servicio->user_id !== auth('entrepreneur')->id()) {
+            $servicio = Servicio::with('entrepreneur')->findOrFail($id);
+            $ownerId = $this->resolveOwnerId($request);
+            if (!$ownerId || $servicio->user_id !== $ownerId) {
                 return response()->json([
                     'success' => false,
                     'message' => 'No autorizado'
@@ -299,24 +316,12 @@ class ServicioController extends Controller
             }
 
             $servicio->update($datosActualizar);
-
-            $servicioFormateado = [
-                'id' => $servicio->id,
-                'nombre_servicio' => $servicio->nombre_servicio,
-                'categoria' => $servicio->categoria,
-                'descripcion' => $servicio->descripcion,
-                'direccion' => $servicio->direccion,
-                'telefono' => $servicio->telefono,
-                'precio_base' => $servicio->precio_base,
-                'horario_atencion' => $servicio->horario_atencion,
-                'imagen_principal' => $servicio->imagen_principal,
-                'galeria_imagenes' => $servicio->galeria_imagenes ?: [],
-            ];
+            $servicio->refresh()->load('entrepreneur');
 
             return response()->json([
                 'success' => true,
                 'message' => 'Servicio actualizado exitosamente',
-                'data' => $servicioFormateado
+                'data' => $this->formatService($servicio)
             ]);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             Log::error('Servicio no encontrado', ['id' => $id]);
@@ -341,11 +346,12 @@ class ServicioController extends Controller
     /**
      * Eliminar un servicio
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         try {
             $servicio = Servicio::findOrFail($id);
-            if ($servicio->user_id !== auth('entrepreneur')->id()) {
+            $ownerId = $this->resolveOwnerId($request);
+            if (!$ownerId || $servicio->user_id !== $ownerId) {
                 return response()->json([
                     'success' => false,
                     'message' => 'No autorizado'
@@ -355,6 +361,7 @@ class ServicioController extends Controller
             if ($servicio->imagen_principal && Storage::disk('public')->exists($servicio->imagen_principal)) {
                 Storage::disk('public')->delete($servicio->imagen_principal);
             }
+
             if ($servicio->galeria_imagenes) {
                 foreach ($servicio->galeria_imagenes as $imagen) {
                     if (Storage::disk('public')->exists($imagen)) {
@@ -362,6 +369,7 @@ class ServicioController extends Controller
                     }
                 }
             }
+
             $servicio->delete();
 
             Log::info('Servicio eliminado', ['id' => $id]);
@@ -384,5 +392,39 @@ class ServicioController extends Controller
                 'errors' => ['general' => ['Error: ' . $e->getMessage()]]
             ], 500);
         }
+    }
+
+    /**
+     * Formatea la respuesta estándar de un servicio para la API
+     */
+    private function formatService(Servicio $servicio): array
+    {
+        $servicio->loadMissing('entrepreneur');
+
+        return [
+            'id' => $servicio->id,
+            'entrepreneur_id' => $servicio->user_id,
+            'nombre_servicio' => $servicio->nombre_servicio,
+            'categoria' => $servicio->categoria,
+            'descripcion' => $servicio->descripcion,
+            'direccion' => $servicio->direccion,
+            'telefono' => $servicio->telefono,
+            'precio_base' => $servicio->precio_base,
+            'horario_atencion' => $servicio->horario_atencion,
+            'imagen_principal' => $servicio->imagen_principal,
+            'galeria_imagenes' => $servicio->galeria_imagenes ?: [],
+            'status' => $servicio->status,
+            'created_at' => $servicio->created_at,
+            'updated_at' => $servicio->updated_at,
+            'entrepreneur' => $servicio->entrepreneur ? [
+                'id' => $servicio->entrepreneur->id,
+                'full_name' => $servicio->entrepreneur->full_name,
+                'first_name' => $servicio->entrepreneur->first_name,
+                'last_name' => $servicio->entrepreneur->last_name,
+                'profile_photo_url' => $servicio->entrepreneur->profile_photo_url,
+                'city' => $servicio->entrepreneur->city,
+                'profile_description' => $servicio->entrepreneur->profile_description,
+            ] : null,
+        ];
     }
 }

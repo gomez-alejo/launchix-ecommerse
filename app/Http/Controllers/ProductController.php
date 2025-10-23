@@ -20,7 +20,6 @@ class ProductController extends Controller
                               ->orderBy('created_at', 'desc')
                               ->get();
 
-            // Formatear los datos para el frontend
             $productsFormatted = $products->map(function ($product) {
                 return [
                     'id' => $product->id,
@@ -42,6 +41,7 @@ class ProductController extends Controller
                 'success' => true,
                 'data' => $productsFormatted
             ]);
+
         } catch (\Exception $e) {
             Log::error('Error al obtener productos', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return response()->json([
@@ -59,7 +59,6 @@ class ProductController extends Controller
     {
         try {
             $product = Product::findOrFail($id);
-
             $productFormatted = [
                 'id' => $product->id,
                 'name' => $product->name,
@@ -77,6 +76,7 @@ class ProductController extends Controller
                 'success' => true,
                 'data' => $productFormatted
             ]);
+
         } catch (\Exception $e) {
             Log::error('Error al obtener producto', ['id' => $id, 'error' => $e->getMessage()]);
             return response()->json([
@@ -92,13 +92,22 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        // Alias: si llega 'categoria', úsala como 'category'
+        if (!$request->has('category') && $request->has('categoria')) {
+            $request->merge(['category' => $request->input('categoria')]);
+        }
+
+        // Manejo de categoría como array
+        $cat = $request->input('category');
+        if (is_array($cat)) {
+            $cat = $cat['slug'] ?? $cat['name'] ?? reset($cat) ?? null;
+        }
+        $request->merge(['category' => $cat]);
+
         try {
-            // Log de datos recibidos para debugging
             Log::info('=== INICIO GUARDAR PRODUCTO ===');
             Log::info('Datos recibidos', ['data' => $request->all()]);
-            Log::info('Archivos recibidos', ['files' => array_keys($request->allFiles())]);
 
-            // Validación personalizada con mensajes específicos
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:255',
                 'category' => 'required|string|in:ropa,calzado,accesorios,hogar,electronica,deportes,belleza,juguetes,libros,otros',
@@ -137,7 +146,6 @@ class ProductController extends Controller
                 ], 422);
             }
 
-            // Verificar que el directorio de almacenamiento exista
             if (!Storage::disk('public')->exists('productos')) {
                 Storage::disk('public')->makeDirectory('productos');
                 Storage::disk('public')->makeDirectory('productos/principales');
@@ -183,56 +191,47 @@ class ProductController extends Controller
             }
 
             // Crear producto
-            try {
-                $productData = [
-                    'name' => $request->name,
-                    'category' => $request->category,
-                    'description' => $request->description,
-                    'price' => $request->price,
-                    'stock' => $request->stock,
-                    'main_image' => $mainImage,
-                    'gallery_images' => empty($galleryImages) ? null : $galleryImages,
-                    'entrepreneur_id' => Auth::guard('entrepreneur')->id(),
-                ];
+            $productData = [
+                'name' => $request->name,
+                'category' => $request->category,
+                'description' => $request->description,
+                'price' => $request->price,
+                'stock' => $request->stock,
+                'main_image' => $mainImage,
+                'gallery_images' => empty($galleryImages) ? null : $galleryImages,
+                'entrepreneur_id' => Auth::guard('entrepreneur')->id(),
+                'user_id' => Auth::id(),
+            ];
 
-                $product = Product::create($productData);
+            $product = new Product($productData);
+            $product->save();
 
-                Log::info('Producto creado exitosamente', ['id' => $product->id]);
-                Log::info('=== FIN GUARDAR PRODUCTO ===');
+            Log::info('Producto creado exitosamente', ['id' => $product->id]);
+            Log::info('=== FIN GUARDAR PRODUCTO ===');
 
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Producto guardado exitosamente',
-                    'data' => $product
-                ], 201);
+            return response()->json([
+                'success' => true,
+                'message' => 'Producto guardado exitosamente',
+                'data' => $product
+            ], 201);
 
-            } catch (\Exception $e) {
-                Log::error('Error al crear producto en base de datos', [
-                    'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
-                ]);
-
-                // Si hay error, eliminar las imágenes que se subieron
-                if ($mainImage && Storage::disk('public')->exists($mainImage)) {
-                    Storage::disk('public')->delete($mainImage);
-                }
-                foreach ($galleryImages as $image) {
-                    if (Storage::disk('public')->exists($image)) {
-                        Storage::disk('public')->delete($image);
-                    }
-                }
-
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Error al guardar en la base de datos',
-                    'errors' => ['database' => ['Error de base de datos: ' . $e->getMessage()]]
-                ], 500);
-            }
         } catch (\Exception $e) {
             Log::error('Error general al guardar producto', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
+
+            if (isset($mainImage) && $mainImage && Storage::disk('public')->exists($mainImage)) {
+                Storage::disk('public')->delete($mainImage);
+            }
+            if (!empty($galleryImages)) {
+                foreach ($galleryImages as $image) {
+                    if (Storage::disk('public')->exists($image)) {
+                        Storage::disk('public')->delete($image);
+                    }
+                }
+            }
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error interno del servidor',
@@ -246,16 +245,25 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // Alias: si llega 'categoria', úsala como 'category'
+        if (!$request->has('category') && $request->has('categoria')) {
+            $request->merge(['category' => $request->input('categoria')]);
+        }
+
+        // Manejo de categoría como array
+        $cat = $request->input('category');
+        if (is_array($cat)) {
+            $cat = $cat['slug'] ?? $cat['name'] ?? reset($cat) ?? null;
+        }
+        $request->merge(['category' => $cat]);
+
         try {
             Log::info('=== INICIO ACTUALIZAR PRODUCTO ===');
             Log::info('ID del producto', ['id' => $id]);
             Log::info('Datos recibidos', ['data' => $request->all()]);
-            Log::info('Archivos recibidos', ['files' => array_keys($request->allFiles())]);
 
-            // Buscar el producto
             $product = Product::findOrFail($id);
 
-            // Validación personalizada con mensajes específicos
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:255',
                 'category' => 'required|string|in:ropa,calzado,accesorios,hogar,electronica,deportes,belleza,juguetes,libros,otros',
@@ -294,7 +302,6 @@ class ProductController extends Controller
                 ], 422);
             }
 
-            // Preparar datos para actualizar
             $updateData = [
                 'name' => $request->name,
                 'category' => $request->category,
@@ -307,19 +314,12 @@ class ProductController extends Controller
             if ($request->hasFile('main_image')) {
                 try {
                     Log::info('Procesando nueva imagen principal');
-
-                    // Eliminar imagen principal anterior si existe
                     if ($product->main_image && Storage::disk('public')->exists($product->main_image)) {
                         Storage::disk('public')->delete($product->main_image);
-                        Log::info('Imagen principal anterior eliminada', ['path' => $product->main_image]);
                     }
-
-                    // Guardar nueva imagen principal
                     $file = $request->file('main_image');
                     $newMainImage = $file->store('productos/principales', 'public');
                     $updateData['main_image'] = $newMainImage;
-
-                    Log::info('Nueva imagen principal guardada', ['path' => $newMainImage]);
                 } catch (\Exception $e) {
                     Log::error('Error al procesar nueva imagen principal', ['error' => $e->getMessage()]);
                     return response()->json([
@@ -334,26 +334,19 @@ class ProductController extends Controller
             if ($request->hasFile('gallery_images')) {
                 try {
                     Log::info('Procesando nueva galería de imágenes');
-
-                    // Eliminar galería anterior si existe
                     if ($product->gallery_images) {
                         foreach ($product->gallery_images as $image) {
                             if (Storage::disk('public')->exists($image)) {
                                 Storage::disk('public')->delete($image);
                             }
                         }
-                        Log::info('Galería anterior eliminada');
                     }
-
-                    // Guardar nuevas imágenes de la galería
                     $newGallery = [];
                     foreach ($request->file('gallery_images') as $index => $image) {
                         $imagePath = $image->store('productos/galeria', 'public');
                         $newGallery[] = $imagePath;
                     }
                     $updateData['gallery_images'] = $newGallery;
-
-                    Log::info('Nueva galería guardada', ['count' => count($newGallery)]);
                 } catch (\Exception $e) {
                     Log::error('Error al procesar nueva galería', ['error' => $e->getMessage()]);
                     return response()->json([
@@ -364,44 +357,29 @@ class ProductController extends Controller
                 }
             }
 
-            // Actualizar el producto en la base de datos
-            try {
-                $product->update($updateData);
+            // Actualizar producto
+            $product->fill($updateData);
+            $product->save();
 
-                Log::info('Producto actualizado exitosamente', ['id' => $product->id]);
+            $productFormatted = [
+                'id' => $product->id,
+                'name' => $product->name,
+                'category' => $product->category,
+                'description' => $product->description,
+                'price' => $product->price,
+                'stock' => $product->stock,
+                'main_image' => $product->main_image ? asset('storage/' . $product->main_image) : null,
+                'gallery_images' => $product->gallery_images ? array_map(function($image) {
+                    return asset('storage/' . $image);
+                }, $product->gallery_images) : []
+            ];
 
-                // Formatear respuesta
-                $productFormatted = [
-                    'id' => $product->id,
-                    'name' => $product->name,
-                    'category' => $product->category,
-                    'description' => $product->description,
-                    'price' => $product->price,
-                    'stock' => $product->stock,
-                    'main_image' => $product->main_image ? asset('storage/' . $product->main_image) : null,
-                    'gallery_images' => $product->gallery_images ? array_map(function($image) {
-                        return asset('storage/' . $image);
-                    }, $product->gallery_images) : []
-                ];
+            return response()->json([
+                'success' => true,
+                'message' => 'Producto actualizado exitosamente',
+                'data' => $productFormatted
+            ]);
 
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Producto actualizado exitosamente',
-                    'data' => $productFormatted
-                ]);
-
-            } catch (\Exception $e) {
-                Log::error('Error al actualizar producto en base de datos', [
-                    'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
-                ]);
-
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Error al actualizar en la base de datos',
-                    'errors' => ['database' => ['Error de base de datos: ' . $e->getMessage()]]
-                ], 500);
-            }
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             Log::error('Producto no encontrado', ['id' => $id]);
             return response()->json([
@@ -429,12 +407,9 @@ class ProductController extends Controller
     {
         try {
             $product = Product::findOrFail($id);
-
-            // Eliminar imágenes del almacenamiento
             if ($product->main_image && Storage::disk('public')->exists($product->main_image)) {
                 Storage::disk('public')->delete($product->main_image);
             }
-
             if ($product->gallery_images) {
                 foreach ($product->gallery_images as $image) {
                     if (Storage::disk('public')->exists($image)) {
@@ -442,17 +417,12 @@ class ProductController extends Controller
                     }
                 }
             }
-
-            // Eliminar el producto
             $product->delete();
-
             Log::info('Producto eliminado', ['id' => $id]);
-
             return response()->json([
                 'success' => true,
                 'message' => 'Producto eliminado exitosamente'
             ]);
-
         } catch (\Exception $e) {
             Log::error('Error al eliminar producto', ['id' => $id, 'error' => $e->getMessage()]);
             return response()->json([
@@ -463,27 +433,23 @@ class ProductController extends Controller
         }
     }
 
-
     /**
      * API específica para obtener productos (siempre devuelve JSON)
      */
     public function apiIndex(Request $request)
     {
         try {
-
-            Log::info('publicIndex called', [
-            'is_ajax' => $request->ajax(),
-            'expects_json' => $request->expectsJson(),
-            'accept_header' => $request->header('Accept'),
-            'x_requested_with' => $request->header('X-Requested-With')
+            Log::info('apiIndex called', [
+                'is_ajax' => $request->ajax(),
+                'expects_json' => $request->expectsJson(),
+                'accept_header' => $request->header('Accept'),
+                'x_requested_with' => $request->header('X-Requested-With')
             ]);
 
-            // Obtener productos
             $products = Product::with('entrepreneur')
-            ->orderBy('created_at', 'desc')
-            ->get();
+                ->orderBy('created_at', 'desc')
+                ->get();
 
-            // Transformar los productos para el frontend
             $transformedProducts = $products->map(function ($product) {
                 return $this->transformProductForPublic($product);
             });
@@ -498,7 +464,6 @@ class ProductController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Error en apiIndex: ' . $e->getMessage());
-
             return response()->json([
                 'success' => false,
                 'message' => 'Error al cargar los productos',
@@ -506,65 +471,6 @@ class ProductController extends Controller
             ], 500, [
                 'Content-Type' => 'application/json'
             ]);
-        }
-    }
-
-    public function publicIndex(Request $request)
-    {
-        try {
-            // Debug: Log de la petición
-            Log::info('publicIndex called', [
-                'is_ajax' => $request->ajax(),
-                'expects_json' => $request->expectsJson(),
-                'accept_header' => $request->header('Accept'),
-                'x_requested_with' => $request->header('X-Requested-With')
-            ]);
-
-            // Obtener productos con sus relaciones si las tienes
-            $products = Product::orderBy('created_at', 'desc')
-                ->get();
-
-            // Si no tienes el campo is_active, usa esta línea:
-            // $products = Product::orderBy('created_at', 'desc')->get();
-
-            // Transformar los productos para el frontend
-            $transformedProducts = $products->map(function ($product) {
-                return $this->transformProductForPublic($product);
-            });
-
-            // Si es una petición AJAX, devolver JSON
-            if ($request->ajax() || $request->expectsJson() || $request->header('Accept') === 'application/json') {
-                return response()->json([
-                    'success' => true,
-                    'data' => $transformedProducts,
-                    'total' => $products->count()
-                ], 200, [
-                    'Content-Type' => 'application/json'
-                ]);
-            }
-
-            // Si es una petición normal, devolver la vista Blade
-            return view('productos.index', [
-                'products' => $transformedProducts,
-                'productsJson' => $transformedProducts->toJson()
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Error en publicIndex: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            if ($request->ajax() || $request->expectsJson() || $request->header('Accept') === 'application/json') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Error al cargar los productos',
-                    'error' => config('app.debug') ? $e->getMessage() : 'Error interno'
-                ], 500, [
-                    'Content-Type' => 'application/json'
-                ]);
-            }
-
-            return back()->with('error', 'Error al cargar los productos');
         }
     }
 
@@ -603,10 +509,10 @@ class ProductController extends Controller
                 'name' => $product->entrepreneur->first_name . ' ' . $product->entrepreneur->last_name,
                 'first_name' => $product->entrepreneur->first_name,
                 'last_name' => $product->entrepreneur->last_name,
-                'business_name' => $product->entrepreneur->business_name ?? 
+                'business_name' => $product->entrepreneur->business_name ??
                                 ($product->entrepreneur->first_name . ' ' . $product->entrepreneur->last_name),
-                'avatar' => $product->entrepreneur->avatar ? 
-                    asset('storage/' . $product->entrepreneur->avatar) : 
+                'avatar' => $product->entrepreneur->avatar ?
+                    asset('storage/' . $product->entrepreneur->avatar) :
                     'https://ui-avatars.com/api/?name=' . urlencode($product->entrepreneur->first_name . ' ' . $product->entrepreneur->last_name) . '&background=F77786&color=fff'
             ] : null,
             'rating' => 4.0,
@@ -625,7 +531,6 @@ class ProductController extends Controller
         if (!$product->original_price || $product->original_price <= $product->price) {
             return 0;
         }
-
         return round((($product->original_price - $product->price) / $product->original_price) * 100);
     }
 
@@ -643,8 +548,7 @@ class ProductController extends Controller
     public function publicShow($id)
     {
         try {
-            $product = Product::with(['category', 'reviews', 'entrepreneur'])
-                // Sin filtro de is_active
+            $product = Product::with(['entrepreneur'])
                 ->findOrFail($id);
 
             $transformedProduct = $this->transformProductForPublic($product);
@@ -660,14 +564,12 @@ class ProductController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Error en show product: ' . $e->getMessage());
-
             if (request()->ajax() || request()->expectsJson()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Producto no encontrado'
                 ], 404);
             }
-
             return abort(404);
         }
     }
@@ -685,8 +587,7 @@ class ProductController extends Controller
             $sortBy = $request->get('sort_by', 'created_at');
             $sortOrder = $request->get('sort_order', 'desc');
 
-            $products = Product::with(['category', 'reviews'])
-                ->where('is_active', true)
+            $products = Product::with(['entrepreneur'])
                 ->when($query, function ($queryBuilder) use ($query) {
                     return $queryBuilder->where(function ($q) use ($query) {
                         $q->where('name', 'like', "%{$query}%")
@@ -695,9 +596,7 @@ class ProductController extends Controller
                     });
                 })
                 ->when($category, function ($queryBuilder) use ($category) {
-                    return $queryBuilder->whereHas('category', function ($q) use ($category) {
-                        $q->where('slug', $category);
-                    });
+                    return $queryBuilder->where('category', $category);
                 })
                 ->whereBetween('price', [$minPrice, $maxPrice])
                 ->orderBy($sortBy, $sortOrder)
@@ -715,7 +614,6 @@ class ProductController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Error en search: ' . $e->getMessage());
-
             return response()->json([
                 'success' => false,
                 'message' => 'Error en la búsqueda'
